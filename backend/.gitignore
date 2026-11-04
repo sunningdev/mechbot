@@ -1,0 +1,6 @@
+.env
+*.exe
+/backend
+*.db
+*.db-wal
+*.db-shm
