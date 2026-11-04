@@ -300,3 +300,21 @@ func TestAddressThresholdPerAddress(t *testing.T) {
 		t.Fatalf("unknown address should be ErrNotFound, got %v", err)
 	}
 }
+
+func TestUserByUsername(t *testing.T) {
+	st := openTest(t)
+	mustUser(t, st, 7, nil)
+	if err := st.UpdateProfile(7, "SunningDev", "Sun"); err != nil {
+		t.Fatal(err)
+	}
+	u, err := st.UserByUsername("@sunningdev")
+	if err != nil || u.TelegramID != 7 || u.FirstName != "Sun" {
+		t.Fatalf("lookup: %+v %v", u, err)
+	}
+	if _, err := st.UserByUsername("missing"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("missing: %v", err)
+	}
+	if _, err := st.UserByUsername("  @  "); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("blank: %v", err)
+	}
+}

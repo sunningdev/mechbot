@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +22,80 @@ import (
 )
 
 var mainnetRPCs = config.PayNet{EthRPC: "https://ethereum.publicnode.com", BscRPC: "https://bsc-rpc.publicnode.com", ArbRPC: "https://arb1.arbitrum.io/rpc"}
+
+type sentNote struct {
+	chat int64
+	text string
+}
+
+type noteBox struct {
+	mu    sync.Mutex
+	notes []sentNote
+}
+
+func (n *noteBox) Send(_ context.Context, chatID int64, text string) error {
+	n.mu.Lock()
+	n.notes = append(n.notes, sentNote{chatID, text})
+	n.mu.Unlock()
+	return nil
+}
+
+func TestCreditNotifiesOnlySalesAccount(t *testing.T) {
+	st, err := store.Open(filepath.Join(t.TempDir(), "pay.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = st.Close() })
+	for _, id := range []int64{7, 42} {
+		if _, err := st.EnsureUser(id, nil, 1.2); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := st.UpdateProfile(7, "sunningdev", "Sun"); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.UpdateProfile(42, "alice", "Alice"); err != nil {
+		t.Fatal(err)
+	}
+	box := &noteBox{}
+	svc := &Service{store: st, notifier: box}
+	chain := Chain{Key: "bsc", Name: "BNB Chain"}
+
+	svc.credit(context.Background(), chain, "0xlow", 0, 42, 1_000_000)
+	if len(box.notes) != 1 || box.notes[0].chat != 42 {
+		t.Fatalf("short payment should only tell the buyer, got %+v", box.notes)
+	}
+
+	box.notes = nil
+	svc.credit(context.Background(), chain, "0xbuy", 0, 42, 12_000_000)
+	if len(box.notes) != 2 || box.notes[0].chat != 42 || box.notes[1].chat != 7 {
+		t.Fatalf("chats: %+v", box.notes)
+	}
+	notice := box.notes[1].text
+	for _, part := range []string{"@alice", "Alice", "ID 42", "12 USDT", "BNB Chain", "季付", "未归集余额（不含主地址）"} {
+		if !strings.Contains(notice, part) {
+			t.Fatalf("notice %q missing %s", notice, part)
+		}
+	}
+
+	box.notes = nil
+	svc.credit(context.Background(), chain, "0xbuy", 0, 42, 12_000_000)
+	if len(box.notes) != 0 {
+		t.Fatalf("repeat payment notified again: %+v", box.notes)
+	}
+}
+
+func TestSubWalletsSkipMainAddress(t *testing.T) {
+	rows := []store.DepositAddress{
+		{Index: 0, EVM: "0xmain"},
+		{Index: 1, EVM: "0xa"},
+		{Index: 2, EVM: "0xb"},
+	}
+	got := subWallets(rows)
+	if len(got) != 2 || got[0].Index != 1 || got[1].Index != 2 {
+		t.Fatalf("got %+v", got)
+	}
+}
 
 func TestFormatAmount(t *testing.T) {
 	cases := map[int64]string{5_000_000: "5", 45_000_000: "45", 5_037_100: "5.0371", 100_000_000: "100", 1: "0.000001"}
