@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -32,6 +33,36 @@ type tronTransfer struct {
 	Token struct {
 		Address string `json:"address"`
 	} `json:"token_info"`
+}
+
+// usdtBalance reads the account's current USDT TRC20 balance in 6-decimal micro units.
+func (t *tronClient) usdtBalance(ctx context.Context, addr string) (int64, error) {
+	if t == nil || t.api == "" {
+		return 0, errors.New("tron api 未配置")
+	}
+	var resp struct {
+		Data []struct {
+			TRC20 []map[string]string `json:"trc20"`
+		} `json:"data"`
+	}
+	if err := t.do(ctx, http.MethodGet, "/v1/accounts/"+url.PathEscape(addr), nil, &resp); err != nil {
+		return 0, err
+	}
+	if len(resp.Data) == 0 {
+		return 0, nil
+	}
+	for _, token := range resp.Data[0].TRC20 {
+		raw, ok := token[t.usdt]
+		if !ok {
+			continue
+		}
+		n, ok := new(big.Int).SetString(raw, 10)
+		if !ok {
+			return 0, fmt.Errorf("TRON 余额格式不对")
+		}
+		return ToMicro(n, 6), nil
+	}
+	return 0, nil
 }
 
 // incoming lists confirmed USDT TRC20 transfers into addr, newest first.

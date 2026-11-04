@@ -262,10 +262,59 @@ func (s *Service) credit(ctx context.Context, chain Chain, txHash string, logInd
 	}
 	s.notify(ctx, owner, fmt.Sprintf("✅ MechBot Pro 已开通\n\n收到 %s USDT（%s），%s %d 天%s\nPro 到期: %s",
 		amount, chain.Name, plan.Name, plan.Days, bonus, result.ExpireAt.In(time.Local).Format("2006-01-02 15:04")))
+	s.notifySale(ctx, owner, amount, chain, plan)
 	if result.ReferrerID != 0 {
 		s.notify(ctx, result.ReferrerID, fmt.Sprintf("🎁 推荐奖励 +%d 天\n\n你推荐的用户首次购买了%s。\nPro 到期: %s",
 			result.ReferrerDays, plan.Name, result.ReferrerExpire.In(time.Local).Format("2006-01-02 15:04")))
 	}
+}
+
+// salesNotifyUsername is the only account told when someone buys Pro.
+const salesNotifyUsername = "sunningdev"
+
+func (s *Service) notifySale(ctx context.Context, owner int64, amount string, chain Chain, plan Plan) {
+	sales, err := s.store.UserByUsername(salesNotifyUsername)
+	if err != nil {
+		log.Printf("购买通知未发送：@%s 还没和机器人说过话，无法私聊", salesNotifyUsername)
+		return
+	}
+	buyer, err := s.store.GetUser(owner)
+	if err != nil {
+		buyer = store.User{TelegramID: owner}
+	}
+	s.notify(ctx, sales.TelegramID, salesNotice(buyer, amount, chain.Name, planTerm(plan), s.uncollectedSummary(ctx)))
+}
+
+func planTerm(p Plan) string {
+	switch p.Key {
+	case "month":
+		return "月付"
+	case "quarter":
+		return "季付"
+	case "year":
+		return "年付"
+	default:
+		return p.Name
+	}
+}
+
+func buyerLabel(u store.User) string {
+	name := strings.TrimSpace(u.FirstName)
+	user := strings.TrimSpace(u.Username)
+	switch {
+	case user != "" && name != "":
+		return fmt.Sprintf("@%s（%s，ID %d）", user, name, u.TelegramID)
+	case user != "":
+		return fmt.Sprintf("@%s（ID %d）", user, u.TelegramID)
+	case name != "":
+		return fmt.Sprintf("%s（ID %d）", name, u.TelegramID)
+	default:
+		return fmt.Sprintf("ID %d", u.TelegramID)
+	}
+}
+
+func salesNotice(buyer store.User, amount, network, term, balances string) string {
+	return fmt.Sprintf("💰 有用户购买了 Pro\n\n用户：%s\n金额：%s USDT\n网络：%s\n套餐：%s\n\n%s", buyerLabel(buyer), amount, network, term, balances)
 }
 
 func (s *Service) notify(ctx context.Context, chatID int64, text string) {

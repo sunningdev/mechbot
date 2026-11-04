@@ -279,13 +279,26 @@ func (s *Store) UpdateProfile(telegramID int64, username, firstName string) erro
 }
 
 func (s *Store) GetUser(telegramID int64) (User, error) {
+	return s.userWhere(`u.telegram_id = ?`, telegramID)
+}
+
+// UserByUsername finds the account that has talked to the bot under this Telegram username, ignoring case and a leading @.
+func (s *Store) UserByUsername(username string) (User, error) {
+	username = strings.TrimPrefix(strings.TrimSpace(username), "@")
+	if username == "" {
+		return User{}, ErrNotFound
+	}
+	return s.userWhere(`u.username = ? COLLATE NOCASE`, username)
+}
+
+func (s *Store) userWhere(where string, arg any) (User, error) {
 	var u User
 	var premium int
 	var expire sql.NullString
 	err := s.db.QueryRow(`
 SELECT u.telegram_id, u.username, u.first_name, u.ref_by, u.expire_at, u.is_premium, u.trial, u.min_health_factor,
        (SELECT COUNT(*) FROM addresses a WHERE a.telegram_id = u.telegram_id)
-FROM users u WHERE u.telegram_id = ?`, telegramID).Scan(
+FROM users u WHERE `+where, arg).Scan(
 		&u.TelegramID, &u.Username, &u.FirstName, &u.RefBy, &expire, &premium, &u.Trial, &u.MinHealthFactor, &u.AddressCount,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
