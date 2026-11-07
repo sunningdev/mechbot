@@ -52,13 +52,23 @@ export default function Dashboard() {
     <>
       <PageHead
         title={<>{tr("你好，", "Hi, ")}{name}</>}
-        sub={highlight(
-          tr(
-            "每 5 分钟检查一次健康因子，低于该地址的预警线时通过 Telegram 私聊提醒你。",
-            "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.",
-          ),
-          tr("通过 Telegram 私聊提醒你", "DM you on Telegram"),
-        )}
+        sub={
+          <>
+            {highlight(
+              tr(
+                "每 5 分钟检查一次健康因子，低于该地址的预警线时通过 Telegram 私聊提醒你。",
+                "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.",
+              ),
+              tr("通过 Telegram 私聊提醒你", "DM you on Telegram"),
+            )}
+            <span className="sub-note">
+              {tr(
+                "提醒频率：低于预警线每 1 小时提醒一次；健康因子低于 1.05（非常接近清算）每 15 分钟提醒一次；回到预警线以上会发一条恢复通知。",
+                "Reminder frequency: every hour while below the alert line, every 15 minutes once the health factor is under 1.05 (very close to liquidation), plus one all-clear message when it recovers.",
+              )}
+            </span>
+          </>
+        }
         stats={[
           {
             label: tr("监控地址", "Watched addresses"),

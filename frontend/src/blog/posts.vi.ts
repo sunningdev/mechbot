@@ -93,7 +93,7 @@ export const viPosts: Post[] = [
     slug: "no-spam",
     title: "Vì sao MechBot không spam: vòng đời của một cảnh báo",
     summary:
-      "Hàng trăm thông báo mỗi ngày cũng như không có. Chúng tôi chỉ gọi bạn khi vượt ngưỡng cảnh báo, và không lặp lại trong vòng một giờ cho cùng một vị thế.",
+      "Hàng trăm thông báo mỗi ngày cũng như không có. Chúng tôi chỉ gọi bạn khi vượt ngưỡng cảnh báo, và không lặp lại trong vòng một giờ cho cùng một vị thế, trừ khi vị thế sắp bị thanh lý.",
     date: "2026-10-24",
     tag: "Sản phẩm",
     readMin: 4,
@@ -114,10 +114,11 @@ export const viPosts: Post[] = [
           "Không có khoản vay, hoặc hệ số sức khỏe trên ngưỡng cảnh báo: không gửi gì.",
           "Xuống dưới ngưỡng: nhắn riêng ngay, kèm giao thức, chuỗi, hệ số sức khỏe, thế chấp và nợ.",
           "Vẫn dưới ngưỡng: không nhắc lại trong 1 giờ; sau 1 giờ nếu chưa hồi phục, nhắc thêm một lần.",
+          "Hệ số sức khỏe dưới 1.05, sát ngưỡng thanh lý: nhắc mỗi 15 phút cho đến khi bạn xử lý hoặc vị thế hồi phục.",
           "Trở lại trên ngưỡng: một tin “đã an toàn trở lại”, rồi im lặng như cũ.",
         ],
       },
-      { type: "code", text: "An toàn ──giảm──▶ Cảnh báo (nhắn riêng)\n  ▲                  │ im lặng 1 giờ\n  └──hồi phục── Đã an toàn trở lại (một tin)" },
+      { type: "code", text: "An toàn ──giảm──▶ Cảnh báo (nhắn riêng)\n  ▲                  │ nhắc mỗi giờ (dưới 1.05: mỗi 15 phút)\n  └──hồi phục── Đã an toàn trở lại (một tin)" },
       { type: "h", text: "Kết quả" },
       {
         type: "p",

@@ -93,7 +93,7 @@ export const ptPosts: Post[] = [
     slug: "no-spam",
     title: "Por que o MechBot não faz spam: a vida de um alerta",
     summary:
-      "Centenas de notificações por dia é o mesmo que nenhuma. Só avisamos quando você cruza seu limite de alerta, e nunca duas vezes em uma hora para a mesma posição.",
+      "Centenas de notificações por dia é o mesmo que nenhuma. Só avisamos quando você cruza seu limite de alerta, e nunca duas vezes em uma hora para a mesma posição, a menos que ela esteja prestes a ser liquidada.",
     date: "2026-10-24",
     tag: "Produto",
     readMin: 4,
@@ -114,10 +114,11 @@ export const ptPosts: Post[] = [
           "Sem dívida, ou fator de saúde acima do seu limite: nada é enviado.",
           "Cai abaixo do limite: mensagem imediata com protocolo, rede, fator de saúde, colateral e dívida.",
           "Continua abaixo: sem repetir por 1 hora; se depois de uma hora ainda não se recuperou, mais um lembrete.",
+          "Fator de saúde abaixo de 1.05, à beira da liquidação: lembretes a cada 15 minutos até você agir ou a posição se recuperar.",
           "Volta acima do limite: uma única mensagem de “seguro novamente”, e silêncio outra vez.",
         ],
       },
-      { type: "code", text: "Seguro ──cai──▶ Alerta (mensagem)\n  ▲             │ silêncio por 1 hora\n  └──recupera── Seguro novamente (uma mensagem)" },
+      { type: "code", text: "Seguro ──cai──▶ Alerta (mensagem)\n  ▲             │ lembrete a cada hora (15 min abaixo de 1.05)\n  └──recupera── Seguro novamente (uma mensagem)" },
       { type: "h", text: "O resultado" },
       {
         type: "p",

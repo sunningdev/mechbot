@@ -19,9 +19,13 @@ func TestDecide(t *testing.T) {
 	}{
 		{name: "safe and quiet", hasDebt: true, health: 2, want: ActionNone},
 		{name: "no debt", hasDebt: false, health: 0, want: ActionNone},
-		{name: "cross below", hasDebt: true, health: 1.05, want: ActionAlert},
-		{name: "still below inside cooldown", hasDebt: true, health: 1.05, inDanger: true, last: now.Add(-30 * time.Minute), want: ActionNone},
-		{name: "still below after cooldown", hasDebt: true, health: 1.05, inDanger: true, last: now.Add(-2 * time.Hour), want: ActionAlert},
+		{name: "cross below", hasDebt: true, health: 1.1, want: ActionAlert},
+		{name: "still below inside cooldown", hasDebt: true, health: 1.1, inDanger: true, last: now.Add(-30 * time.Minute), want: ActionNone},
+		{name: "still below after cooldown", hasDebt: true, health: 1.1, inDanger: true, last: now.Add(-2 * time.Hour), want: ActionAlert},
+		{name: "critical inside short cooldown", hasDebt: true, health: 1.04, inDanger: true, last: now.Add(-10 * time.Minute), want: ActionNone},
+		{name: "critical repeats after 15 minutes", hasDebt: true, health: 1.04, inDanger: true, last: now.Add(-16 * time.Minute), want: ActionAlert},
+		{name: "critical tolerates poll jitter", hasDebt: true, health: 1.04, inDanger: true, last: now.Add(-(15*time.Minute - 5*time.Second)), want: ActionAlert},
+		{name: "just above critical keeps hourly", hasDebt: true, health: 1.05, inDanger: true, last: now.Add(-16 * time.Minute), want: ActionNone},
 		{name: "recovered", hasDebt: true, health: 1.4, inDanger: true, last: now.Add(-10 * time.Minute), want: ActionSafe},
 		{name: "debt closed", hasDebt: false, inDanger: true, want: ActionSafe},
 	}

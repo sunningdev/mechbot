@@ -93,7 +93,7 @@ export const frPosts: Post[] = [
     slug: "no-spam",
     title: "Pourquoi MechBot ne spamme pas : la vie d'une alerte",
     summary:
-      "Des centaines de notifications par jour, c'est comme aucune. Nous ne vous prévenons que lorsque vous franchissez votre seuil, et jamais deux fois en une heure pour la même position.",
+      "Des centaines de notifications par jour, c'est comme aucune. Nous ne vous prévenons que lorsque vous franchissez votre seuil, et jamais deux fois en une heure pour la même position, sauf si elle est sur le point d'être liquidée.",
     date: "2026-10-24",
     tag: "Produit",
     readMin: 4,
@@ -114,10 +114,11 @@ export const frPosts: Post[] = [
           "Pas de dette, ou facteur de santé au-dessus de votre seuil : rien n'est envoyé.",
           "Passage sous le seuil : message immédiat avec protocole, chaîne, facteur de santé, collatéral et dette.",
           "Reste sous le seuil : pas de répétition pendant 1 heure ; si rien ne s'est arrangé après une heure, un rappel de plus.",
+          "Facteur de santé sous 1.05, au bord de la liquidation : un rappel toutes les 15 minutes jusqu'à ce que vous agissiez ou que la position se rétablisse.",
           "Retour au-dessus du seuil : un seul message « de nouveau en sécurité », puis le silence.",
         ],
       },
-      { type: "code", text: "Sûr ──baisse──▶ Alerte (message)\n  ▲             │ silence 1 heure\n  └──reprise── De nouveau en sécurité (un message)" },
+      { type: "code", text: "Sûr ──baisse──▶ Alerte (message)\n  ▲             │ rappel toutes les heures (15 min sous 1.05)\n  └──reprise── De nouveau en sécurité (un message)" },
       { type: "h", text: "Le résultat" },
       {
         type: "p",

@@ -93,7 +93,7 @@ export const esPosts: Post[] = [
     slug: "no-spam",
     title: "Por qué MechBot no hace spam: la vida de una alerta",
     summary:
-      "Cientos de notificaciones al día equivalen a ninguna. Solo te avisamos cuando cruzas tu umbral de alerta, y nunca dos veces en una hora por la misma posición.",
+      "Cientos de notificaciones al día equivalen a ninguna. Solo te avisamos cuando cruzas tu umbral de alerta, y nunca dos veces en una hora por la misma posición, salvo que esté a punto de ser liquidada.",
     date: "2026-10-24",
     tag: "Producto",
     readMin: 4,
@@ -114,10 +114,11 @@ export const esPosts: Post[] = [
           "Sin deuda, o factor de salud por encima de tu umbral: no se envía nada.",
           "Cae por debajo del umbral: mensaje inmediato con protocolo, cadena, factor de salud, colateral y deuda.",
           "Sigue por debajo: no se repite en 1 hora; si pasada una hora aún no se ha recuperado, un recordatorio más.",
+          "Factor de salud por debajo de 1.05, al borde de la liquidación: un recordatorio cada 15 minutos hasta que actúes o la posición se recupere.",
           "Vuelve por encima del umbral: un único mensaje de “de vuelta a salvo” y de nuevo silencio.",
         ],
       },
-      { type: "code", text: "Seguro ──cae──▶ Alerta (mensaje)\n  ▲              │ silencio 1 hora\n  └──se recupera── De vuelta a salvo (un mensaje)" },
+      { type: "code", text: "Seguro ──cae──▶ Alerta (mensaje)\n  ▲              │ recordatorio cada hora (15 min bajo 1.05)\n  └──se recupera── De vuelta a salvo (un mensaje)" },
       { type: "h", text: "El resultado" },
       {
         type: "p",

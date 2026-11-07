@@ -60,8 +60,8 @@ function ThresholdControl({ a, onSaved }: { a: WatchedAddress; onSaved: () => vo
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const hint = tr(
-    "默认 1.2，健康因子低于这个数就发预警，同一仓位 1 小时内只提醒一次。",
-    "1.2 by default. You're alerted when the health factor drops below it, at most once per position per hour.",
+    "默认 1.2，健康因子低于这个数就发预警，之后每 1 小时提醒一次；低于 1.05 时每 15 分钟提醒一次。",
+    "1.2 by default. You're alerted when the health factor drops below it, then reminded every hour, or every 15 minutes once it's under 1.05.",
   );
 
   function open() {

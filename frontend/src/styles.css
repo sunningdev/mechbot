@@ -2093,6 +2093,12 @@ p {
   font-size: 15px;
 }
 
+.console-head .sub-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
 .hl {
   padding: 0 2px;
   color: var(--text);
