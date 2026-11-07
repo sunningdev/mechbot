@@ -641,8 +641,8 @@ export default function Landing() {
               <a href="#blog">{tr("博客", "Blog")}</a>
             </nav>
             <nav className="footer-links">
-              <a href="#">{tr("服务条款", "Terms")}</a>
-              <a href="#">{tr("隐私政策", "Privacy")}</a>
+              <Link to="/terms">{tr("服务条款", "Terms")}</Link>
+              <Link to="/privacy">{tr("隐私政策", "Privacy")}</Link>
               <a className="footer-tg" href={botUrl} target="_blank" rel="noreferrer">
                 <svg
                   width="14"

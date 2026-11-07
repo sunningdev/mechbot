@@ -6,7 +6,7 @@ import LangToggle from "../components/LangToggle";
 import { tr, useLang } from "../i18n";
 import { setDescription } from "../seo";
 
-function BlogShell({ children }: { children: ReactNode }) {
+export function BlogShell({ children }: { children: ReactNode }) {
   return (
     <div className="page">
       <header className="topbar">
@@ -32,6 +32,8 @@ function BlogShell({ children }: { children: ReactNode }) {
             <nav className="footer-links">
               <Link to="/">{tr("首页", "Home")}</Link>
               <Link to="/blog">{tr("博客", "Blog")}</Link>
+              <Link to="/terms">{tr("服务条款", "Terms")}</Link>
+              <Link to="/privacy">{tr("隐私政策", "Privacy")}</Link>
             </nav>
           </div>
         </div>
@@ -84,7 +86,7 @@ export function BlogList() {
   );
 }
 
-function renderBlock(b: Block, i: number) {
+export function renderBlock(b: Block, i: number) {
   switch (b.type) {
     case "h":
       return <h2 key={i}>{b.text}</h2>;

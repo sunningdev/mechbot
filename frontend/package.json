@@ -6,7 +6,7 @@
   "scripts": {
     "i18n": "node scripts/gen-zh-tw.mjs && node scripts/check-i18n.mjs",
     "dev": "npm run i18n && vite",
-    "build": "npm run i18n && tsc --noEmit -p tsconfig.json && vite build",
+    "build": "npm run i18n && node scripts/gen-sitemap.mjs && tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

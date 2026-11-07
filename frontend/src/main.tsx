@@ -7,6 +7,7 @@ import { useLang } from "./i18n";
 import Landing from "./pages/Landing";
 import { BlogList, BlogPost } from "./pages/Blog";
 import ConsoleLayout from "./pages/ConsoleLayout";
+import Legal from "./pages/Legal";
 import Dashboard from "./pages/Dashboard";
 import LiqMap from "./pages/LiqMap";
 import Membership from "./pages/Membership";
@@ -29,6 +30,8 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/terms" element={<Legal kind="terms" />} />
+        <Route path="/privacy" element={<Legal kind="privacy" />} />
         <Route path="/app" element={<ConsoleLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="map" element={<LiqMap />} />
