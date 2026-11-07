@@ -56,11 +56,14 @@
   min-width: 0;
 }
 
-.liq-bar.aave,
 .liq-bar.all,
-.liq-swatch.aave,
 .liq-swatch.all {
   background: var(--ink);
+}
+
+.liq-bar.aave,
+.liq-swatch.aave {
+  background: #3b6fd8;
 }
 
 .liq-bar.morpho,

@@ -2093,6 +2093,13 @@ p {
   font-size: 15px;
 }
 
+.hl {
+  padding: 0 2px;
+  color: var(--text);
+  font-weight: 600;
+  background: linear-gradient(transparent 45%, #ffd84d 45%);
+}
+
 .console-stats {
   position: relative;
   display: grid;

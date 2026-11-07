@@ -320,6 +320,7 @@ const fr: Record<string, string> = {
   "Your plan allows up to {0} addresses": "Votre offre permet jusqu'à {0} adresses",
   "Just checked, try again in {0}s": "Vérification récente, réessayez dans {0} s",
   "Cancel": "Annuler",
+  "DM you on Telegram": "vous écrivons sur Telegram",
   "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.": "Nous vérifions les facteurs de santé toutes les 5 minutes et vous écrivons sur Telegram quand l'un passe sous le seuil d'alerte de cette adresse.",
   "1.2 by default. You're alerted when the health factor drops below it, at most once per position per hour.": "1.2 par défaut. Vous êtes alerté quand le facteur de santé passe en dessous, au plus une fois par position et par heure.",
   "Variable borrow APY of the main debt asset": "APY d'emprunt variable de l'actif de dette principal",

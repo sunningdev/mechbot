@@ -320,6 +320,7 @@ const ru: Record<string, string> = {
   "Your plan allows up to {0} addresses": "Ваш тариф позволяет до {0} адресов",
   "Just checked, try again in {0}s": "Только что проверили, повторите через {0} с",
   "Cancel": "Отмена",
+  "DM you on Telegram": "пишем вам в Telegram",
   "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.": "Мы проверяем факторы здоровья каждые 5 минут и пишем вам в Telegram, когда один из них опускается ниже линии оповещения этого адреса.",
   "1.2 by default. You're alerted when the health factor drops below it, at most once per position per hour.": "По умолчанию 1.2. Оповещение приходит, когда фактор здоровья опускается ниже, не чаще одного раза в час на позицию.",
   "Variable borrow APY of the main debt asset": "Плавающая ставка по основному долговому активу (APY)",

@@ -320,6 +320,7 @@ const vi: Record<string, string> = {
   "Your plan allows up to {0} addresses": "Gói của bạn cho phép tối đa {0} địa chỉ",
   "Just checked, try again in {0}s": "Vừa kiểm tra xong, thử lại sau {0} giây",
   "Cancel": "Hủy",
+  "DM you on Telegram": "nhắn bạn trên Telegram",
   "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.": "Chúng tôi kiểm tra hệ số sức khỏe mỗi 5 phút và nhắn bạn trên Telegram khi có vị thế giảm dưới ngưỡng cảnh báo của địa chỉ đó.",
   "1.2 by default. You're alerted when the health factor drops below it, at most once per position per hour.": "Mặc định 1.2. Bạn được cảnh báo khi hệ số sức khỏe giảm dưới mức này, mỗi vị thế tối đa một lần mỗi giờ.",
   "Variable borrow APY of the main debt asset": "APY vay thả nổi của tài sản nợ chính",

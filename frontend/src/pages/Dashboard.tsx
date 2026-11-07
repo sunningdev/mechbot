@@ -7,6 +7,19 @@ import { proDaysLeft, riskClass } from "../format";
 import { tr } from "../i18n";
 import { useConsole } from "./ConsoleLayout";
 
+// The phrase must appear verbatim inside the sentence's translation in every language.
+function highlight(text: string, phrase: string) {
+  const i = text.indexOf(phrase);
+  if (i < 0) return text;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark className="hl">{phrase}</mark>
+      {text.slice(i + phrase.length)}
+    </>
+  );
+}
+
 export default function Dashboard() {
   const { me, refresh } = useConsole();
   const [addresses, setAddresses] = useState<WatchedAddress[]>([]);
@@ -39,9 +52,12 @@ export default function Dashboard() {
     <>
       <PageHead
         title={<>{tr("你好，", "Hi, ")}{name}</>}
-        sub={tr(
-          "每 5 分钟检查一次健康因子，低于该地址的预警线时通过 Telegram 私聊提醒你。",
-          "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.",
+        sub={highlight(
+          tr(
+            "每 5 分钟检查一次健康因子，低于该地址的预警线时通过 Telegram 私聊提醒你。",
+            "We check health factors every 5 minutes and DM you on Telegram when one drops below that address's alert line.",
+          ),
+          tr("通过 Telegram 私聊提醒你", "DM you on Telegram"),
         )}
         stats={[
           {
