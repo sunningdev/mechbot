@@ -4,6 +4,7 @@ import { findPost, getPosts, type Block } from "../blog/posts";
 import Brand from "../components/Brand";
 import LangToggle from "../components/LangToggle";
 import { tr, useLang } from "../i18n";
+import { setDescription } from "../seo";
 
 function BlogShell({ children }: { children: ReactNode }) {
   return (
@@ -118,6 +119,11 @@ export function BlogPost() {
   useEffect(() => {
     document.title = title ? `${title} · MechBot` : tr("文章不存在 · MechBot", "Post not found · MechBot");
   }, [title]);
+
+  const summary = post?.summary;
+  useEffect(() => {
+    if (summary) setDescription(summary);
+  }, [summary]);
 
   if (!post) {
     return (

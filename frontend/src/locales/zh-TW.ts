@@ -36,6 +36,8 @@ const zhTW: Record<string, string> = {
   "HF = Σ(抵押价值 × 清算阈值) / 债务价值": "HF = Σ(抵押價值 × 清算閾值) / 債務價值",
   "HF 为 1.25 时，抵押物还能跌 20%；HF 为 1.07 时，只剩约 6.5%。一根大阴线就够了。": "HF 為 1.25 時，抵押物還能跌 20%；HF 為 1.07 時，只剩約 6.5%。一根大陰線就夠了。",
   "HF 大于 1 表示安全，等于 1 就到了清算线，低于 1 任何人都可以清算你的仓位，并拿走一部分抵押物作为奖励。": "HF 大於 1 表示安全，等於 1 就到了清算線，低於 1 任何人都可以清算你的倉位，並拿走一部分抵押物作為獎勵。",
+  "MechBot · DeFi 清算预警机器人｜Aave、Compound、Morpho 清算提醒": "MechBot · DeFi 清算預警機器人｜Aave、Compound、Morpho 清算提醒",
+  "MechBot 是 DeFi 借贷清算预警机器人：7×24 监控 Aave、Compound、Morpho 仓位的健康因子，快被清算时通过 Telegram 立刻提醒，并算出该还多少、补多少抵押。免费使用。": "MechBot 是 DeFi 借貸清算預警機器人：7×24 監控 Aave、Compound、Morpho 倉位的健康因子，快被清算時通過 Telegram 立刻提醒，並算出該還多少、補多少抵押。免費使用。",
   "MechBot 首页": "MechBot 首頁",
   "Morpho Blue 预警": "Morpho Blue 預警",
   "Morpho Blue：每个市场有一个 LLTV（清算贷款价值比），公式相同，只是只有一种抵押物。": "Morpho Blue：每個市場有一個 LLTV（清算貸款價值比），公式相同，只是只有一種抵押物。",
