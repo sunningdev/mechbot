@@ -23,8 +23,13 @@ const KEY = "mechbot_lang";
 const listeners = new Set<() => void>();
 const isLang = (v: unknown): v is Lang => languages.some((l) => l.code === v);
 
-// English unless the visitor picked another language before.
+// ?lang= wins so every language has its own crawlable URL; otherwise the last pick, then English.
 function initial(): Lang {
+  const fromUrl = new URLSearchParams(window.location.search).get("lang");
+  if (isLang(fromUrl)) {
+    localStorage.setItem(KEY, fromUrl);
+    return fromUrl;
+  }
   const saved = localStorage.getItem(KEY);
   return isLang(saved) ? saved : "en";
 }
@@ -99,6 +104,12 @@ export function setLang(lang: Lang) {
   if (lang === current) return;
   current = lang;
   localStorage.setItem(KEY, lang);
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("lang")) {
+    if (lang === "en") url.searchParams.delete("lang");
+    else url.searchParams.set("lang", lang);
+    window.history.replaceState(window.history.state, "", url);
+  }
   applyDocument(lang);
   listeners.forEach((fn) => fn());
 }

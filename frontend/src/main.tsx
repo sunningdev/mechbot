@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { captureRef } from "./api";
+import SeoHead from "./components/SeoHead";
 import { useLang } from "./i18n";
 import Landing from "./pages/Landing";
 import { BlogList, BlogPost } from "./pages/Blog";
@@ -22,7 +23,9 @@ captureRef();
 function App() {
   useLang();
   return (
-    <Routes>
+    <>
+      <SeoHead />
+      <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
@@ -34,6 +37,7 @@ function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </>
   );
 }
 
