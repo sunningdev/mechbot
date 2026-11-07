@@ -2,7 +2,7 @@
 
 DeFi 借贷清算预警。盯住有真实借款的仓位，健康因子跌破预警线就通过 Telegram 私聊提醒。网页控制台负责登录、管地址、看仓位和开通 Pro。
 
-Telegram：[@MechFiBot](https://t.me/MechFiBot)。口号：Stay calm, stay ahead.
+Telegram：[@MechFi_bot](https://t.me/MechFi_bot)。口号：Stay calm, stay ahead.
 
 ## 业务
 

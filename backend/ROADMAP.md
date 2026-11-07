@@ -1,7 +1,7 @@
 # MechBot 产品规划
 
 > **产品名**：MechBot
-> **Telegram**：@MechFiBot
+> **Telegram**：@MechFi_bot
 > **定位**：DeFi 借贷多协议清算预警机器人，Telegram + Discord 双平台
 > **Slogan**：Stay calm, stay ahead. 链上千变，你只需静观。
 > **核心差异**：不做通用钱包追踪（RayBot 的战场），专注"仓位有真实资金的 DeFi 借贷用户"的清算风险预警。
@@ -132,7 +132,7 @@ Addresses(address, telegram_id, protocol, min_health_factor)
 ### 网页控制台（React，风格参考 RayBot，主打简洁）
 
 - 首页：一句定位、三步说明、价格卡片
-- 登录：网页显示 4 位验证码 → 跳到 @MechFiBot 核对后点「确认登录」→ 网页自动进入控制台。无需注册，顺带保证机器人能私聊用户
+- 登录：网页显示 4 位验证码 → 跳到 @MechFi_bot 核对后点「确认登录」→ 网页自动进入控制台。无需注册，顺带保证机器人能私聊用户
 - 控制台：监控地址（各协议健康因子、风险颜色、更新时间）、添加/删除、预警线、Pro 充值、推荐链接
 
 ### 定价方案
@@ -238,7 +238,7 @@ Pro 到期后，超出 3 个的地址暂停预警，Compound / Morpho 只显示�
 ## 技术栈
 
 - **语言**：Go
-- **Bot**：Telegram Bot API（@MechFiBot）+ Discord Bot API
+- **Bot**：Telegram Bot API（@MechFi_bot）+ Discord Bot API
 - **数据库**：SQLite（后续换 MySQL 8，建表脚本已备好：`schema/mechbot.sql`）
 - **链上数据**：go-ethereum + Alchemy/Infura 免费 RPC
 - **支付**：Creem

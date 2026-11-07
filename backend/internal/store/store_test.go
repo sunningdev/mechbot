@@ -318,3 +318,23 @@ func TestUserByUsername(t *testing.T) {
 		t.Fatalf("blank: %v", err)
 	}
 }
+
+func TestUsernameMovesToNewAccount(t *testing.T) {
+	st := openTest(t)
+	mustUser(t, st, 7, nil)
+	mustUser(t, st, 8, nil)
+	if err := st.UpdateProfile(7, "sunningdev", "Old"); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.UpdateProfile(8, "SunningDev", "New"); err != nil {
+		t.Fatal(err)
+	}
+	u, err := st.UserByUsername("sunningdev")
+	if err != nil || u.TelegramID != 8 {
+		t.Fatalf("username should point to the new account: %+v %v", u, err)
+	}
+	old, err := st.GetUser(7)
+	if err != nil || old.Username != "" || old.FirstName != "Old" {
+		t.Fatalf("old account: %+v %v", old, err)
+	}
+}

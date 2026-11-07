@@ -1,6 +1,7 @@
 .env
 *.exe
 /backend
+/mechbot
 *.db
 *.db-wal
 *.db-shm

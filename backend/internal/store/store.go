@@ -273,9 +273,23 @@ func (s *Store) EnsureUser(telegramID int64, refBy *int64, threshold float64) (c
 	return true, nil
 }
 
+// UpdateProfile stores the latest Telegram username. A username belongs to one account at a time, so any other
+// account still recorded under it (e.g. an abandoned account whose name was taken over) loses it.
 func (s *Store) UpdateProfile(telegramID int64, username, firstName string) error {
-	_, err := s.db.Exec(`UPDATE users SET username = ?, first_name = ? WHERE telegram_id = ?`, username, firstName, telegramID)
-	return err
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if username != "" {
+		if _, err := tx.Exec(`UPDATE users SET username = '' WHERE username = ? COLLATE NOCASE AND telegram_id != ?`, username, telegramID); err != nil {
+			return err
+		}
+	}
+	if _, err := tx.Exec(`UPDATE users SET username = ?, first_name = ? WHERE telegram_id = ?`, username, firstName, telegramID); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func (s *Store) GetUser(telegramID int64) (User, error) {

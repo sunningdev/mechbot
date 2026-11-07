@@ -82,7 +82,7 @@ func DBPath(testnet bool) string {
 func Load() (Config, error) {
 	token := strings.TrimSpace(os.Getenv("TELEGRAM_BOT_TOKEN"))
 	if token == "" {
-		return Config{}, errString("TELEGRAM_BOT_TOKEN 为空，在 .env 里填 @MechFiBot 的 token")
+		return Config{}, errString("TELEGRAM_BOT_TOKEN 为空，在 .env 里填 @MechFi_bot 的 token")
 	}
 
 	interval := DefaultInterval

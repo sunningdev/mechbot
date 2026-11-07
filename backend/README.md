@@ -34,7 +34,7 @@ npm run build
 
 ## 登录
 
-网页点「用 Telegram 登录」，页面显示 4 位验证码，跳到 @MechFiBot 后核对验证码并点「确认登录」，网页自动进入控制台。登录本身就让机器人拿到了私聊权限，预警一定发得出去。
+网页点「用 Telegram 登录」，页面显示 4 位验证码，跳到 @MechFi_bot 后核对验证码并点「确认登录」，网页自动进入控制台。登录本身就让机器人拿到了私聊权限，预警一定发得出去。
 
 ## 充值
 
@@ -81,4 +81,4 @@ go run ./cmd/mechwallet sweep -chain tron -to T你的主钱包 -min 50 -db mechb
 /start  /add 0x...  /list  /remove 0x...  /status
 ```
 
-推荐链接：`https://t.me/MechFiBot?start=ref_<telegram_id>` 或 `SITE_URL/?ref=<telegram_id>`。
+推荐链接：`https://t.me/MechFi_bot?start=ref_<telegram_id>` 或 `SITE_URL/?ref=<telegram_id>`。
