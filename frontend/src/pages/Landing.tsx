@@ -218,8 +218,8 @@ function SectionHead({ index, label, title, sub }: { index: string; label: strin
 export default function Landing() {
   const [open, setOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [botUrl, setBotUrl] = useState("https://t.me/MechFiBot");
-  const [botName, setBotName] = useState("MechFiBot");
+  const [botUrl, setBotUrl] = useState("https://t.me/MechFi_bot");
+  const [botName, setBotName] = useState("MechFi_bot");
   const { hash } = useLocation();
 
   useEffect(() => {
@@ -231,7 +231,7 @@ export default function Landing() {
     api.config().then((c) => {
       const ref = storedRef();
       setBotUrl(ref ? `${c.botUrl}?start=ref_${ref}` : c.botUrl);
-      setBotName(c.botUrl.split("/").pop() || "MechFiBot");
+      setBotName(c.botUrl.split("/").pop() || "MechFi_bot");
     }, () => undefined);
   }, []);
 
@@ -666,7 +666,7 @@ export default function Landing() {
 
       <a
         className="support-fab"
-        href="https://t.me/+nQE2KFo_gak3NmI1"
+        href="https://t.me/+LWTqp4To2ilhY2M1"
         target="_blank"
         rel="noreferrer"
         aria-label={tr("客服 Telegram 群 MechBot", "Support Telegram group MechBot")}
