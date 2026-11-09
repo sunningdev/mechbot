@@ -11,7 +11,7 @@ import (
 
 func TestEndpointsAppendsBackupsWithoutDuplicates(t *testing.T) {
 	got := Endpoints(" https://my-node.example/ , https://ethereum.publicnode.com", "ethereum")
-	want := []string{"https://my-node.example", "https://ethereum.publicnode.com", "https://eth.drpc.org", "https://1rpc.io/eth"}
+	want := []string{"https://my-node.example", "https://ethereum.publicnode.com", "https://rpc.mevblocker.io", "https://rpc.flashbots.net", "https://eth.drpc.org"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v, want %v", got, want)
 	}

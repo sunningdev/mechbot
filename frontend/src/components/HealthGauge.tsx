@@ -3,13 +3,13 @@ import { tr } from "../i18n";
 
 const MIN = 1.0;
 const MAX = 2.0;
-const THRESHOLD = 1.5;
+const THRESHOLD = 1.2;
 const DEBT = 12000;
 const PERIOD_MS = 14000;
 const TICKS = Array.from({ length: 11 }, (_, i) => MIN + i * 0.1);
 
 function sample(t: number) {
-  return 1.45 + 0.3 * Math.cos((2 * Math.PI * t) / PERIOD_MS);
+  return 1.4 + 0.3 * Math.cos((2 * Math.PI * t) / PERIOD_MS);
 }
 
 const pct = (v: number) => `${((v - MIN) / (MAX - MIN)) * 100}%`;
@@ -56,7 +56,7 @@ export default function HealthGauge() {
           <i key={v} className={i % 5 === 0 ? "tick major" : "tick"} style={{ left: pct(v) }} />
         ))}
         <div className="scale-threshold" style={{ left: pct(THRESHOLD) }}>
-          <span>{tr("阈值 1.50", "THRESHOLD 1.50")}</span>
+          <span>{tr("阈值 1.20", "THRESHOLD 1.20")}</span>
         </div>
         <div className="scale-needle" style={{ left: pct(hf) }} />
       </div>

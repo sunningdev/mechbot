@@ -41,7 +41,7 @@ func TestCheckNowLive(t *testing.T) {
 		t.Skip("set MECHBOT_LIVE=1 to hit public RPCs")
 	}
 	ctx := context.Background()
-	reg := protocol.NewRegistry("", "", "")
+	reg := protocol.NewRegistry("", "", "", "")
 	defer reg.Close()
 
 	candidates := strings.Split(os.Getenv("MECHBOT_LIVE_BORROWERS"), ",")

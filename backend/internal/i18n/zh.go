@@ -91,7 +91,7 @@ var zh = Text{
 	AddedFailed: "已添加 %s。\n\n部分协议暂时查询失败，稍后用 /list 再看。",
 	AddedQuiet: `已添加 %s。
 
-这个地址目前没有借款：已检查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Optimism），不会被清算。
+这个地址目前没有借款：已检查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Base · Optimism），不会被清算。
 
 地址会继续监控，以后在这些协议借款，会自动开始预警，不用重新添加。`,
 	AddedStarter: "\n\nStarter 只对 Aave V3 发预警，Compound、Morpho 的借款需要 Pro。",
@@ -133,9 +133,9 @@ Pro 到期: %s
 	PlanMonth:   "Pro 月付",
 	PlanQuarter: "Pro 季付",
 	PlanYear:    "Pro 年付",
-	PayTooLow:   "⚠️ 收到 %s USDT（%s）\n\n低于最低套餐 %d USDT，未能开通 Pro。如有疑问请直接回复机器人。",
+	PayTooLow:   "⚠️ 收到 %s（%s）\n\n低于最低套餐 %d USD，未能开通 Pro。请补足到套餐金额后重新转账。",
 	PayBonus:    "\n🎁 好友推荐奖励 +%d 天",
-	PayDone:     "✅ MechBot Pro 已开通\n\n收到 %s USDT（%s），%s %d 天%s\nPro 到期: %s",
+	PayDone:     "✅ MechBot Pro 已开通\n\n收到 %s（%s），%s %d 天%s\nPro 到期: %s",
 	PayReferrer: "🎁 推荐奖励 +%d 天\n\n你推荐的用户首次购买了%s。\nPro 到期: %s",
 
 	Help: `MechBot 清算预警
@@ -148,7 +148,7 @@ Pro 到期: %s
 
 每个地址的预警线默认 1.2，可在网页控制台的地址卡片上修改。
 
-Starter（永久免费）预警 Aave V3（Ethereum、Arbitrum、Optimism）。Pro 额外预警 Compound V3 和 Morpho Blue。`,
+Starter（永久免费）预警 Aave V3（Ethereum、Arbitrum、Base、Optimism）。Pro 额外预警 Compound V3 和 Morpho Blue。`,
 	HelpConsole:       "\n\n网页控制台: %s",
 	TrialNote:         "\n\n🎁 新用户送 %d 天 Pro 体验：全部协议预警、提前预警、实时清算地图。到期不会自动扣费，没续费就回到免费的 Starter。",
 	UnknownCommand:    "没有这个命令。",

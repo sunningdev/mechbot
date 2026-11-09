@@ -15,7 +15,7 @@ func TestLiveAaveMarkets(t *testing.T) {
 	if os.Getenv("MECHBOT_LIVE") == "" {
 		t.Skip("set MECHBOT_LIVE=1 to hit public RPCs")
 	}
-	r := NewRegistry("", "", "")
+	r := NewRegistry("", "", "", "")
 	defer r.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
@@ -52,7 +52,7 @@ func TestLiveFetch(t *testing.T) {
 	if addr == "" {
 		t.Skip("set MECHBOT_LIVE_ADDRESS to read a real wallet")
 	}
-	r := NewRegistry("", "", "")
+	r := NewRegistry("", "", "", "")
 	defer r.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()

@@ -2952,6 +2952,41 @@ input:disabled {
   white-space: nowrap;
 }
 
+.pay-how {
+  margin: 0;
+}
+
+.name-hl {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.coin-hl {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #ffd84d;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.coin-chips {
+  display: flex;
+  gap: 4px;
+}
+
+.coin-chip {
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chain-select-list button.on .coin-chip {
+  border-color: currentColor;
+}
+
 .chain-select-list button.on .chain-tag {
   border-color: currentColor;
   color: inherit;

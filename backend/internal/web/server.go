@@ -543,6 +543,7 @@ type depositView struct {
 	Chain     string `json:"chain"`
 	TxHash    string `json:"txHash"`
 	Amount    string `json:"amount"`
+	Token     string `json:"token"`
 	Days      int    `json:"days"`
 	Status    string `json:"status"`
 	CreatedAt string `json:"createdAt"`
@@ -597,6 +598,7 @@ func (s *Server) depositViews(deposits []store.Deposit) []depositView {
 			Chain:     d.Chain,
 			TxHash:    d.TxHash,
 			Amount:    pay.FormatAmount(d.AmountMicro),
+			Token:     d.Token,
 			Days:      d.Days,
 			Status:    d.Status,
 			CreatedAt: d.CreatedAt.UTC().Format(time.RFC3339),

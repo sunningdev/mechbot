@@ -91,7 +91,7 @@ Back above your alert line.`,
 	AddedFailed: "Added %s.\n\nSome protocols couldn't be checked right now. Try /list again in a moment.",
 	AddedQuiet: `Added %s.
 
-This address has no loans right now: we checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Optimism), so it can't be liquidated.
+This address has no loans right now: we checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Base · Optimism), so it can't be liquidated.
 
 We'll keep watching it. If it borrows on these protocols later, alerts start automatically; no need to add it again.`,
 	AddedStarter: "\n\nStarter only alerts on Aave V3. Compound and Morpho loans need Pro.",
@@ -133,9 +133,9 @@ Referred by: %s`,
 	PlanMonth:   "Pro monthly",
 	PlanQuarter: "Pro quarterly",
 	PlanYear:    "Pro yearly",
-	PayTooLow:   "⚠️ Received %s USDT (%s)\n\nThat's below the cheapest plan (%d USDT), so Pro was not activated. Reply to the bot if you have questions.",
+	PayTooLow:   "⚠️ Received %s (%s)\n\nThat's below the cheapest plan (%d USD), so Pro was not activated. Please send a new transfer of at least the plan amount.",
 	PayBonus:    "\n🎁 Referral bonus +%d days",
-	PayDone:     "✅ MechBot Pro activated\n\nReceived %s USDT (%s): %s, %d days%s\nPro until: %s",
+	PayDone:     "✅ MechBot Pro activated\n\nReceived %s (%s): %s, %d days%s\nPro until: %s",
 	PayReferrer: "🎁 Referral reward +%d days\n\nSomeone you invited just bought %s for the first time.\nPro until: %s",
 
 	Help: `MechBot liquidation alerts
@@ -148,7 +148,7 @@ Referred by: %s`,
 
 Each address starts with an alert line of 1.2. Change it on the address card in the web console.
 
-Starter (free forever) alerts on Aave V3 (Ethereum, Arbitrum, Optimism). Pro adds Compound V3 and Morpho Blue.`,
+Starter (free forever) alerts on Aave V3 (Ethereum, Arbitrum, Base, Optimism). Pro adds Compound V3 and Morpho Blue.`,
 	HelpConsole:       "\n\nWeb console: %s",
 	TrialNote:         "\n\n🎁 New users get %d days of Pro: alerts on every protocol, early alerts and the live liquidation map. Nothing is charged when it ends; you simply return to the free Starter plan.",
 	UnknownCommand:    "Unknown command.",

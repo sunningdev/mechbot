@@ -89,6 +89,7 @@ export type Deposit = {
   chain: string;
   txHash: string;
   amount: string;
+  token?: string;
   days: number;
   status: "credited" | "unmatched";
   createdAt: string;

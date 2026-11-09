@@ -228,8 +228,8 @@ export default function AddressList({ me, addresses, onChange }: Props) {
                   <b>{tr("这个地址目前没有借款", "This address has no debt right now")}</b>
                   <p>
                     {tr(
-                      "已检查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Optimism），都没有借款，不会触发清算。",
-                      "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Optimism). No debt anywhere, so nothing can be liquidated.",
+                      "已检查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Base · Optimism），都没有借款，不会触发清算。",
+                      "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Base · Optimism). No debt anywhere, so nothing can be liquidated.",
                     )}
                   </p>
                   <p>

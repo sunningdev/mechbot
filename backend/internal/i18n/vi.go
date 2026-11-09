@@ -91,7 +91,7 @@ Khoản nợ: %s
 	AddedFailed: "Đã thêm %s.\n\nMột số giao thức tạm thời chưa phản hồi. Hãy thử lại /list sau ít phút.",
 	AddedQuiet: `Đã thêm %s.
 
-Địa chỉ này hiện không có khoản vay nào: chúng tôi đã kiểm tra Aave V3, Compound V3 và Morpho Blue (Ethereum · Arbitrum · Optimism), nên không thể bị thanh lý.
+Địa chỉ này hiện không có khoản vay nào: chúng tôi đã kiểm tra Aave V3, Compound V3 và Morpho Blue (Ethereum · Arbitrum · Base · Optimism), nên không thể bị thanh lý.
 
 Chúng tôi sẽ tiếp tục theo dõi. Nếu sau này địa chỉ vay trên các giao thức này, cảnh báo sẽ tự bật, không cần thêm lại.`,
 	AddedStarter: "\n\nGói Starter chỉ cảnh báo cho Aave V3. Khoản vay trên Compound và Morpho cần gói Pro.",
@@ -133,9 +133,9 @@ Người mời: %s`,
 	PlanMonth:   "Pro tháng",
 	PlanQuarter: "Pro quý",
 	PlanYear:    "Pro năm",
-	PayTooLow:   "⚠️ Đã nhận %s USDT (%s)\n\nSố tiền thấp hơn gói rẻ nhất (%d USDT) nên Pro chưa được kích hoạt. Nếu có thắc mắc, hãy nhắn cho bot.",
+	PayTooLow:   "⚠️ Đã nhận %s (%s)\n\nSố tiền thấp hơn gói rẻ nhất (%d USD) nên Pro chưa được kích hoạt. Vui lòng chuyển lại với số tiền ít nhất bằng giá gói.",
 	PayBonus:    "\n🎁 Thưởng mời bạn +%d ngày",
-	PayDone:     "✅ Đã kích hoạt MechBot Pro\n\nĐã nhận %s USDT (%s): %s, %d ngày%s\nPro đến: %s",
+	PayDone:     "✅ Đã kích hoạt MechBot Pro\n\nĐã nhận %s (%s): %s, %d ngày%s\nPro đến: %s",
 	PayReferrer: "🎁 Thưởng mời bạn +%d ngày\n\nNgười bạn đã mời vừa mua %s lần đầu.\nPro đến: %s",
 
 	Help: `MechBot: cảnh báo thanh lý
@@ -148,7 +148,7 @@ Người mời: %s`,
 
 Mỗi địa chỉ có ngưỡng mặc định 1.2. Bạn có thể đổi trong thẻ địa chỉ trên bảng điều khiển web.
 
-Starter (miễn phí vĩnh viễn) cảnh báo cho Aave V3 (Ethereum, Arbitrum, Optimism). Pro thêm Compound V3 và Morpho Blue.`,
+Starter (miễn phí vĩnh viễn) cảnh báo cho Aave V3 (Ethereum, Arbitrum, Base, Optimism). Pro thêm Compound V3 và Morpho Blue.`,
 	HelpConsole:       "\n\nBảng điều khiển web: %s",
 	TrialNote:         "\n\n🎁 Người dùng mới được %d ngày Pro: cảnh báo mọi giao thức, cảnh báo sớm và bản đồ thanh lý thời gian thực. Hết hạn không bị tính phí, bạn chỉ quay về gói Starter miễn phí.",
 	UnknownCommand:    "Không có lệnh này.",

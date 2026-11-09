@@ -17,7 +17,7 @@ const fr: Record<string, string> = {
   "Paused · over Starter limit": "En pause · au-delà de la limite Starter",
   Delete: "Supprimer",
   "This address has no debt right now": "Cette adresse n'a aucune dette pour le moment",
-  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Optimism). No debt anywhere, so nothing can be liquidated.": "Aave V3, Compound V3 et Morpho Blue vérifiés (Ethereum · Arbitrum · Optimism). Aucune dette nulle part, donc rien à liquider.",
+  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Base · Optimism). No debt anywhere, so nothing can be liquidated.": "Aave V3, Compound V3 et Morpho Blue vérifiés (Ethereum · Arbitrum · Base · Optimism). Aucune dette nulle part, donc rien à liquider.",
   "We keep watching it. Borrow on any of these protocols later and alerts start automatically, no need to add it again.": "Nous continuons à la surveiller. Si vous empruntez plus tard sur l'un de ces protocoles, les alertes démarrent automatiquement, sans la rajouter.",
   "Starter alerts on Aave V3 only. Compound and Morpho loans need Pro.": "Starter n'alerte que sur Aave V3. Les emprunts Compound et Morpho nécessitent Pro.",
   "Delete {0}? It will no longer be alerted.": "Supprimer {0} ? Elle ne recevra plus d'alertes.",
@@ -37,11 +37,13 @@ const fr: Record<string, string> = {
   "Save {0}%": "Économisez {0} %",
   "{0} deposit address QR code": "QR code de l'adresse de dépôt {0}",
   "{0} · your personal {1} deposit address": "{0} · votre adresse de dépôt {1} personnelle",
+  "Pay with {0} or {1}: pick a network where your wallet holds one and fees are low, then send to your address below.":
+    "Payez en {0} ou {1} : choisissez un réseau où votre wallet en détient et où les frais sont faibles, puis envoyez à votre adresse ci-dessous.",
   "Send only {0} on the {1} network. Wrong tokens or networks cannot be recovered.":
     "Envoyez uniquement des {0} sur le réseau {1}. Un mauvais token ou réseau est irrécupérable.",
   "{0} starts at quarterly, {1}. For monthly, use {2}.": "{0} commence au trimestriel, {1}. Pour le mensuel, utilisez {2}.",
-  "The plan matching the amount received activates automatically; any excess is not carried over. Below {0} USDT nothing activates.":
-    "L'offre correspondant au montant reçu s'active automatiquement ; l'excédent n'est pas reporté. En dessous de {0} USDT, rien n'est activé.",
+  "The plan matching the amount received activates automatically; any excess is not carried over. Below ${0} nothing activates.":
+    "L'offre correspondant au montant reçu s'active automatiquement ; l'excédent n'est pas reporté. En dessous de ${0}, rien n'est activé.",
   "Exchange withdrawals deduct fees, so make sure the full amount arrives. This address is permanent; renew by sending to it again.":
     "Les retraits depuis un exchange déduisent des frais : vérifiez que le montant complet arrive. Cette adresse est permanente ; renouvelez en y envoyant à nouveau.",
   "Checking…": "Vérification…",
@@ -88,7 +90,7 @@ const fr: Record<string, string> = {
   "Health factor gauge demo": "Démonstration de la jauge du facteur de santé",
   "ALERT SENT → TELEGRAM": "ALERTE ENVOYÉE → TELEGRAM",
   "SAFE · MONITORING": "SÛR · SURVEILLANCE",
-  "THRESHOLD 1.50": "SEUIL 1.50",
+  "THRESHOLD 1.20": "SEUIL 1.20",
   "Collateral (weighted)": "Collatéral (pondéré)",
   "To liquidation": "Avant liquidation",
   "ETH liq. price": "Prix de liquidation ETH",
@@ -96,7 +98,7 @@ const fr: Record<string, string> = {
   "Liquidation at": "Liquidation à",
   "Liquidated if collateral value falls to this": "Liquidé si la valeur du collatéral tombe à ce niveau",
   "Telegram alert": "Alerte Telegram",
-  "1.06 < threshold 1.50": "1.06 < seuil 1.50",
+  "1.06 < threshold 1.20": "1.06 < seuil 1.20",
   "Back to safe": "De nouveau en sécurité",
   "HF 1.62 · one safe notice": "HF 1.62 · un seul avis de retour",
   "Checks health factors every 5 min": "Vérifie le facteur de santé toutes les 5 min",
@@ -209,8 +211,8 @@ const fr: Record<string, string> = {
   "Before liquidation,": "Avant la liquidation,",
   "we wake you up.": "on vous réveille.",
   "One address, every chain": "Une adresse, toutes les chaînes",
-  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
-    "Collez une adresse : nous trouvons ses emprunts Aave, Compound et Morpho sur Ethereum, Arbitrum et Optimism.",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum, Base and Optimism.":
+    "Collez une adresse : nous trouvons ses emprunts Aave, Compound et Morpho sur Ethereum, Arbitrum, Base et Optimism.",
   "Your own alert line, smart reminders": "Votre seuil, des rappels flexibles",
   "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
     "Un seuil par adresse, vérifié aussitôt. Rappel toutes les heures en dessous, toutes les 15 min sous 1.05.",
@@ -252,8 +254,8 @@ const fr: Record<string, string> = {
   "Built for loops and multiple positions": "Pensé pour le looping et plusieurs positions",
   "20 watched addresses": "20 adresses surveillées",
   "Alerts for Aave V3, Compound V3 and Morpho Blue": "Alertes pour Aave V3, Compound V3 et Morpho Blue",
-  "Pay in USDT: BNB Chain / Arbitrum / Ethereum / TRON (quarterly and up)":
-    "Paiement en USDT : BNB Chain / Arbitrum / Ethereum / TRON (à partir du trimestriel)",
+  "Pay in USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON from quarterly":
+    "Paiement en USDT / USDC : BNB Chain / Arbitrum / Base / Optimism / Ethereum ; TRON à partir du trimestriel",
   "Invite a friend, both get Pro": "Invitez un ami, Pro pour vous deux",
   "On a friend's first purchase, you both get the same Pro days.":
     "Au premier achat de votre ami, vous recevez tous les deux les mêmes jours de Pro.",
@@ -370,8 +372,8 @@ const fr: Record<string, string> = {
   "We watch it for you.": "On surveille pour vous.",
   "wstETH and weETH loops, stablecoin loops, Morpho PT loops. With the health factor parked near 1.1, a few minutes decide whether you get liquidated.":
     "Boucles wstETH et weETH, boucles de stablecoins, boucles Morpho PT. Avec un facteur de santé autour de 1.1, quelques minutes décident de la liquidation.",
-  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3.":
-    "Marché principal, Lido et EtherFi d'Aave, tous les marchés Morpho Blue et Compound V3.",
+  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.":
+    "Marché principal, Lido et EtherFi d'Aave, tous les marchés Morpho Blue et Compound V3, sur Ethereum, Arbitrum, Base et Optimism.",
   "Watch my loop for free": "Surveiller ma boucle gratuitement",
   "Testnet mode": "Mode testnet",
   "Payments only accept testnet tokens. Do not send real USDT; it cannot be recovered.": "Seuls les jetons de testnet sont acceptés. N'envoyez pas de vrais USDT : ils seraient irrécupérables.",

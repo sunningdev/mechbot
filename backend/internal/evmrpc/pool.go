@@ -14,14 +14,17 @@ import (
 
 // Public fallbacks appended after whatever the operator configures, so one dead node never stops a chain.
 var Backups = map[string][]string{
-	"ethereum": {"https://ethereum.publicnode.com", "https://eth.drpc.org", "https://1rpc.io/eth"},
+	"ethereum": {"https://ethereum.publicnode.com", "https://rpc.mevblocker.io", "https://rpc.flashbots.net", "https://eth.drpc.org"},
 	"arbitrum": {"https://arb1.arbitrum.io/rpc", "https://arbitrum-one.publicnode.com", "https://arbitrum.drpc.org"},
 	"optimism": {"https://optimism.publicnode.com", "https://mainnet.optimism.io", "https://optimism.drpc.org"},
 	"bsc":      {"https://bsc-rpc.publicnode.com", "https://bsc-dataseed.bnbchain.org", "https://bsc-dataseed1.defibit.io"},
+	"base":     {"https://base-rpc.publicnode.com", "https://base.drpc.org", "https://mainnet.base.org"},
 
 	"sepolia":          {"https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org", "https://1rpc.io/sepolia"},
 	"arbitrum-sepolia": {"https://sepolia-rollup.arbitrum.io/rpc", "https://arbitrum-sepolia-rpc.publicnode.com"},
 	"bsc-testnet":      {"https://bsc-testnet-rpc.publicnode.com", "https://data-seed-prebsc-1-s1.bnbchain.org:8545"},
+	"base-sepolia":     {"https://sepolia.base.org", "https://base-sepolia-rpc.publicnode.com"},
+	"optimism-sepolia": {"https://sepolia.optimism.io", "https://optimism-sepolia-rpc.publicnode.com"},
 }
 
 // Endpoints splits a comma-separated list and appends the chain's backups, dropping duplicates.

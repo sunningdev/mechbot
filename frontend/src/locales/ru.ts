@@ -17,7 +17,7 @@ const ru: Record<string, string> = {
   "Paused · over Starter limit": "Приостановлено · сверх лимита Starter",
   Delete: "Удалить",
   "This address has no debt right now": "В этом адресе сейчас нет долга",
-  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Optimism). No debt anywhere, so nothing can be liquidated.": "Проверены Aave V3, Compound V3 и Morpho Blue (Ethereum · Arbitrum · Optimism). Долга нет нигде, ликвидировать нечего.",
+  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Base · Optimism). No debt anywhere, so nothing can be liquidated.": "Проверены Aave V3, Compound V3 и Morpho Blue (Ethereum · Arbitrum · Base · Optimism). Долга нет нигде, ликвидировать нечего.",
   "We keep watching it. Borrow on any of these protocols later and alerts start automatically, no need to add it again.": "Мы продолжаем следить. Если позже займёте в любом из этих протоколов, оповещения включатся сами, добавлять адрес заново не нужно.",
   "Starter alerts on Aave V3 only. Compound and Morpho loans need Pro.": "Starter оповещает только по Aave V3. Для займов в Compound и Morpho нужен Pro.",
   "Delete {0}? It will no longer be alerted.": "Удалить {0}? Оповещения по нему больше не будут приходить.",
@@ -37,11 +37,13 @@ const ru: Record<string, string> = {
   "Save {0}%": "Экономия {0}%",
   "{0} deposit address QR code": "QR-код адреса пополнения {0}",
   "{0} · your personal {1} deposit address": "{0} · ваш личный адрес пополнения {1}",
+  "Pay with {0} or {1}: pick a network where your wallet holds one and fees are low, then send to your address below.":
+    "Оплата в {0} или {1}: выберите сеть, где у вас есть одна из этих монет и низкие комиссии, и отправьте на ваш адрес ниже.",
   "Send only {0} on the {1} network. Wrong tokens or networks cannot be recovered.":
     "Отправляйте только {0} в сети {1}. Неверный токен или сеть восстановить нельзя.",
   "{0} starts at quarterly, {1}. For monthly, use {2}.": "{0}: минимум квартальный тариф, {1}. Для месячного используйте {2}.",
-  "The plan matching the amount received activates automatically; any excess is not carried over. Below {0} USDT nothing activates.":
-    "Тариф, соответствующий полученной сумме, активируется автоматически; излишек не переносится. Меньше {0} USDT — ничего не активируется.",
+  "The plan matching the amount received activates automatically; any excess is not carried over. Below ${0} nothing activates.":
+    "Тариф, соответствующий полученной сумме, активируется автоматически; излишек не переносится. Меньше ${0} — ничего не активируется.",
   "Exchange withdrawals deduct fees, so make sure the full amount arrives. This address is permanent; renew by sending to it again.":
     "Биржи удерживают комиссию за вывод, убедитесь, что поступит полная сумма. Адрес постоянный: для продления просто отправьте на него снова.",
   "Checking…": "Проверяем…",
@@ -88,7 +90,7 @@ const ru: Record<string, string> = {
   "Health factor gauge demo": "Демонстрация индикатора фактора здоровья",
   "ALERT SENT → TELEGRAM": "ОПОВЕЩЕНИЕ → TELEGRAM",
   "SAFE · MONITORING": "БЕЗОПАСНО · НАБЛЮДЕНИЕ",
-  "THRESHOLD 1.50": "ПОРОГ 1.50",
+  "THRESHOLD 1.20": "ПОРОГ 1.20",
   "Collateral (weighted)": "Залог (взвешенный)",
   "To liquidation": "До ликвидации",
   "ETH liq. price": "Цена ликвидации ETH",
@@ -96,7 +98,7 @@ const ru: Record<string, string> = {
   "Liquidation at": "Ликвидация при",
   "Liquidated if collateral value falls to this": "Ликвидация, если стоимость залога упадёт до этого уровня",
   "Telegram alert": "Оповещение в Telegram",
-  "1.06 < threshold 1.50": "1.06 < порог 1.50",
+  "1.06 < threshold 1.20": "1.06 < порог 1.20",
   "Back to safe": "Снова в безопасности",
   "HF 1.62 · one safe notice": "HF 1.62 · одно уведомление о безопасности",
   "Checks health factors every 5 min": "Проверяет фактор здоровья каждые 5 мин",
@@ -209,8 +211,8 @@ const ru: Record<string, string> = {
   "Before liquidation,": "До ликвидации",
   "we wake you up.": "мы вас разбудим.",
   "One address, every chain": "Один адрес — все сети",
-  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
-    "Вставьте один адрес — найдём его займы в Aave, Compound и Morpho на Ethereum, Arbitrum и Optimism.",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum, Base and Optimism.":
+    "Вставьте один адрес — найдём его займы в Aave, Compound и Morpho на Ethereum, Arbitrum, Base и Optimism.",
   "Your own alert line, smart reminders": "Свой порог, гибкие напоминания",
   "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
     "Свой порог для каждого адреса, проверка сразу. Напоминание каждый час ниже порога, каждые 15 мин ниже 1.05.",
@@ -252,8 +254,8 @@ const ru: Record<string, string> = {
   "Built for loops and multiple positions": "Для циклов и нескольких позиций",
   "20 watched addresses": "20 отслеживаемых адресов",
   "Alerts for Aave V3, Compound V3 and Morpho Blue": "Оповещения для Aave V3, Compound V3 и Morpho Blue",
-  "Pay in USDT: BNB Chain / Arbitrum / Ethereum / TRON (quarterly and up)":
-    "Оплата в USDT: BNB Chain / Arbitrum / Ethereum / TRON (от квартала)",
+  "Pay in USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON from quarterly":
+    "Оплата в USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON — от квартала",
   "Invite a friend, both get Pro": "Пригласите друга — Pro получат оба",
   "On a friend's first purchase, you both get the same Pro days.":
     "После первой покупки друга вы оба получите одинаковое число дней Pro.",
@@ -369,8 +371,8 @@ const ru: Record<string, string> = {
   "We watch it for you.": "Мы следим за ним за вас.",
   "wstETH and weETH loops, stablecoin loops, Morpho PT loops. With the health factor parked near 1.1, a few minutes decide whether you get liquidated.":
     "Циклы на wstETH и weETH, на стейблкоинах, на Morpho PT. Когда фактор здоровья держится около 1.1, всё решают минуты.",
-  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3.":
-    "Основной рынок Aave, рынки Lido и EtherFi, все рынки Morpho Blue и Compound V3.",
+  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.":
+    "Основной рынок Aave, рынки Lido и EtherFi, все рынки Morpho Blue и Compound V3 в сетях Ethereum, Arbitrum, Base и Optimism.",
   "Watch my loop for free": "Следить за моим циклом бесплатно",
   "Testnet mode": "Режим тестовой сети",
   "Payments only accept testnet tokens. Do not send real USDT; it cannot be recovered.": "Принимаются только токены тестовой сети. Не отправляйте настоящие USDT: вернуть их будет невозможно.",

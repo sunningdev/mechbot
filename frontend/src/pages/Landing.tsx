@@ -58,6 +58,12 @@ const trust = () => [
   { title: tr("最少数据", "Minimal data"), body: tr("不要邮箱和密码，不记录 IP。", "No email, no password, no IP logging.") },
 ];
 
+const namePattern = /(Ethereum|Arbitrum|Base|Optimism|Aave|Compound|Morpho)/;
+
+function highlightNames(text: string): ReactNode[] {
+  return text.split(namePattern).map((part, i) => (i % 2 ? <b key={i} className="name-hl">{part}</b> : part));
+}
+
 const heroPoints = () => [
   {
     title: tr("比预言机更早", "Ahead of the oracle"),
@@ -80,8 +86,8 @@ const heroPoints = () => [
   {
     title: tr("一个地址，多链监听", "One address, every chain"),
     body: tr(
-      "粘贴一个地址，自动找出 Ethereum、Arbitrum、Optimism 上的 Aave、Compound、Morpho 仓位。",
-      "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.",
+      "粘贴一个地址，自动找出 Ethereum、Arbitrum、Base、Optimism 上的 Aave、Compound、Morpho 仓位。",
+      "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum, Base and Optimism.",
     ),
   },
   {
@@ -332,7 +338,7 @@ export default function Landing() {
                   <span className="hero-no">{String(i + 1).padStart(2, "0")}</span>
                   <div>
                     <b>{p.title}</b>
-                    <p>{p.body}</p>
+                    <p>{highlightNames(p.body)}</p>
                     {"note" in p && <small className="hero-note">{p.note}</small>}
                   </div>
                 </li>
@@ -412,8 +418,8 @@ export default function Landing() {
             </ol>
             <p className="loop-cover">
               {tr(
-                "支持 Aave 主市场、Lido 市场、EtherFi 市场，Morpho Blue 全部市场，Compound V3。",
-                "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3.",
+                "支持 Aave 主市场、Lido 市场、EtherFi 市场，Morpho Blue 全部市场，Compound V3；覆盖 Ethereum、Arbitrum、Base、Optimism。",
+                "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.",
               )}
             </p>
             <div className="hero-actions">{start(loggedIn ? consoleLabel : tr("免费盯住我的循环仓位", "Watch my loop for free"))}</div>
@@ -558,8 +564,8 @@ export default function Landing() {
                 <li>{tr("Telegram 私聊通知", "Telegram DM alerts")}</li>
                 <li>
                   {tr(
-                    "USDT 开通：BNB Chain / Arbitrum / Ethereum / TRON（季付起）",
-                    "Pay in USDT: BNB Chain / Arbitrum / Ethereum / TRON (quarterly and up)",
+                    "USDT / USDC 开通：BNB Chain / Arbitrum / Base / Optimism / Ethereum；TRON 季付起",
+                    "Pay in USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON from quarterly",
                   )}
                 </li>
               </ul>

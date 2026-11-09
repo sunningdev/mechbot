@@ -91,7 +91,7 @@ De nuevo por encima de tu umbral.`,
 	AddedFailed: "Añadida %s.\n\nAlgunos protocolos no respondieron ahora mismo. Vuelve a probar con /list en un rato.",
 	AddedQuiet: `Añadida %s.
 
-Esta dirección no tiene préstamos ahora mismo: revisamos Aave V3, Compound V3 y Morpho Blue (Ethereum · Arbitrum · Optimism), así que no puede ser liquidada.
+Esta dirección no tiene préstamos ahora mismo: revisamos Aave V3, Compound V3 y Morpho Blue (Ethereum · Arbitrum · Base · Optimism), así que no puede ser liquidada.
 
 Seguiremos vigilándola. Si más adelante pide prestado en estos protocolos, las alertas empezarán solas; no hace falta volver a añadirla.`,
 	AddedStarter: "\n\nStarter solo avisa en Aave V3. Los préstamos en Compound y Morpho requieren Pro.",
@@ -133,9 +133,9 @@ Invitado por: %s`,
 	PlanMonth:   "Pro mensual",
 	PlanQuarter: "Pro trimestral",
 	PlanYear:    "Pro anual",
-	PayTooLow:   "⚠️ Recibidos %s USDT (%s)\n\nEs menos que el plan más barato (%d USDT), así que Pro no se activó. Si tienes dudas, responde al bot.",
+	PayTooLow:   "⚠️ Recibidos %s (%s)\n\nEs menos que el plan más barato (%d USD), así que Pro no se activó. Haz una nueva transferencia de al menos el importe del plan.",
 	PayBonus:    "\n🎁 Bonus por invitación +%d días",
-	PayDone:     "✅ MechBot Pro activado\n\nRecibidos %s USDT (%s): %s, %d días%s\nPro hasta: %s",
+	PayDone:     "✅ MechBot Pro activado\n\nRecibidos %s (%s): %s, %d días%s\nPro hasta: %s",
 	PayReferrer: "🎁 Recompensa por invitación +%d días\n\nAlguien a quien invitaste acaba de comprar %s por primera vez.\nPro hasta: %s",
 
 	Help: `MechBot: alertas de liquidación
@@ -148,7 +148,7 @@ Invitado por: %s`,
 
 Cada dirección empieza con un umbral de 1.2. Puedes cambiarlo en la tarjeta de la dirección en la consola web.
 
-Starter (gratis para siempre) avisa en Aave V3 (Ethereum, Arbitrum, Optimism). Pro añade Compound V3 y Morpho Blue.`,
+Starter (gratis para siempre) avisa en Aave V3 (Ethereum, Arbitrum, Base, Optimism). Pro añade Compound V3 y Morpho Blue.`,
 	HelpConsole:       "\n\nConsola web: %s",
 	TrialNote:         "\n\n🎁 Los nuevos usuarios reciben %d días de Pro: alertas en todos los protocolos, alertas anticipadas y el mapa de liquidaciones en tiempo real. Al terminar no se cobra nada; simplemente vuelves al plan gratuito Starter.",
 	UnknownCommand:    "Ese comando no existe.",

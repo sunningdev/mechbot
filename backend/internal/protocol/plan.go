@@ -63,6 +63,7 @@ func (p Position) HealthAfterETHDrop(drop float64) float64 {
 var appChains = map[int]struct{ morpho, compound string }{
 	1:     {"ethereum", "mainnet"},
 	42161: {"arbitrum", "arb"},
+	8453:  {"base", "basemainnet"},
 	10:    {"optimism", "op"},
 }
 

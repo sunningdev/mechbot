@@ -33,7 +33,7 @@ func subWallets(rows []store.DepositAddress) []store.DepositAddress {
 	return out
 }
 
-// uncollectedSummary totals USDT still sitting on derived deposit addresses, one line per chain.
+// uncollectedSummary totals stablecoins still sitting on derived deposit addresses, one line per chain.
 func (s *Service) uncollectedSummary(ctx context.Context) string {
 	if len(s.chains) == 0 {
 		return "未归集余额（不含主地址）：无收款链"
@@ -54,59 +54,65 @@ func (s *Service) uncollectedSummary(ctx context.Context) string {
 		wg.Add(1)
 		go func(i int, c Chain) {
 			defer wg.Done()
-			total, err := s.sumUSDT(ctx, c, subs)
+			totals, err := s.sumTokens(ctx, c, subs)
 			if err != nil {
 				log.Printf("未归集余额 %s: %v", c.Key, err)
 				lines[i] = c.Name + "：查询失败"
 				return
 			}
-			lines[i] = fmt.Sprintf("%s：%s USDT", c.Name, FormatAmount(total))
+			parts := make([]string, len(c.tokens))
+			for j, t := range c.tokens {
+				parts[j] = FormatAmount(totals[j]) + " " + t.Symbol
+			}
+			lines[i] = c.Name + "：" + strings.Join(parts, "，")
 		}(i, c)
 	}
 	wg.Wait()
 	return "未归集余额（不含主地址）：\n" + strings.Join(lines, "\n")
 }
 
-func (s *Service) sumUSDT(ctx context.Context, c Chain, rows []store.DepositAddress) (int64, error) {
+// sumTokens totals each of the chain's tokens across the deposit addresses, in the order of c.tokens.
+func (s *Service) sumTokens(ctx context.Context, c Chain, rows []store.DepositAddress) ([]int64, error) {
+	totals := make([]int64, len(c.tokens))
 	if c.Family == "tron" {
-		var total int64
 		for _, r := range rows {
 			if strings.TrimSpace(r.Tron) == "" {
 				continue
 			}
 			if ctx.Err() != nil {
-				return 0, ctx.Err()
+				return nil, ctx.Err()
 			}
 			n, err := s.tron.usdtBalance(ctx, r.Tron)
 			if err != nil {
-				return 0, err
+				return nil, err
 			}
-			total += n
+			totals[0] += n
 		}
-		return total, nil
+		return totals, nil
 	}
 	if s.rpc == nil {
-		return 0, fmt.Errorf("rpc 未配置")
+		return nil, fmt.Errorf("rpc 未配置")
 	}
-	var total int64
 	err := s.rpc.Do(ctx, c.rpc, func(client *ethclient.Client) error {
-		total = 0
+		clear(totals)
 		for _, r := range rows {
 			if strings.TrimSpace(r.EVM) == "" {
 				continue
 			}
-			if ctx.Err() != nil {
-				return ctx.Err()
+			for j, t := range c.tokens {
+				if ctx.Err() != nil {
+					return ctx.Err()
+				}
+				n, err := erc20Micro(ctx, client, t.Address, common.HexToAddress(r.EVM), t.Decimals)
+				if err != nil {
+					return err
+				}
+				totals[j] += n
 			}
-			n, err := erc20Micro(ctx, client, c.USDT(), common.HexToAddress(r.EVM), c.decimals)
-			if err != nil {
-				return err
-			}
-			total += n
 		}
 		return nil
 	})
-	return total, err
+	return totals, err
 }
 
 func erc20Micro(ctx context.Context, client *ethclient.Client, token, owner common.Address, decimals int) (int64, error) {

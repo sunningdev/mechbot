@@ -44,11 +44,14 @@ var Plans = []Plan{
 	{Key: "year", Name: "Pro 年付", Price: 36, Days: 365},
 }
 
-// MatchPlan picks the largest plan whose price the amount covers; ok is false below the cheapest plan.
+// planTolerance absorbs exchange withdrawal fees taken out of the amount sent. Never shown to users.
+const planTolerance = 300_000
+
+// MatchPlan picks the largest plan whose price the amount covers, less planTolerance; ok is false below the cheapest plan.
 func MatchPlan(amountMicro int64) (Plan, bool) {
 	var best Plan
 	for _, p := range Plans {
-		if amountMicro >= p.Price*usdtDecimals && p.Price > best.Price {
+		if amountMicro+planTolerance >= p.Price*usdtDecimals && p.Price > best.Price {
 			best = p
 		}
 	}
@@ -58,28 +61,54 @@ func MatchPlan(amountMicro int64) (Plan, bool) {
 type Chain struct {
 	Key    string `json:"key"`
 	Name   string `json:"name"`
-	Token  string `json:"token"`
+	Token  string `json:"token"`  // what to send, e.g. "USDT / USDC"
 	Family string `json:"family"` // "evm" or "tron": which deposit address to show
 	// MinPrice is the cheapest plan offered on this chain. Display only: smaller deposits are still credited by MatchPlan.
 	MinPrice int64 `json:"minPrice"`
 	// Explorer is the transaction URL prefix; the tx hash is appended.
 	Explorer string `json:"explorer"`
 
-	usdt     common.Address // EVM token contract, or the 20-byte body of the TRON contract
-	tronUSDT string         // base58 TRON contract
-	decimals int
+	tokens   []Token
+	tronUSDT string // base58 TRON contract
 	rpc      []string
 	minConf  uint64
 	lookback uint64 // blocks scanned on first start, about one hour
 }
 
-func (c Chain) USDT() common.Address { return c.usdt }
-func (c Chain) TronUSDT() string     { return c.tronUSDT }
-func (c Chain) Decimals() int        { return c.decimals }
-func (c Chain) RPCs() []string       { return c.rpc }
+// Token is a dollar stablecoin accepted on a chain; every one counts 1:1 toward a plan.
+type Token struct {
+	Symbol   string
+	Address  common.Address // EVM contract, or the 20-byte body of the TRON contract
+	Decimals int
+}
+
+func (c Chain) Tokens() []Token  { return c.tokens }
+func (c Chain) TronUSDT() string { return c.tronUSDT }
+func (c Chain) RPCs() []string   { return c.rpc }
+
+func (c Chain) token(addr common.Address) (Token, bool) {
+	for _, t := range c.tokens {
+		if t.Address == addr {
+			return t, true
+		}
+	}
+	return Token{}, false
+}
+
+func (c Chain) addresses() []common.Address {
+	out := make([]common.Address, len(c.tokens))
+	for i, t := range c.tokens {
+		out[i] = t.Address
+	}
+	return out
+}
+
+func tok(symbol, addr string, decimals int) Token {
+	return Token{Symbol: symbol, Address: common.HexToAddress(addr), Decimals: decimals}
+}
 
 type Options struct {
-	XpubEVM  string // m/44'/60'/0'/0, shared by Ethereum, BNB Chain and Arbitrum
+	XpubEVM  string // m/44'/60'/0'/0, one address shared by every EVM chain
 	XpubTron string // m/44'/195'/0'/0
 	Net      config.PayNet
 }
@@ -113,35 +142,60 @@ func (s *Service) SetReporter(r Reporter) { s.health = r }
 const (
 	TronUSDT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 	// Testnet stablecoins with public faucets: BNB Chain faucet, Circle faucet (both Sepolias), Nile faucet.
-	bscTestUSDT    = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
-	arbSepoliaUSDC = "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"
-	sepoliaUSDC    = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
-	TronNileUSDT   = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"
+	bscTestUSDT     = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+	arbSepoliaUSDC  = "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"
+	sepoliaUSDC     = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+	baseSepoliaUSDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+	opSepoliaUSDC   = "0x5fd84259d66Cd46123540766Be93DFE6D43130D7"
+	TronNileUSDT    = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"
 )
 
 // EVMChains takes comma-separated RPC lists; public backups for the chosen network are appended to each.
+// Base and Optimism make two-second blocks, so an hour of lookback is 1800 blocks.
 func EVMChains(net config.PayNet) []Chain {
+	minPrice := Plans[0].Price
 	if net.Testnet {
 		return []Chain{
-			{Key: "bsc", Name: "BNB Chain Testnet", Token: "Test USDT (BEP20)", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://testnet.bscscan.com/tx/", usdt: common.HexToAddress(bscTestUSDT), decimals: 18, rpc: evmrpc.Endpoints(net.BscRPC, "bsc-testnet"), minConf: 3, lookback: 1200},
-			{Key: "arbitrum", Name: "Arbitrum Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://sepolia.arbiscan.io/tx/", usdt: common.HexToAddress(arbSepoliaUSDC), decimals: 6, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum-sepolia"), minConf: 1, lookback: 14400},
-			{Key: "ethereum", Name: "Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://sepolia.etherscan.io/tx/", usdt: common.HexToAddress(sepoliaUSDC), decimals: 6, rpc: evmrpc.Endpoints(net.EthRPC, "sepolia"), minConf: 3, lookback: 300},
+			{Key: "bsc", Name: "BNB Chain Testnet", Token: "Test USDT (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://testnet.bscscan.com/tx/", tokens: []Token{tok("USDT", bscTestUSDT, 18)}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc-testnet"), minConf: 3, lookback: 1200},
+			{Key: "arbitrum", Name: "Arbitrum Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.arbiscan.io/tx/", tokens: []Token{tok("USDC", arbSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum-sepolia"), minConf: 1, lookback: 14400},
+			{Key: "base", Name: "Base Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.basescan.org/tx/", tokens: []Token{tok("USDC", baseSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.BaseRPC, "base-sepolia"), minConf: 3, lookback: 1800},
+			{Key: "optimism", Name: "OP Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia-optimism.etherscan.io/tx/", tokens: []Token{tok("USDC", opSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism-sepolia"), minConf: 3, lookback: 1800},
+			{Key: "ethereum", Name: "Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.etherscan.io/tx/", tokens: []Token{tok("USDC", sepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.EthRPC, "sepolia"), minConf: 3, lookback: 300},
 		}
 	}
 	return []Chain{
-		{Key: "bsc", Name: "BNB Chain", Token: "USDT (BEP20)", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://bscscan.com/tx/", usdt: common.HexToAddress("0x55d398326f99059fF775485246999027B3197955"), decimals: 18, rpc: evmrpc.Endpoints(net.BscRPC, "bsc"), minConf: 5, lookback: 4800},
-		{Key: "arbitrum", Name: "Arbitrum One", Token: "USDT0", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://arbiscan.io/tx/", usdt: common.HexToAddress("0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"), decimals: 6, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum"), minConf: 1, lookback: 14400},
-		{Key: "ethereum", Name: "Ethereum", Token: "USDT (ERC20)", Family: "evm", MinPrice: Plans[0].Price, Explorer: "https://etherscan.io/tx/", usdt: common.HexToAddress("0xdAC17F958D2ee523a2206206994597C13D831ec7"), decimals: 6, rpc: evmrpc.Endpoints(net.EthRPC, "ethereum"), minConf: 3, lookback: 300},
+		{Key: "bsc", Name: "BNB Chain", Token: "USDT / USDC (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://bscscan.com/tx/", tokens: []Token{
+			tok("USDT", "0x55d398326f99059fF775485246999027B3197955", 18),
+			tok("USDC", "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", 18),
+		}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc"), minConf: 5, lookback: 4800},
+		{Key: "arbitrum", Name: "Arbitrum One", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://arbiscan.io/tx/", tokens: []Token{
+			tok("USDT", "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", 6),
+			tok("USDC", "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", 6),
+		}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum"), minConf: 1, lookback: 14400},
+		{Key: "base", Name: "Base", Token: "USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://basescan.org/tx/", tokens: []Token{
+			tok("USDC", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", 6),
+		}, rpc: evmrpc.Endpoints(net.BaseRPC, "base"), minConf: 3, lookback: 1800},
+		// Optimism has two USDT contracts in wide use, the bridged one and USDT0; both are accepted.
+		{Key: "optimism", Name: "Optimism", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://optimistic.etherscan.io/tx/", tokens: []Token{
+			tok("USDT", "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", 6),
+			tok("USDT0", "0x01bFF41798a0BcF287b996046Ca68b395DbC1071", 6),
+			tok("USDC", "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", 6),
+		}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism"), minConf: 3, lookback: 1800},
+		{Key: "ethereum", Name: "Ethereum", Token: "USDT / USDC (ERC20)", Family: "evm", MinPrice: minPrice, Explorer: "https://etherscan.io/tx/", tokens: []Token{
+			tok("USDT", "0xdAC17F958D2ee523a2206206994597C13D831ec7", 6),
+			tok("USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6),
+		}, rpc: evmrpc.Endpoints(net.EthRPC, "ethereum"), minConf: 3, lookback: 300},
 	}
 }
 
 // TronChain starts at the quarterly plan: sweeping one TRON address burns about 2 USD of energy.
 func TronChain(testnet bool) Chain {
-	c := Chain{Key: "tron", Name: "TRON", Token: "USDT (TRC20)", Family: "tron", MinPrice: Plans[1].Price, Explorer: "https://tronscan.org/#/transaction/", tronUSDT: TronUSDT, decimals: 6}
+	c := Chain{Key: "tron", Name: "TRON", Token: "USDT (TRC20)", Family: "tron", MinPrice: Plans[1].Price, Explorer: "https://tronscan.org/#/transaction/", tronUSDT: TronUSDT}
 	if testnet {
 		c.Name, c.Token, c.Explorer, c.tronUSDT = "TRON Nile", "Test USDT (TRC20)", "https://nile.tronscan.org/#/transaction/", TronNileUSDT
 	}
-	c.usdt, _ = DecodeTronAddress(c.tronUSDT)
+	body, _ := DecodeTronAddress(c.tronUSDT)
+	c.tokens = []Token{{Symbol: "USDT", Address: body, Decimals: 6}}
 	return c
 }
 
@@ -233,10 +287,10 @@ func FormatAmount(micro int64) string {
 	return s
 }
 
-func (s *Service) credit(ctx context.Context, chain Chain, txHash string, logIndex int, owner int64, amountMicro int64) {
+func (s *Service) credit(ctx context.Context, chain Chain, token string, txHash string, logIndex int, owner int64, amountMicro int64) {
 	plan, ok := MatchPlan(amountMicro)
 	d := store.Deposit{
-		Chain: chain.Key, TxHash: txHash, LogIndex: logIndex, TelegramID: owner,
+		Chain: chain.Key, Token: token, TxHash: txHash, LogIndex: logIndex, TelegramID: owner,
 		AmountMicro: amountMicro, CreatedAt: time.Now(),
 	}
 	if ok {
@@ -250,8 +304,8 @@ func (s *Service) credit(ctx context.Context, chain Chain, txHash string, logInd
 	if !isNew {
 		return
 	}
-	amount := FormatAmount(amountMicro)
-	log.Printf("收到充值 user=%d %s %s USDT tx=%s days=%d", owner, chain.Key, amount, txHash, d.Days)
+	amount := FormatAmount(amountMicro) + " " + token
+	log.Printf("收到充值 user=%d %s %s tx=%s days=%d", owner, chain.Key, amount, txHash, d.Days)
 	t := s.text(owner)
 	if !ok {
 		s.notify(ctx, owner, fmt.Sprintf(t.PayTooLow, amount, chain.Name, Plans[0].Price))
@@ -334,7 +388,7 @@ func buyerLabel(u store.User) string {
 }
 
 func salesNotice(buyer store.User, amount, network, term, balances string) string {
-	return fmt.Sprintf("💰 有用户购买了 Pro\n\n用户：%s\n金额：%s USDT\n网络：%s\n套餐：%s\n\n%s", buyerLabel(buyer), amount, network, term, balances)
+	return fmt.Sprintf("💰 有用户购买了 Pro\n\n用户：%s\n金额：%s\n网络：%s\n套餐：%s\n\n%s", buyerLabel(buyer), amount, network, term, balances)
 }
 
 func (s *Service) notify(ctx context.Context, chatID int64, text string) {

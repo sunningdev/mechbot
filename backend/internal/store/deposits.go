@@ -138,6 +138,7 @@ const (
 
 type Deposit struct {
 	Chain       string
+	Token       string // symbol of the stablecoin received, e.g. USDT or USDC
 	TxHash      string
 	LogIndex    int
 	TelegramID  int64
@@ -173,8 +174,8 @@ func (s *Store) CreditDeposit(d Deposit, now time.Time) (result PaymentResult, i
 		return PaymentResult{}, false, err
 	}
 	res, err := tx.Exec(
-		`INSERT OR IGNORE INTO deposits (chain, tx_hash, log_index, telegram_id, amount_micro, days, status, created_unix) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-		d.Chain, strings.ToLower(d.TxHash), d.LogIndex, d.TelegramID, d.AmountMicro, d.Days, status, d.CreatedAt.Unix(),
+		`INSERT OR IGNORE INTO deposits (chain, token, tx_hash, log_index, telegram_id, amount_micro, days, status, created_unix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		d.Chain, tokenOrUSDT(d.Token), strings.ToLower(d.TxHash), d.LogIndex, d.TelegramID, d.AmountMicro, d.Days, status, d.CreatedAt.Unix(),
 	)
 	if err != nil {
 		return PaymentResult{}, false, err
@@ -231,6 +232,14 @@ func claimReferral(tx *sql.Tx, telegramID int64, planDays int, now time.Time) (r
 	return ref.Int64, bonus, nil
 }
 
+// tokenOrUSDT covers callers that predate multi-token deposits, when only USDT was accepted.
+func tokenOrUSDT(symbol string) string {
+	if symbol == "" {
+		return "USDT"
+	}
+	return symbol
+}
+
 func (s *Store) Deposits(telegramID int64, limit int) ([]Deposit, error) {
 	return s.depositRows(telegramID, limit, 0)
 }
@@ -247,7 +256,7 @@ func (s *Store) DepositPage(telegramID int64, limit, offset int) ([]Deposit, int
 
 func (s *Store) depositRows(telegramID int64, limit, offset int) ([]Deposit, error) {
 	rows, err := s.db.Query(
-		`SELECT chain, tx_hash, log_index, telegram_id, amount_micro, days, status, created_unix FROM deposits WHERE telegram_id = ?
+		`SELECT chain, token, tx_hash, log_index, telegram_id, amount_micro, days, status, created_unix FROM deposits WHERE telegram_id = ?
 ORDER BY created_unix DESC, tx_hash, log_index LIMIT ? OFFSET ?`,
 		telegramID, limit, offset,
 	)
@@ -259,7 +268,7 @@ ORDER BY created_unix DESC, tx_hash, log_index LIMIT ? OFFSET ?`,
 	for rows.Next() {
 		var d Deposit
 		var created int64
-		if err := rows.Scan(&d.Chain, &d.TxHash, &d.LogIndex, &d.TelegramID, &d.AmountMicro, &d.Days, &d.Status, &created); err != nil {
+		if err := rows.Scan(&d.Chain, &d.Token, &d.TxHash, &d.LogIndex, &d.TelegramID, &d.AmountMicro, &d.Days, &d.Status, &created); err != nil {
 			return nil, err
 		}
 		d.CreatedAt = time.Unix(created, 0)

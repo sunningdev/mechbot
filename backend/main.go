@@ -53,7 +53,7 @@ func main() {
 		log.Fatalf("连接 Telegram 失败，检查 TELEGRAM_BOT_TOKEN: %v", err)
 	}
 
-	chains := protocol.NewRegistry(cfg.EthRPCURL, cfg.ArbRPCURL, cfg.OpRPCURL)
+	chains := protocol.NewRegistry(cfg.EthRPCURL, cfg.ArbRPCURL, cfg.BaseRPCURL, cfg.OpRPCURL)
 	defer chains.Close()
 	payments, err := pay.New(st, client, pay.Options{
 		XpubEVM:  cfg.PayXpubEVM,

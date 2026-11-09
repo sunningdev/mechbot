@@ -5,7 +5,7 @@ export const terms: LegalSet = {
     title: "服务条款",
     summary:
       "简单说：我们只读取你提供的公开地址，用来发送预警；预警不保证送达，也不构成投资建议；付费按套餐开通，如果我们停止服务，会提前通知并按剩余天数退款。",
-    updated: "生效日期：2026 年 11 月 7 日",
+    updated: "生效日期：2026 年 11 月 9 日",
     body: [
       { type: "h", text: "1. 服务内容" },
       {
@@ -30,7 +30,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter 免费：最多 3 个地址，仅 Aave V3 预警。",
-          "Pro：月付 5 USDT（30 天）、季付 12 USDT（90 天）、年付 36 USDT（365 天）。支持 BNB Chain、Arbitrum、Ethereum、TRON 上的 USDT，TRON 仅支持季付及以上。",
+          "Pro：月付 5 USDT（30 天）、季付 12 USDT（90 天）、年付 36 USDT（365 天）。支持 BNB Chain、Arbitrum、Base、Optimism、Ethereum 上的 USDT / USDC，以及 TRON 上的 USDT；TRON 仅支持季付及以上。",
           "到账金额对应的套餐自动开通；超出部分不累计，低于最低套餐价格不开通。请按页面显示的网络和币种转账，转错可能无法找回。",
           "Pro 时长累加：续费和推荐奖励都在现有到期时间上叠加。",
           "新用户可获赠 7 天 Pro 体验，到期自动回到 Starter，不会扣费。",
@@ -84,7 +84,7 @@ export const terms: LegalSet = {
     title: "Terms of Service",
     summary:
       "In short: we only read the public addresses you give us and send alerts. Alerts are not guaranteed and are not investment advice. Paid plans activate by amount, and if we ever shut down, we give notice and refund the unused days.",
-    updated: "Effective: November 7, 2026",
+    updated: "Effective: November 9, 2026",
     body: [
       { type: "h", text: "1. The service" },
       {
@@ -109,7 +109,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter is free: up to 3 addresses, Aave V3 alerts only.",
-          "Pro: 5 USDT monthly (30 days), 12 USDT quarterly (90 days), 36 USDT yearly (365 days). Pay in USDT on BNB Chain, Arbitrum, Ethereum or TRON; TRON accepts quarterly and up.",
+          "Pro: 5 USDT monthly (30 days), 12 USDT quarterly (90 days), 36 USDT yearly (365 days). Pay in USDT or USDC on BNB Chain, Arbitrum, Base, Optimism or Ethereum, or in USDT on TRON; TRON accepts quarterly and up.",
           "The plan matching the amount received activates automatically. Any excess is not carried over, and amounts below the cheapest plan do not activate anything. Send only the token and network shown on the page; mistakes may not be recoverable.",
           "Pro time stacks: renewals and referral rewards are added to your current expiry date.",
           "New users get a free 7-day Pro trial. It falls back to Starter at the end, with no charge.",
@@ -163,7 +163,7 @@ export const terms: LegalSet = {
     title: "Условия использования",
     summary:
       "Коротко: мы только читаем публичные адреса, которые вы добавили, и отправляем оповещения. Доставка оповещений не гарантируется, и это не инвестиционный совет. Платные тарифы включаются по сумме оплаты, а если мы когда-нибудь закроемся, мы заранее предупредим и вернём деньги за неиспользованные дни.",
-    updated: "Действует с 7 ноября 2026 г.",
+    updated: "Действует с 9 ноября 2026 г.",
     body: [
       { type: "h", text: "1. Сервис" },
       {
@@ -188,7 +188,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter бесплатно: до 3 адресов, оповещения только по Aave V3.",
-          "Pro: 5 USDT в месяц (30 дней), 12 USDT в квартал (90 дней), 36 USDT в год (365 дней). Оплата в USDT в сетях BNB Chain, Arbitrum, Ethereum или TRON; в TRON — от квартального тарифа.",
+          "Pro: 5 USDT в месяц (30 дней), 12 USDT в квартал (90 дней), 36 USDT в год (365 дней). Оплата в USDT или USDC в сетях BNB Chain, Arbitrum, Base, Optimism или Ethereum, либо в USDT в TRON; в TRON — от квартального тарифа.",
           "Тариф, соответствующий полученной сумме, включается автоматически. Излишек не переносится, сумма ниже минимального тарифа ничего не включает. Отправляйте только указанный на странице токен в указанной сети: ошибку может быть невозможно исправить.",
           "Время Pro суммируется: продления и реферальные бонусы добавляются к текущей дате окончания.",
           "Новые пользователи получают 7 дней Pro бесплатно. После этого аккаунт переходит на Starter без списаний.",
@@ -242,7 +242,7 @@ export const terms: LegalSet = {
     title: "Términos del servicio",
     summary:
       "En resumen: solo leemos las direcciones públicas que nos das y enviamos alertas. Las alertas no están garantizadas y no son asesoramiento de inversión. Los planes de pago se activan según el importe y, si algún día cerramos, avisaremos con antelación y devolveremos los días no usados.",
-    updated: "Vigente desde el 7 de noviembre de 2026",
+    updated: "Vigente desde el 9 de noviembre de 2026",
     body: [
       { type: "h", text: "1. El servicio" },
       {
@@ -267,7 +267,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter es gratis: hasta 3 direcciones, solo alertas de Aave V3.",
-          "Pro: 5 USDT al mes (30 días), 12 USDT al trimestre (90 días), 36 USDT al año (365 días). Pago en USDT en BNB Chain, Arbitrum, Ethereum o TRON; en TRON, desde el plan trimestral.",
+          "Pro: 5 USDT al mes (30 días), 12 USDT al trimestre (90 días), 36 USDT al año (365 días). Pago en USDT o USDC en BNB Chain, Arbitrum, Base, Optimism o Ethereum, o en USDT en TRON; en TRON, desde el plan trimestral.",
           "El plan que corresponde al importe recibido se activa automáticamente. El exceso no se acumula y un importe inferior al plan más barato no activa nada. Envía solo el token y la red que indica la página: un error puede no tener solución.",
           "El tiempo Pro se acumula: las renovaciones y las recompensas por referidos se suman a tu fecha de vencimiento actual.",
           "Los usuarios nuevos reciben 7 días de Pro gratis. Al terminar vuelven a Starter, sin ningún cargo.",
@@ -321,7 +321,7 @@ export const terms: LegalSet = {
     title: "Conditions d'utilisation",
     summary:
       "En bref : nous lisons uniquement les adresses publiques que vous nous donnez et envoyons des alertes. Les alertes ne sont pas garanties et ne constituent pas un conseil en investissement. Les offres payantes s'activent selon le montant reçu et, si nous fermons un jour, nous prévenons à l'avance et remboursons les jours non utilisés.",
-    updated: "En vigueur depuis le 7 novembre 2026",
+    updated: "En vigueur depuis le 9 novembre 2026",
     body: [
       { type: "h", text: "1. Le service" },
       {
@@ -346,7 +346,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter est gratuit : jusqu'à 3 adresses, alertes Aave V3 uniquement.",
-          "Pro : 5 USDT par mois (30 jours), 12 USDT par trimestre (90 jours), 36 USDT par an (365 jours). Paiement en USDT sur BNB Chain, Arbitrum, Ethereum ou TRON ; sur TRON, à partir de l'offre trimestrielle.",
+          "Pro : 5 USDT par mois (30 jours), 12 USDT par trimestre (90 jours), 36 USDT par an (365 jours). Paiement en USDT ou USDC sur BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou en USDT sur TRON ; sur TRON, à partir de l'offre trimestrielle.",
           "L'offre correspondant au montant reçu s'active automatiquement. L'excédent n'est pas reporté et un montant inférieur à l'offre la moins chère n'active rien. N'envoyez que le jeton et le réseau indiqués sur la page : une erreur peut être irrécupérable.",
           "Le temps Pro se cumule : les renouvellements et les récompenses de parrainage s'ajoutent à votre date d'expiration actuelle.",
           "Les nouveaux utilisateurs reçoivent 7 jours de Pro gratuits. À la fin, le compte repasse en Starter, sans aucun prélèvement.",
@@ -400,7 +400,7 @@ export const terms: LegalSet = {
     title: "Termos de serviço",
     summary:
       "Resumindo: só lemos os endereços públicos que você nos passa e enviamos alertas. Os alertas não são garantidos e não são recomendação de investimento. Os planos pagos são ativados conforme o valor recebido e, se um dia encerrarmos, avisaremos com antecedência e devolveremos os dias não usados.",
-    updated: "Em vigor desde 7 de novembro de 2026",
+    updated: "Em vigor desde 9 de novembro de 2026",
     body: [
       { type: "h", text: "1. O serviço" },
       {
@@ -425,7 +425,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter é grátis: até 3 endereços, alertas apenas da Aave V3.",
-          "Pro: 5 USDT por mês (30 dias), 12 USDT por trimestre (90 dias), 36 USDT por ano (365 dias). Pagamento em USDT na BNB Chain, Arbitrum, Ethereum ou TRON; na TRON, a partir do plano trimestral.",
+          "Pro: 5 USDT por mês (30 dias), 12 USDT por trimestre (90 dias), 36 USDT por ano (365 dias). Pagamento em USDT ou USDC na BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou em USDT na TRON; na TRON, a partir do plano trimestral.",
           "O plano correspondente ao valor recebido é ativado automaticamente. O excedente não é acumulado e valores abaixo do plano mais barato não ativam nada. Envie apenas o token e a rede indicados na página: um erro pode não ter volta.",
           "O tempo Pro se acumula: renovações e recompensas de indicação são somadas à sua data de vencimento atual.",
           "Novos usuários ganham 7 dias de Pro grátis. Ao final, a conta volta para o Starter, sem nenhuma cobrança.",
@@ -479,7 +479,7 @@ export const terms: LegalSet = {
     title: "Điều khoản dịch vụ",
     summary:
       "Tóm tắt: chúng tôi chỉ đọc các địa chỉ công khai bạn cung cấp và gửi cảnh báo. Cảnh báo không được bảo đảm và không phải lời khuyên đầu tư. Gói trả phí được kích hoạt theo số tiền nhận được, và nếu một ngày chúng tôi ngừng dịch vụ, chúng tôi sẽ báo trước và hoàn tiền cho số ngày chưa dùng.",
-    updated: "Có hiệu lực từ ngày 7 tháng 11 năm 2026",
+    updated: "Có hiệu lực từ ngày 9 tháng 11 năm 2026",
     body: [
       { type: "h", text: "1. Dịch vụ" },
       {
@@ -504,7 +504,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter miễn phí: tối đa 3 địa chỉ, chỉ cảnh báo Aave V3.",
-          "Pro: 5 USDT mỗi tháng (30 ngày), 12 USDT mỗi quý (90 ngày), 36 USDT mỗi năm (365 ngày). Thanh toán bằng USDT trên BNB Chain, Arbitrum, Ethereum hoặc TRON; TRON chỉ nhận từ gói quý trở lên.",
+          "Pro: 5 USDT mỗi tháng (30 ngày), 12 USDT mỗi quý (90 ngày), 36 USDT mỗi năm (365 ngày). Thanh toán bằng USDT hoặc USDC trên BNB Chain, Arbitrum, Base, Optimism hoặc Ethereum, hoặc USDT trên TRON; TRON chỉ nhận từ gói quý trở lên.",
           "Gói tương ứng với số tiền nhận được sẽ tự động kích hoạt. Phần dư không được cộng dồn, số tiền thấp hơn gói rẻ nhất sẽ không kích hoạt gì. Chỉ gửi đúng token và mạng hiển thị trên trang: gửi nhầm có thể không lấy lại được.",
           "Thời gian Pro được cộng dồn: gia hạn và thưởng giới thiệu đều cộng vào ngày hết hạn hiện tại.",
           "Người dùng mới được tặng 7 ngày Pro. Hết hạn sẽ tự quay về Starter, không bị trừ tiền.",

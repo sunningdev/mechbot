@@ -123,7 +123,7 @@ func (s *Service) scanEVM(ctx context.Context, c Chain, client *ethclient.Client
 			logs, err := client.FilterLogs(ctx, ethereum.FilterQuery{
 				FromBlock: new(big.Int).SetUint64(from),
 				ToBlock:   new(big.Int).SetUint64(to),
-				Addresses: []common.Address{c.usdt},
+				Addresses: c.addresses(),
 				Topics:    [][]common.Hash{{transferTopic}, nil, chunk},
 			})
 			if err != nil {
@@ -137,8 +137,12 @@ func (s *Service) scanEVM(ctx context.Context, c Chain, client *ethclient.Client
 				if !ok {
 					continue
 				}
-				amount := ToMicro(new(big.Int).SetBytes(lg.Data), c.decimals)
-				s.credit(ctx, c, strings.ToLower(lg.TxHash.Hex()), int(lg.Index), owner, amount)
+				token, ok := c.token(lg.Address)
+				if !ok {
+					continue
+				}
+				amount := ToMicro(new(big.Int).SetBytes(lg.Data), token.Decimals)
+				s.credit(ctx, c, token.Symbol, strings.ToLower(lg.TxHash.Hex()), int(lg.Index), owner, amount)
 			}
 		}
 		if err := s.store.SetScanCursor(c.Key, to); err != nil {
@@ -164,7 +168,8 @@ func (s *Service) scanTron(ctx context.Context, c Chain) error {
 			if !ok {
 				continue
 			}
-			s.credit(ctx, c, strings.ToLower(tr.TxID), 0, owner, ToMicro(v, c.decimals))
+			usdt := c.tokens[0]
+			s.credit(ctx, c, usdt.Symbol, strings.ToLower(tr.TxID), 0, owner, ToMicro(v, usdt.Decimals))
 		}
 		select {
 		case <-ctx.Done():

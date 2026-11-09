@@ -76,7 +76,9 @@ export default function PurchaseHistory({ reload }: Props) {
                     <td>
                       <PlanCell d={d} />
                     </td>
-                    <td className="mono">{d.amount} USDT</td>
+                    <td className="mono">
+                      {d.amount} {d.token || "USDT"}
+                    </td>
                     <td>
                       <span className="history-chain">
                         <ChainLogo chain={d.chain} size={16} />

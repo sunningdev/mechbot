@@ -91,7 +91,7 @@ De volta acima do seu limite.`,
 	AddedFailed: "Endereço %s adicionado.\n\nAlguns protocolos não responderam agora. Tente /list daqui a pouco.",
 	AddedQuiet: `Endereço %s adicionado.
 
-Este endereço não tem empréstimos no momento: verificamos Aave V3, Compound V3 e Morpho Blue (Ethereum · Arbitrum · Optimism), então ele não pode ser liquidado.
+Este endereço não tem empréstimos no momento: verificamos Aave V3, Compound V3 e Morpho Blue (Ethereum · Arbitrum · Base · Optimism), então ele não pode ser liquidado.
 
 Vamos continuar monitorando. Se ele pegar empréstimo nesses protocolos depois, os alertas começam sozinhos; não precisa adicionar de novo.`,
 	AddedStarter: "\n\nO Starter só envia alertas da Aave V3. Empréstimos na Compound e na Morpho exigem Pro.",
@@ -133,9 +133,9 @@ Convidado por: %s`,
 	PlanMonth:   "Pro mensal",
 	PlanQuarter: "Pro trimestral",
 	PlanYear:    "Pro anual",
-	PayTooLow:   "⚠️ Recebemos %s USDT (%s)\n\nÉ menos que o plano mais barato (%d USDT), então o Pro não foi ativado. Se tiver dúvidas, responda ao bot.",
+	PayTooLow:   "⚠️ Recebemos %s (%s)\n\nÉ menos que o plano mais barato (%d USD), então o Pro não foi ativado. Faça uma nova transferência de pelo menos o valor do plano.",
 	PayBonus:    "\n🎁 Bônus de convite +%d dias",
-	PayDone:     "✅ MechBot Pro ativado\n\nRecebemos %s USDT (%s): %s, %d dias%s\nPro até: %s",
+	PayDone:     "✅ MechBot Pro ativado\n\nRecebemos %s (%s): %s, %d dias%s\nPro até: %s",
 	PayReferrer: "🎁 Recompensa de convite +%d dias\n\nAlguém que você convidou acabou de comprar %s pela primeira vez.\nPro até: %s",
 
 	Help: `MechBot: alertas de liquidação
@@ -148,7 +148,7 @@ Convidado por: %s`,
 
 Cada endereço começa com limite de 1.2. Você pode mudar no cartão do endereço no console web.
 
-O Starter (grátis para sempre) envia alertas da Aave V3 (Ethereum, Arbitrum, Optimism). O Pro adiciona Compound V3 e Morpho Blue.`,
+O Starter (grátis para sempre) envia alertas da Aave V3 (Ethereum, Arbitrum, Base, Optimism). O Pro adiciona Compound V3 e Morpho Blue.`,
 	HelpConsole:       "\n\nConsole web: %s",
 	TrialNote:         "\n\n🎁 Novos usuários ganham %d dias de Pro: alertas em todos os protocolos, alertas antecipados e o mapa de liquidações em tempo real. Nada é cobrado no fim; você só volta para o Starter gratuito.",
 	UnknownCommand:    "Esse comando não existe.",

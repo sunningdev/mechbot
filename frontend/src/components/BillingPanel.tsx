@@ -124,7 +124,7 @@ export default function BillingPanel({ me, onPaid }: Props) {
               const save = saving(billing.plans, p);
               return (
                 <div key={p.key} className="tier">
-                  <strong>{p.price} USDT</strong>
+                  <strong>${p.price}</strong>
                   <span className="tier-days">
                     <span className="muted small-text">{tr(`${p.days} 天`, `${p.days} days`)}</span>
                     <span className="chain-tag">{planName(p.key, p.name.replace(/^Pro\s*/, ""))}</span>
@@ -135,6 +135,16 @@ export default function BillingPanel({ me, onPaid }: Props) {
             })}
           </div>
 
+          <p className="pay-how small-text">
+            {fill(
+              tr(
+                "用 {0} 或 {1} 付款：选你钱包里有币、手续费低的网络，再转到下面的专属地址。",
+                "Pay with {0} or {1}: pick a network where your wallet holds one and fees are low, then send to your address below.",
+              ),
+              <b className="coin-hl">USDT</b>,
+              <b className="coin-hl">USDC</b>,
+            )}
+          </p>
           <ChainSelect chains={billing.chains} value={chainKey} onChange={setChainKey} />
 
           {chain && address && (
@@ -172,7 +182,7 @@ export default function BillingPanel({ me, onPaid }: Props) {
                   {fill(
                     tr("{0} 最低季付 {1}；月付请选 {2}。", "{0} starts at quarterly, {1}. For monthly, use {2}."),
                     chain.name,
-                    <b>{chain.minPrice} USDT</b>,
+                    <b>${chain.minPrice}</b>,
                     billing.chains
                       .filter((c) => c.minPrice <= minPrice)
                       .map((c) => c.name)
@@ -182,8 +192,8 @@ export default function BillingPanel({ me, onPaid }: Props) {
               ) : (
                 <li>
                   {tr(
-                    `到账金额对应套餐自动开通，超出部分不累计；低于 ${minPrice} USDT 不开通。`,
-                    `The plan matching the amount received activates automatically; any excess is not carried over. Below ${minPrice} USDT nothing activates.`,
+                    `到账金额对应套餐自动开通，超出部分不累计；低于 $${minPrice} 不开通。`,
+                    `The plan matching the amount received activates automatically; any excess is not carried over. Below $${minPrice} nothing activates.`,
                   )}
                 </li>
               )}

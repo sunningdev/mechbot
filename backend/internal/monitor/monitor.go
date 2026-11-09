@@ -136,10 +136,35 @@ func (m *Monitor) check(ctx context.Context, address string, watches []store.Wat
 	cancel()
 	m.saveSnapshots(address, results)
 	m.remember(address, results, eth, btc)
-	for _, watch := range watches {
+	for _, watch := range m.current(address, watches) {
 		m.apply(ctx, watch, results, cooldown)
 	}
 	return results
+}
+
+// current re-reads the given watches, because a poll round lists them up front and the user may change a
+// threshold, remove the address or lose Pro before the round reaches it. Removed or paused watches drop out.
+func (m *Monitor) current(address string, watches []store.Watch) []store.Watch {
+	var out []store.Watch
+	seen := map[int64]bool{}
+	for _, w := range watches {
+		if seen[w.TelegramID] {
+			continue
+		}
+		seen[w.TelegramID] = true
+		latest, err := m.store.ListAddresses(w.TelegramID)
+		if err != nil {
+			log.Printf("重新读取监控地址失败 %d: %v", w.TelegramID, err)
+			out = append(out, w)
+			continue
+		}
+		for _, l := range latest {
+			if l.Address == address && l.Active {
+				out = append(out, l)
+			}
+		}
+	}
+	return out
 }
 
 func (m *Monitor) marketPrices() (eth, btc float64) {
@@ -342,7 +367,7 @@ func closedMarketOK(key string, failed map[string]struct{}) bool {
 	if len(parts) < 2 {
 		return false
 	}
-	chain := map[string]string{"1": "Ethereum", "42161": "Arbitrum", "10": "Optimism"}[parts[1]]
+	chain := map[string]string{"1": "Ethereum", "42161": "Arbitrum", "8453": "Base", "10": "Optimism"}[parts[1]]
 	if chain == "" {
 		return false
 	}

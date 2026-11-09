@@ -215,6 +215,9 @@ CREATE TABLE IF NOT EXISTS referral_rewards (
 			return err
 		}
 	}
+	if err := s.ensureColumn("deposits", "token", "TEXT NOT NULL DEFAULT 'USDT'"); err != nil {
+		return err
+	}
 	for _, c := range [][2]string{
 		{"stress10", "REAL NOT NULL DEFAULT 0"},
 		{"stress20", "REAL NOT NULL DEFAULT 0"},

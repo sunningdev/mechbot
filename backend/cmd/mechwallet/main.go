@@ -3,7 +3,7 @@
 //	mechwallet init                         generate a new 24-word mnemonic
 //	mechwallet xpub                         print PAY_XPUB_EVM / PAY_XPUB_TRON for .env
 //	mechwallet addresses [-db mechbot.db]   list every user's deposit addresses
-//	mechwallet balances [-db mechbot.db]    list deposit addresses holding USDT
+//	mechwallet balances [-db mechbot.db]    list deposit addresses holding USDT / USDC
 //	mechwallet sweep -chain bsc -to 0x… [-min 20] [-yes]
 package main
 
@@ -39,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 	if payNet.Testnet {
-		fmt.Println("⚠️ 测试网模式（NETWORK=testnet）：BNB Chain Testnet / Arbitrum Sepolia / Sepolia / TRON Nile")
+		fmt.Println("⚠️ 测试网模式（NETWORK=testnet）：BNB Chain Testnet / Arbitrum Sepolia / Base Sepolia / OP Sepolia / Sepolia / TRON Nile")
 	}
 	switch os.Args[1] {
 	case "init":
@@ -66,8 +66,9 @@ func usage() {
   mechwallet init                              生成新的 24 词助记词
   mechwallet xpub                              输入助记词，输出 .env 用的 PAY_XPUB_EVM / PAY_XPUB_TRON
   mechwallet addresses [-db mechbot.db]        列出所有用户的充值地址（不需要助记词）
-  mechwallet balances [-db mechbot.db]         查看各充值地址的 USDT 余额
-  mechwallet sweep -chain <tron|bsc|arbitrum|ethereum> -to <归集地址> [-min 20] [-db mechbot.db] [-yes]`)
+  mechwallet balances [-db mechbot.db]         查看各充值地址的 USDT / USDC 余额
+  mechwallet sweep -chain <tron|bsc|arbitrum|base|optimism|ethereum> -to <归集地址> [-min 20] [-db mechbot.db] [-yes]
+                                               一次归集该链上所有收款币（USDT、USDC 等）`)
 	os.Exit(2)
 }
 
@@ -346,14 +347,24 @@ func dbFlag(fs *flag.FlagSet) *string {
 	return fs.String("db", config.DBPath(payNet.Testnet), "数据库路径")
 }
 
-func chainByKey(key string) (pay.Chain, error) {
-	if key == "tron" {
-		return pay.TronChain(payNet.Testnet), nil
+// allChains lists every chain the server accepts payments on, TRON first.
+func allChains() []pay.Chain {
+	return append([]pay.Chain{pay.TronChain(payNet.Testnet)}, pay.EVMChains(payNet)...)
+}
+
+func chainKeys() string {
+	var keys []string
+	for _, c := range allChains() {
+		keys = append(keys, c.Key)
 	}
-	for _, c := range pay.EVMChains(payNet) {
+	return strings.Join(keys, " | ")
+}
+
+func chainByKey(key string) (pay.Chain, error) {
+	for _, c := range allChains() {
 		if c.Key == key {
 			return c, nil
 		}
 	}
-	return pay.Chain{}, fmt.Errorf("不支持的链 %q，可选 tron、bsc、arbitrum、ethereum", key)
+	return pay.Chain{}, fmt.Errorf("不支持的链 %q，可选 %s", key, chainKeys())
 }

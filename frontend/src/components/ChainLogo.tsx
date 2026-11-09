@@ -38,6 +38,22 @@ export default function ChainLogo({ chain, size = 24 }: Props) {
           <path d="M13 22.6l3-5.2 3 5.2-1.4.8L16 20.6l-1.6 2.8z" fill="#12AAFF" />
         </svg>
       );
+    case "base":
+      return (
+        <svg {...common}>
+          <circle cx="16" cy="16" r="16" fill="#0052FF" />
+          <rect x="9" y="9" width="14" height="14" rx="2.5" fill="#fff" />
+        </svg>
+      );
+    case "optimism":
+      return (
+        <svg {...common}>
+          <circle cx="16" cy="16" r="16" fill="#FF0420" />
+          <text x="16" y="20.5" textAnchor="middle" fontFamily="Arial, sans-serif" fontWeight="700" fontStyle="italic" fontSize="12" fill="#fff">
+            OP
+          </text>
+        </svg>
+      );
     case "tron":
       return (
         <svg {...common}>

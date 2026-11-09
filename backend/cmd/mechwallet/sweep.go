@@ -29,7 +29,7 @@ func cmdAddresses(args []string) error {
 		fmt.Println("还没有分配过充值地址。")
 		return nil
 	}
-	fmt.Printf("%-6s %-12s %-20s %-42s %s\n", "index", "telegram", "username", "EVM (BSC/Arbitrum/Ethereum)", "TRON")
+	fmt.Printf("%-6s %-12s %-20s %-42s %s\n", "index", "telegram", "username", "EVM (all EVM chains)", "TRON")
 	for _, r := range rows {
 		name := ""
 		if u, err := st.GetUser(r.TelegramID); err == nil && u.Username != "" {
@@ -66,9 +66,8 @@ func cmdBalances(args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
-	for _, key := range []string{"tron", "bsc", "arbitrum", "ethereum"} {
-		c, _ := chainByKey(key)
-		total := int64(0)
+	for _, c := range allChains() {
+		totals := make([]int64, len(c.Tokens()))
 		fmt.Printf("== %s ==\n", c.Name)
 		for _, r := range rows {
 			addr := r.EVM
@@ -78,27 +77,45 @@ func cmdBalances(args []string) error {
 			if addr == "" {
 				continue
 			}
-			usdt, native, err := balanceOf(ctx, c, addr)
+			amounts, native, err := balanceOf(ctx, c, addr)
 			if err != nil {
 				fmt.Printf("  index %-5d %s  查询失败: %v\n", r.Index, displayAddr(c, addr), err)
 				continue
 			}
-			if usdt == 0 {
+			if maxOf(amounts) == 0 {
 				continue
 			}
-			total += usdt
-			fmt.Printf("  index %-5d %s  %s USDT  (gas %s)\n", r.Index, displayAddr(c, addr), pay.FormatAmount(usdt), native)
+			for i, n := range amounts {
+				totals[i] += n
+			}
+			fmt.Printf("  index %-5d %s  %s  (gas %s)\n", r.Index, displayAddr(c, addr), tokenAmounts(c, amounts), native)
 		}
-		fmt.Printf("  合计 %s USDT\n", pay.FormatAmount(total))
+		fmt.Printf("  合计 %s\n", tokenAmounts(c, totals))
 	}
 	return nil
 }
 
+func tokenAmounts(c pay.Chain, amounts []int64) string {
+	parts := make([]string, len(amounts))
+	for i, n := range amounts {
+		parts[i] = pay.FormatAmount(n) + " " + c.Tokens()[i].Symbol
+	}
+	return strings.Join(parts, "，")
+}
+
+func maxOf(v []int64) int64 {
+	var m int64
+	for _, n := range v {
+		m = max(m, n)
+	}
+	return m
+}
+
 func cmdSweep(args []string) error {
 	fs := flag.NewFlagSet("sweep", flag.ExitOnError)
-	chainKey := fs.String("chain", "", "tron | bsc | arbitrum | ethereum")
+	chainKey := fs.String("chain", "", chainKeys())
 	to := fs.String("to", "", "归集到的地址")
-	minUSDT := fs.Float64("min", 20, "余额低于这个数的地址先不归集（USDT）")
+	minUSDT := fs.Float64("min", 20, "某个币余额低于这个数先不归集（USDT / USDC）")
 	trxFund := fs.Float64("trx", 30, "TRON：每个充值地址至少备好的 TRX，用来烧能量")
 	yes := fs.Bool("yes", false, "真正发送交易；不加只演练")
 	db := dbFlag(fs)
@@ -139,28 +156,32 @@ func cmdSweep(args []string) error {
 	return sweepEVM(ctx, c, keys, rows, common.HexToAddress(*to), minMicro, *yes)
 }
 
-func balanceOf(ctx context.Context, c pay.Chain, addr string) (usdtMicro int64, native string, err error) {
+// balanceOf returns each of the chain's token balances (6 decimals, in the order of c.Tokens()) and the gas balance.
+func balanceOf(ctx context.Context, c pay.Chain, addr string) (amounts []int64, native string, err error) {
 	if c.Family == "tron" {
 		usdt, sun, err := tronBalances(ctx, addr)
 		if err != nil {
-			return 0, "", err
+			return nil, "", err
 		}
-		return usdt, pay.FormatAmount(sun) + " TRX", nil
+		return []int64{usdt}, pay.FormatAmount(sun) + " TRX", nil
 	}
 	client, err := dialEVM(ctx, c)
 	if err != nil {
-		return 0, "", err
+		return nil, "", err
 	}
 	defer client.Close()
-	raw, err := erc20Balance(ctx, client, c.USDT(), common.HexToAddress(addr))
-	if err != nil {
-		return 0, "", err
+	for _, t := range c.Tokens() {
+		raw, err := erc20Balance(ctx, client, t.Address, common.HexToAddress(addr))
+		if err != nil {
+			return nil, "", err
+		}
+		amounts = append(amounts, pay.ToMicro(raw, t.Decimals))
 	}
 	wei, err := client.BalanceAt(ctx, common.HexToAddress(addr), nil)
 	if err != nil {
-		return 0, "", err
+		return nil, "", err
 	}
-	return pay.ToMicro(raw, c.Decimals()), formatWei(wei), nil
+	return amounts, formatWei(wei), nil
 }
 
 func displayAddr(c pay.Chain, addr string) string {
@@ -185,12 +206,12 @@ func rowsWithBalance(ctx context.Context, c pay.Chain, rows []store.DepositAddre
 		if addr == "" {
 			continue
 		}
-		usdt, _, err := balanceOf(ctx, c, addr)
+		amounts, _, err := balanceOf(ctx, c, addr)
 		if err != nil {
 			fmt.Printf("index %d 查询余额失败: %v\n", r.Index, err)
 			continue
 		}
-		if usdt >= minMicro {
+		if maxOf(amounts) >= minMicro {
 			out = append(out, r)
 		}
 	}

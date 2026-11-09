@@ -17,7 +17,7 @@ const vi: Record<string, string> = {
   "Paused · over Starter limit": "Tạm dừng · vượt giới hạn Starter",
   Delete: "Xóa",
   "This address has no debt right now": "Địa chỉ này hiện không có khoản vay",
-  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Optimism). No debt anywhere, so nothing can be liquidated.": "Đã kiểm tra Aave V3, Compound V3 và Morpho Blue (Ethereum · Arbitrum · Optimism). Không có khoản vay nào, nên không thể bị thanh lý.",
+  "Checked Aave V3, Compound V3 and Morpho Blue (Ethereum · Arbitrum · Base · Optimism). No debt anywhere, so nothing can be liquidated.": "Đã kiểm tra Aave V3, Compound V3 và Morpho Blue (Ethereum · Arbitrum · Base · Optimism). Không có khoản vay nào, nên không thể bị thanh lý.",
   "We keep watching it. Borrow on any of these protocols later and alerts start automatically, no need to add it again.": "Chúng tôi vẫn tiếp tục theo dõi. Sau này vay trên bất kỳ giao thức nào ở trên, cảnh báo sẽ tự bật, không cần thêm lại.",
   "Starter alerts on Aave V3 only. Compound and Morpho loans need Pro.": "Starter chỉ cảnh báo Aave V3. Khoản vay trên Compound và Morpho cần Pro.",
   "Delete {0}? It will no longer be alerted.": "Xóa {0}? Địa chỉ này sẽ không còn được cảnh báo.",
@@ -37,11 +37,13 @@ const vi: Record<string, string> = {
   "Save {0}%": "Tiết kiệm {0}%",
   "{0} deposit address QR code": "Mã QR địa chỉ nạp {0}",
   "{0} · your personal {1} deposit address": "{0} · địa chỉ nạp {1} riêng của bạn",
+  "Pay with {0} or {1}: pick a network where your wallet holds one and fees are low, then send to your address below.":
+    "Thanh toán bằng {0} hoặc {1}: chọn mạng mà ví của bạn có một trong hai và phí thấp, rồi chuyển đến địa chỉ riêng bên dưới.",
   "Send only {0} on the {1} network. Wrong tokens or networks cannot be recovered.":
     "Chỉ gửi {0} trên mạng {1}. Gửi sai token hoặc sai mạng sẽ không thể khôi phục.",
   "{0} starts at quarterly, {1}. For monthly, use {2}.": "{0} tối thiểu gói quý, {1}. Gói tháng vui lòng chọn {2}.",
-  "The plan matching the amount received activates automatically; any excess is not carried over. Below {0} USDT nothing activates.":
-    "Gói tương ứng với số tiền nhận được sẽ tự động kích hoạt; phần dư không được cộng dồn. Dưới {0} USDT sẽ không kích hoạt.",
+  "The plan matching the amount received activates automatically; any excess is not carried over. Below ${0} nothing activates.":
+    "Gói tương ứng với số tiền nhận được sẽ tự động kích hoạt; phần dư không được cộng dồn. Dưới ${0} sẽ không kích hoạt.",
   "Exchange withdrawals deduct fees, so make sure the full amount arrives. This address is permanent; renew by sending to it again.":
     "Rút từ sàn sẽ bị trừ phí, hãy đảm bảo số tiền nhận đủ. Địa chỉ này dùng lâu dài, gia hạn chỉ cần gửi lại vào đây.",
   "Checking…": "Đang kiểm tra…",
@@ -88,7 +90,7 @@ const vi: Record<string, string> = {
   "Health factor gauge demo": "Minh họa đồng hồ hệ số sức khỏe",
   "ALERT SENT → TELEGRAM": "ĐÃ GỬI CẢNH BÁO → TELEGRAM",
   "SAFE · MONITORING": "AN TOÀN · ĐANG THEO DÕI",
-  "THRESHOLD 1.50": "NGƯỠNG 1.50",
+  "THRESHOLD 1.20": "NGƯỠNG 1.20",
   "Collateral (weighted)": "Thế chấp (có trọng số)",
   "To liquidation": "Còn tới thanh lý",
   "ETH liq. price": "Giá thanh lý ETH",
@@ -96,7 +98,7 @@ const vi: Record<string, string> = {
   "Liquidation at": "Thanh lý tại",
   "Liquidated if collateral value falls to this": "Bị thanh lý nếu giá trị tài sản thế chấp giảm xuống mức này",
   "Telegram alert": "Cảnh báo Telegram",
-  "1.06 < threshold 1.50": "1.06 < ngưỡng 1.50",
+  "1.06 < threshold 1.20": "1.06 < ngưỡng 1.20",
   "Back to safe": "Đã an toàn trở lại",
   "HF 1.62 · one safe notice": "HF 1.62 · một thông báo an toàn",
   "Checks health factors every 5 min": "Kiểm tra hệ số sức khỏe mỗi 5 phút",
@@ -209,8 +211,8 @@ const vi: Record<string, string> = {
   "Before liquidation,": "Trước khi bị thanh lý,",
   "we wake you up.": "chúng tôi đánh thức bạn.",
   "One address, every chain": "Một địa chỉ, mọi chuỗi",
-  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
-    "Dán một địa chỉ, tìm các khoản vay Aave, Compound và Morpho trên Ethereum, Arbitrum và Optimism.",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum, Base and Optimism.":
+    "Dán một địa chỉ, tìm các khoản vay Aave, Compound và Morpho trên Ethereum, Arbitrum, Base và Optimism.",
   "Your own alert line, smart reminders": "Tự đặt ngưỡng, nhắc linh hoạt",
   "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
     "Mỗi địa chỉ một ngưỡng, kiểm tra ngay. Dưới ngưỡng nhắc mỗi giờ, dưới 1.05 nhắc mỗi 15 phút.",
@@ -252,8 +254,8 @@ const vi: Record<string, string> = {
   "Built for loops and multiple positions": "Dành cho vay vòng lặp và nhiều vị thế",
   "20 watched addresses": "20 địa chỉ theo dõi",
   "Alerts for Aave V3, Compound V3 and Morpho Blue": "Cảnh báo cho Aave V3, Compound V3 và Morpho Blue",
-  "Pay in USDT: BNB Chain / Arbitrum / Ethereum / TRON (quarterly and up)":
-    "Thanh toán USDT: BNB Chain / Arbitrum / Ethereum / TRON (từ gói quý)",
+  "Pay in USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON from quarterly":
+    "Thanh toán USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON từ gói quý",
   "Invite a friend, both get Pro": "Mời bạn bè, cả hai cùng nhận Pro",
   "On a friend's first purchase, you both get the same Pro days.":
     "Khi bạn bè mua lần đầu, cả hai cùng nhận số ngày Pro như nhau.",
@@ -369,8 +371,8 @@ const vi: Record<string, string> = {
   "We watch it for you.": "Chúng tôi canh giúp bạn.",
   "wstETH and weETH loops, stablecoin loops, Morpho PT loops. With the health factor parked near 1.1, a few minutes decide whether you get liquidated.":
     "Vòng lặp wstETH, weETH, stablecoin, Morpho PT. Hệ số sức khỏe luôn quanh 1.1, chỉ vài phút là quyết định có bị thanh lý hay không.",
-  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3.":
-    "Thị trường chính, Lido và EtherFi của Aave, mọi thị trường Morpho Blue và Compound V3.",
+  "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.":
+    "Thị trường chính, Lido và EtherFi của Aave, mọi thị trường Morpho Blue và Compound V3, trên Ethereum, Arbitrum, Base và Optimism.",
   "Watch my loop for free": "Canh vòng lặp của tôi miễn phí",
   "Testnet mode": "Chế độ testnet",
   "Payments only accept testnet tokens. Do not send real USDT; it cannot be recovered.": "Chỉ nhận token testnet. Đừng gửi USDT thật, gửi rồi sẽ không lấy lại được.",

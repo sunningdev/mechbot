@@ -5,6 +5,26 @@ import ChainLogo from "./ChainLogo";
 
 type Props = { chains: Chain[]; value: string; onChange: (key: string) => void };
 
+// "USDT / USDC (BEP20)" → ["USDT", "USDC"]; the token standard is repeated in the deposit notes.
+const coins = (c: Chain) =>
+  c.token
+    .replace(/\s*\(.*\)$/, "")
+    .split("/")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+function Coins({ chain }: { chain: Chain }) {
+  return (
+    <span className="coin-chips">
+      {coins(chain).map((s) => (
+        <span key={s} className="coin-chip">
+          {s}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function ChainSelect({ chains, value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const lowest = Math.min(...chains.map((c) => c.minPrice));
@@ -40,7 +60,7 @@ export default function ChainSelect({ chains, value, onChange }: Props) {
       >
         {current && <ChainLogo chain={current.key} />}
         <span className="chain-select-name">{current?.name ?? tr("选择网络", "Select network")}</span>
-        {current && <span className="muted small-text">{current.token}</span>}
+        {current && <Coins chain={current} />}
         {current && current.minPrice > lowest && <span className="chain-tag">{onlyLong}</span>}
         <span className="chain-select-caret" aria-hidden />
       </button>
@@ -58,7 +78,7 @@ export default function ChainSelect({ chains, value, onChange }: Props) {
               >
                 <ChainLogo chain={c.key} />
                 <span className="chain-select-name">{c.name}</span>
-                <span className="muted small-text">{c.token}</span>
+                <Coins chain={c} />
                 {c.minPrice > lowest && <span className="chain-tag">{onlyLong}</span>}
               </button>
             </li>

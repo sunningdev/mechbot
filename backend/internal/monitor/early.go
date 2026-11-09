@@ -77,6 +77,13 @@ func (m *Monitor) early(ctx context.Context) {
 		if !ok {
 			continue
 		}
+		var pro []store.Watch
+		for _, w := range m.current(address, watches) {
+			if w.Pro {
+				pro = append(pro, w)
+			}
+		}
+		watches = pro
 		var below, near bool
 		for _, pos := range r.positions {
 			est, ok := estimate(pos, r, eth, btc)

@@ -56,9 +56,10 @@ type Result struct {
 }
 
 // NewRegistry takes comma-separated RPC lists; public backups are appended to each.
-func NewRegistry(ethURL, arbURL, opURL string) *Registry {
+func NewRegistry(ethURL, arbURL, baseURL, opURL string) *Registry {
 	eth := evmrpc.Endpoints(ethURL, "ethereum")
 	arb := evmrpc.Endpoints(arbURL, "arbitrum")
+	base := evmrpc.Endpoints(baseURL, "base")
 	op := evmrpc.Endpoints(opURL, "optimism")
 	return &Registry{
 		aave: []aaveMarket{
@@ -66,6 +67,7 @@ func NewRegistry(ethURL, arbURL, opURL string) *Registry {
 			{chainID: 1, chain: "Ethereum", name: "Lido", appName: "proto_lido_v3", pool: common.HexToAddress("0x4e033931ad43597d96D6bcc25c280717730B58B1"), rpc: eth},
 			{chainID: 1, chain: "Ethereum", name: "EtherFi", appName: "proto_etherfi_v3", pool: common.HexToAddress("0x0AA97c284e98396202b6A04024F5E2c65026F3c0"), rpc: eth},
 			{chainID: 42161, chain: "Arbitrum", appName: "proto_arbitrum_v3", pool: common.HexToAddress("0x794a61358D6845594F94dc1DB02A252b5b4814aD"), rpc: arb},
+			{chainID: 8453, chain: "Base", appName: "proto_base_v3", pool: common.HexToAddress("0xA238Dd80C259a72e81d7e4664a9801593F98d1c5"), rpc: base},
 			{chainID: 10, chain: "Optimism", appName: "proto_optimism_v3", pool: common.HexToAddress("0x794a61358D6845594F94dc1DB02A252b5b4814aD"), rpc: op},
 		},
 		comets: []cometMarket{
@@ -73,11 +75,14 @@ func NewRegistry(ethURL, arbURL, opURL string) *Registry {
 			{chainID: 1, chain: "Ethereum", market: "USDT", comet: common.HexToAddress("0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840"), rpc: eth},
 			{chainID: 1, chain: "Ethereum", market: "WETH", comet: common.HexToAddress("0xA17581A9E3356d9A858b789D68B4d866e593aE94"), rpc: eth, ethQuoted: true},
 			{chainID: 42161, chain: "Arbitrum", market: "USDC", comet: common.HexToAddress("0x9c4ec768c28520B50860ea7a15bd7213a9fF58bf"), rpc: arb},
+			{chainID: 8453, chain: "Base", market: "USDC", comet: common.HexToAddress("0xb125E6687d4313864e53df431d5425969c15Eb2F"), rpc: base},
+			{chainID: 8453, chain: "Base", market: "WETH", comet: common.HexToAddress("0x46e6b214b524310239732D51387075E0e70970bf"), rpc: base, ethQuoted: true},
 			{chainID: 10, chain: "Optimism", market: "USDC", comet: common.HexToAddress("0x2e44e174f7D53F0212823acC11C01A11d58c5bCB"), rpc: op},
 		},
 		morpho: []morphoChain{
 			{chainID: 1, chain: "Ethereum"},
 			{chainID: 42161, chain: "Arbitrum"},
+			{chainID: 8453, chain: "Base"},
 			{chainID: 10, chain: "Optimism"},
 		},
 		http:   &http.Client{Timeout: 20 * time.Second},

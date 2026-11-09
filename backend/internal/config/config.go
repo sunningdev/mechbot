@@ -18,6 +18,7 @@ type Config struct {
 	DBPath        string
 	EthRPCURL     string
 	ArbRPCURL     string
+	BaseRPCURL    string
 	OpRPCURL      string
 	Interval      time.Duration
 	SeedAddress   string
@@ -43,6 +44,8 @@ type PayNet struct {
 	EthRPC  string // comma-separated; evmrpc appends public backups for the chosen network
 	BscRPC  string
 	ArbRPC  string
+	BaseRPC string
+	OpRPC   string
 	TronAPI string
 	TronKey string
 }
@@ -54,6 +57,8 @@ func LoadPayNet() (PayNet, error) {
 			EthRPC:  firstNonEmpty(os.Getenv("ETH_RPC_URL"), "https://ethereum.publicnode.com"),
 			BscRPC:  firstNonEmpty(os.Getenv("BSC_RPC_URL"), "https://bsc-rpc.publicnode.com"),
 			ArbRPC:  firstNonEmpty(os.Getenv("ARB_RPC_URL"), "https://arb1.arbitrum.io/rpc"),
+			BaseRPC: firstNonEmpty(os.Getenv("BASE_RPC_URL"), "https://base-rpc.publicnode.com"),
+			OpRPC:   firstNonEmpty(os.Getenv("OP_RPC_URL"), "https://optimism.publicnode.com"),
 			TronAPI: firstNonEmpty(os.Getenv("TRON_API_URL"), "https://api.trongrid.io"),
 			TronKey: strings.TrimSpace(os.Getenv("TRON_API_KEY")),
 		}, nil
@@ -64,6 +69,8 @@ func LoadPayNet() (PayNet, error) {
 			EthRPC:  strings.TrimSpace(os.Getenv("TESTNET_ETH_RPC_URL")),
 			BscRPC:  strings.TrimSpace(os.Getenv("TESTNET_BSC_RPC_URL")),
 			ArbRPC:  strings.TrimSpace(os.Getenv("TESTNET_ARB_RPC_URL")),
+			BaseRPC: strings.TrimSpace(os.Getenv("TESTNET_BASE_RPC_URL")),
+			OpRPC:   strings.TrimSpace(os.Getenv("TESTNET_OP_RPC_URL")),
 			TronAPI: firstNonEmpty(os.Getenv("TESTNET_TRON_API_URL"), "https://nile.trongrid.io"),
 		}, nil
 	default:
@@ -114,6 +121,7 @@ func Load() (Config, error) {
 		Pay:           payNet,
 		EthRPCURL:     firstNonEmpty(os.Getenv("ETH_RPC_URL"), "https://ethereum.publicnode.com"),
 		ArbRPCURL:     firstNonEmpty(os.Getenv("ARB_RPC_URL"), "https://arb1.arbitrum.io/rpc"),
+		BaseRPCURL:    firstNonEmpty(os.Getenv("BASE_RPC_URL"), "https://base-rpc.publicnode.com"),
 		OpRPCURL:      firstNonEmpty(os.Getenv("OP_RPC_URL"), "https://optimism.publicnode.com"),
 		Interval:      interval,
 		SeedAddress:   strings.TrimSpace(os.Getenv("WATCH_ADDRESS")),

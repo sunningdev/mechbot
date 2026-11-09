@@ -8,7 +8,7 @@ Telegram：[@MechFi_bot](https://t.me/MechFi_bot)。口号：Stay calm, stay ahe
 
 不做通用钱包追踪。只服务在 Aave、Compound、Morpho 上有借款的人：仓位还在，通知就一直有用。
 
-监控范围是 Ethereum、Arbitrum、Optimism 上的：
+监控范围是 Ethereum、Arbitrum、Base、Optimism 上的：
 
 - Aave V3（以太坊主池，以及 Lido、EtherFi 市场）
 - Compound V3（USDC、USDT、WETH）

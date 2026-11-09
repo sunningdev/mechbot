@@ -20,9 +20,26 @@ import (
 )
 
 var (
-	selBalanceOf = crypto.Keccak256([]byte("balanceOf(address)"))[:4]
-	selTransfer  = crypto.Keccak256([]byte("transfer(address,uint256)"))[:4]
+	selBalanceOf       = crypto.Keccak256([]byte("balanceOf(address)"))[:4]
+	selTransfer        = crypto.Keccak256([]byte("transfer(address,uint256)"))[:4]
+	selL1FeeUpperBound = crypto.Keccak256([]byte("getL1FeeUpperBound(uint256)"))[:4]
+	gasPriceOracle     = common.HexToAddress("0x420000000000000000000000000000000000000F")
 )
+
+// l1Fee is the OP Stack L1 data fee, charged on top of gas × price; the sender's balance must cover both.
+func l1Fee(ctx context.Context, c pay.Chain, client *ethclient.Client, data []byte) (*big.Int, error) {
+	if c.Key != "base" && c.Key != "optimism" {
+		return new(big.Int), nil
+	}
+	size := big.NewInt(int64(len(data) + 120)) // unsigned legacy tx: data plus nonce, price, gas, to, value and RLP framing
+	call := append(append([]byte{}, selL1FeeUpperBound...), common.LeftPadBytes(size.Bytes(), 32)...)
+	out, err := client.CallContract(ctx, ethereum.CallMsg{To: &gasPriceOracle, Data: call}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("读取 L1 数据费失败: %w", err)
+	}
+	fee := new(big.Int).SetBytes(out)
+	return fee.Mul(fee, big.NewInt(2)), nil
+}
 
 // dialEVM returns the first endpoint that answers, so a dead public node doesn't block sweeping.
 func dialEVM(ctx context.Context, c pay.Chain) (*ethclient.Client, error) {
@@ -84,11 +101,10 @@ func sweepEVM(ctx context.Context, c pay.Chain, keys hdKeys, rows []store.Deposi
 		return err
 	}
 	gasAddr := crypto.PubkeyToAddress(gasKey.PublicKey)
-	usdt := c.USDT()
 
 	targets := rowsWithBalance(ctx, c, rows, minMicro)
 	if len(targets) == 0 {
-		fmt.Printf("%s 上没有余额 ≥ %s USDT 的充值地址。\n", c.Name, pay.FormatAmount(minMicro))
+		fmt.Printf("%s 上没有余额 ≥ %s 的充值地址（%s）。\n", c.Name, pay.FormatAmount(minMicro), c.Token)
 		return nil
 	}
 	fmt.Printf("%s：%d 个地址待归集到 %s，手续费钱包 %s\n", c.Name, len(targets), to.Hex(), gasAddr.Hex())
@@ -102,51 +118,71 @@ func sweepEVM(ctx context.Context, c pay.Chain, keys hdKeys, rows []store.Deposi
 		if !strings.EqualFold(from.Hex(), r.EVM) {
 			return fmt.Errorf("index %d 推出的地址 %s 与数据库 %s 不一致，助记词不对", r.Index, from.Hex(), r.EVM)
 		}
-		amount, err := erc20Balance(ctx, client, usdt, from)
-		if err != nil {
-			return err
-		}
-		data := append(append(append([]byte{}, selTransfer...), common.LeftPadBytes(to.Bytes(), 32)...), common.LeftPadBytes(amount.Bytes(), 32)...)
-		gas, err := estimateGas(ctx, c, client, ethereum.CallMsg{From: from, To: &usdt, Data: data})
-		if err != nil {
-			return fmt.Errorf("index %d 估算 gas 失败: %w", r.Index, err)
-		}
-		gas = gas * 13 / 10
-		price, err := client.SuggestGasPrice(ctx)
-		if err != nil {
-			return err
-		}
-		price = new(big.Int).Div(new(big.Int).Mul(price, big.NewInt(11)), big.NewInt(10))
-		need := new(big.Int).Mul(price, new(big.Int).SetUint64(gas))
-		have, err := client.BalanceAt(ctx, from, nil)
-		if err != nil {
-			return err
-		}
-		topUp := new(big.Int).Sub(need, have)
-
-		fmt.Printf("  index %-5d %s  %s USDT", r.Index, from.Hex(), pay.FormatAmount(pay.ToMicro(amount, c.Decimals())))
-		if topUp.Sign() > 0 {
-			fmt.Printf("，先补 gas %s", formatWei(topUp))
-		}
-		fmt.Println()
-		if !send {
-			continue
-		}
-		if topUp.Sign() > 0 {
-			if _, err := sendEVM(ctx, client, chainID, gasKey, gasAddr, &from, topUp, nil, price); err != nil {
-				return fmt.Errorf("补 gas 失败（手续费钱包 %s 余额够吗？）: %w", gasAddr.Hex(), err)
+		for _, t := range c.Tokens() {
+			amount, err := erc20Balance(ctx, client, t.Address, from)
+			if err != nil {
+				return err
+			}
+			if pay.ToMicro(amount, t.Decimals) < minMicro {
+				continue
+			}
+			if err := sweepToken(ctx, c, client, chainID, gasKey, gasAddr, key, r.Index, from, to, t, amount, send); err != nil {
+				return err
 			}
 		}
-		hash, err := sendEVM(ctx, client, chainID, key, from, &usdt, big.NewInt(0), data, price)
-		if err != nil {
-			return fmt.Errorf("index %d 归集失败: %w", r.Index, err)
-		}
-		fmt.Printf("    已归集 tx %s\n", hash.Hex())
 	}
 	return nil
 }
 
-// sendEVM signs a legacy transaction, which all three chains accept, and waits for a successful receipt.
+// sweepToken moves one token's whole balance off a deposit address, topping up gas from the fee wallet first.
+func sweepToken(ctx context.Context, c pay.Chain, client *ethclient.Client, chainID *big.Int, gasKey *ecdsa.PrivateKey, gasAddr common.Address,
+	key *ecdsa.PrivateKey, index uint32, from, to common.Address, t pay.Token, amount *big.Int, send bool) error {
+	token := t.Address
+	data := append(append(append([]byte{}, selTransfer...), common.LeftPadBytes(to.Bytes(), 32)...), common.LeftPadBytes(amount.Bytes(), 32)...)
+	gas, err := estimateGas(ctx, c, client, ethereum.CallMsg{From: from, To: &token, Data: data})
+	if err != nil {
+		return fmt.Errorf("index %d %s 估算 gas 失败: %w", index, t.Symbol, err)
+	}
+	gas = gas * 13 / 10
+	price, err := client.SuggestGasPrice(ctx)
+	if err != nil {
+		return err
+	}
+	price = new(big.Int).Div(new(big.Int).Mul(price, big.NewInt(11)), big.NewInt(10))
+	need := new(big.Int).Mul(price, new(big.Int).SetUint64(gas))
+	l1, err := l1Fee(ctx, c, client, data)
+	if err != nil {
+		return err
+	}
+	need.Add(need, l1)
+	have, err := client.BalanceAt(ctx, from, nil)
+	if err != nil {
+		return err
+	}
+	topUp := new(big.Int).Sub(need, have)
+
+	fmt.Printf("  index %-5d %s  %s %s", index, from.Hex(), pay.FormatAmount(pay.ToMicro(amount, t.Decimals)), t.Symbol)
+	if topUp.Sign() > 0 {
+		fmt.Printf("，先补 gas %s", formatWei(topUp))
+	}
+	fmt.Println()
+	if !send {
+		return nil
+	}
+	if topUp.Sign() > 0 {
+		if _, err := sendEVM(ctx, client, chainID, gasKey, gasAddr, &from, topUp, nil, price); err != nil {
+			return fmt.Errorf("补 gas 失败（手续费钱包 %s 余额够吗？）: %w", gasAddr.Hex(), err)
+		}
+	}
+	hash, err := sendEVM(ctx, client, chainID, key, from, &token, big.NewInt(0), data, price)
+	if err != nil {
+		return fmt.Errorf("index %d %s 归集失败: %w", index, t.Symbol, err)
+	}
+	fmt.Printf("    已归集 tx %s\n", hash.Hex())
+	return nil
+}
+
+// sendEVM signs a legacy transaction, which every supported chain accepts, and waits for a successful receipt.
 func sendEVM(ctx context.Context, client *ethclient.Client, chainID *big.Int, key *ecdsa.PrivateKey, from common.Address, to *common.Address, value *big.Int, data []byte, price *big.Int) (common.Hash, error) {
 	nonce, err := client.PendingNonceAt(ctx, from)
 	if err != nil {

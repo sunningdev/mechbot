@@ -91,7 +91,7 @@ De nouveau au-dessus de votre seuil.`,
 	AddedFailed: "Adresse %s ajoutée.\n\nCertains protocoles n'ont pas répondu pour l'instant. Réessayez /list dans un moment.",
 	AddedQuiet: `Adresse %s ajoutée.
 
-Cette adresse n'a aucun prêt en ce moment : nous avons vérifié Aave V3, Compound V3 et Morpho Blue (Ethereum · Arbitrum · Optimism), elle ne peut donc pas être liquidée.
+Cette adresse n'a aucun prêt en ce moment : nous avons vérifié Aave V3, Compound V3 et Morpho Blue (Ethereum · Arbitrum · Base · Optimism), elle ne peut donc pas être liquidée.
 
 Nous continuons à la surveiller. Si elle emprunte plus tard sur ces protocoles, les alertes démarreront automatiquement, sans besoin de la rajouter.`,
 	AddedStarter: "\n\nStarter n'envoie d'alertes que pour Aave V3. Les prêts Compound et Morpho nécessitent Pro.",
@@ -133,9 +133,9 @@ Parrain : %s`,
 	PlanMonth:   "Pro mensuel",
 	PlanQuarter: "Pro trimestriel",
 	PlanYear:    "Pro annuel",
-	PayTooLow:   "⚠️ %s USDT reçus (%s)\n\nC'est moins que l'offre la moins chère (%d USDT), Pro n'a donc pas été activé. Pour toute question, répondez au bot.",
+	PayTooLow:   "⚠️ %s reçus (%s)\n\nC'est moins que l'offre la moins chère (%d USD), Pro n'a donc pas été activé. Refaites un virement d'au moins le montant de l'offre.",
 	PayBonus:    "\n🎁 Bonus de parrainage +%d jours",
-	PayDone:     "✅ MechBot Pro activé\n\n%s USDT reçus (%s) : %s, %d jours%s\nPro jusqu'au : %s",
+	PayDone:     "✅ MechBot Pro activé\n\n%s reçus (%s) : %s, %d jours%s\nPro jusqu'au : %s",
 	PayReferrer: "🎁 Récompense de parrainage +%d jours\n\nUne personne que vous avez invitée vient d'acheter %s pour la première fois.\nPro jusqu'au : %s",
 
 	Help: `MechBot : alertes de liquidation
@@ -148,7 +148,7 @@ Parrain : %s`,
 
 Chaque adresse démarre avec un seuil de 1.2. Modifiez-le sur la fiche de l'adresse dans la console web.
 
-Starter (gratuit pour toujours) envoie des alertes pour Aave V3 (Ethereum, Arbitrum, Optimism). Pro ajoute Compound V3 et Morpho Blue.`,
+Starter (gratuit pour toujours) envoie des alertes pour Aave V3 (Ethereum, Arbitrum, Base, Optimism). Pro ajoute Compound V3 et Morpho Blue.`,
 	HelpConsole:       "\n\nConsole web : %s",
 	TrialNote:         "\n\n🎁 Les nouveaux utilisateurs ont %d jours de Pro : alertes sur tous les protocoles, alertes anticipées et carte des liquidations en direct. Rien n'est facturé à la fin ; vous revenez simplement à l'offre gratuite Starter.",
 	UnknownCommand:    "Cette commande n'existe pas.",

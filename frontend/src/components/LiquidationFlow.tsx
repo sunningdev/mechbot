@@ -5,11 +5,11 @@ type FlowNode = { y: number; title: string; sub: string; tone?: "danger" | "ok" 
 const sources: FlowNode[] = [
   { y: 60, title: "Aave V3", sub: "Ethereum · HF 1.06", tone: "danger" },
   { y: 160, title: "Compound V3", sub: "Arbitrum · HF 1.84" },
-  { y: 260, title: "Morpho Blue", sub: "Ethereum · HF 2.31" },
+  { y: 260, title: "Morpho Blue", sub: "Base · HF 2.31" },
 ];
 
 const results = (): FlowNode[] => [
-  { y: 90, title: tr("Telegram 预警", "Telegram alert"), sub: tr("1.06 < 阈值 1.50", "1.06 < threshold 1.50"), tone: "danger" },
+  { y: 90, title: tr("Telegram 预警", "Telegram alert"), sub: tr("1.06 < 阈值 1.20", "1.06 < threshold 1.20"), tone: "danger" },
   { y: 230, title: tr("恢复安全", "Back to safe"), sub: tr("HF 1.62 · 发一次安全通知", "HF 1.62 · one safe notice"), tone: "ok" },
 ];
 

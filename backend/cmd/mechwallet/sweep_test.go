@@ -42,7 +42,12 @@ func TestCheckMnemonic(t *testing.T) {
 
 func testKeys(t *testing.T) hdKeys {
 	t.Helper()
-	master, err := hdkeychain.NewMaster(bip39.NewSeed(testMnemonic, ""), &chaincfg.MainNetParams)
+	return keysFor(t, testMnemonic)
+}
+
+func keysFor(t *testing.T, mnemonic string) hdKeys {
+	t.Helper()
+	master, err := hdkeychain.NewMaster(bip39.NewSeed(mnemonic, ""), &chaincfg.MainNetParams)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +90,10 @@ func TestLiveSweepDryRun(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer st.Close()
-	keys := testKeys(t)
+	// The public test phrase's addresses are blacklisted by Circle, which reverts USDC gas estimates.
+	entropy, _ := bip39.NewEntropy(128)
+	mnemonic, _ := bip39.NewMnemonic(entropy)
+	keys := keysFor(t, mnemonic)
 	evmPub, _ := keys.evm.Neuter()
 	tronPub, _ := keys.tron.Neuter()
 	derive := func(i uint32) (string, string, error) {
@@ -100,10 +108,28 @@ func TestLiveSweepDryRun(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	payNet = config.PayNet{TronAPI: "https://api.trongrid.io"}
-	bsc, _ := chainByKey("bsc")
-	if err := sweepEVM(ctx, bsc, keys, rows, common.HexToAddress(rows[0].EVM), 0, false); err != nil {
-		t.Fatal(err)
+	payNet = config.PayNet{TronAPI: "https://api.trongrid.io", TronKey: os.Getenv("TRON_API_KEY")}
+	for _, c := range pay.EVMChains(payNet) {
+		if err := sweepEVM(ctx, c, keys, rows, common.HexToAddress(rows[0].EVM), 0, false); err != nil {
+			t.Fatalf("%s: %v", c.Key, err)
+		}
+		if c.Key != "base" && c.Key != "optimism" {
+			continue
+		}
+		client, err := dialEVM(ctx, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fee, err := l1Fee(ctx, c, client, make([]byte, 68))
+		client.Close()
+		if err != nil || fee.Sign() <= 0 {
+			t.Fatalf("%s l1 fee %v err %v", c.Key, fee, err)
+		}
+		t.Logf("%s l1 fee %s wei", c.Key, fee)
+	}
+	if payNet.TronKey == "" {
+		t.Log("TRON_API_KEY not set: TronGrid allows 1 request/s without it, skipping TRON")
+		return
 	}
 	tron, _ := chainByKey("tron")
 	if err := sweepTron(ctx, tron, keys, rows, pay.TronUSDT, 0, 30_000_000, false); err != nil {

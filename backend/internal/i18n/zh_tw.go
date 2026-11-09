@@ -91,7 +91,7 @@ var zhTW = Text{
 	AddedFailed: "已新增 %s。\n\n部分協議暫時查詢失敗，稍後用 /list 再看。",
 	AddedQuiet: `已新增 %s。
 
-這個地址目前沒有借款：已檢查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Optimism），不會被清算。
+這個地址目前沒有借款：已檢查 Aave V3、Compound V3、Morpho Blue（Ethereum · Arbitrum · Base · Optimism），不會被清算。
 
 地址會繼續監控，以後在這些協議借款，會自動開始預警，不用重新新增。`,
 	AddedStarter: "\n\nStarter 只對 Aave V3 發預警，Compound、Morpho 的借款需要 Pro。",
@@ -133,9 +133,9 @@ Pro 到期: %s
 	PlanMonth:   "Pro 月付",
 	PlanQuarter: "Pro 季付",
 	PlanYear:    "Pro 年付",
-	PayTooLow:   "⚠️ 收到 %s USDT（%s）\n\n低於最低方案 %d USDT，未能開通 Pro。如有疑問請直接回覆機器人。",
+	PayTooLow:   "⚠️ 收到 %s（%s）\n\n低於最低方案 %d USD，未能開通 Pro。請補足到方案金額後重新轉帳。",
 	PayBonus:    "\n🎁 好友推薦獎勵 +%d 天",
-	PayDone:     "✅ MechBot Pro 已開通\n\n收到 %s USDT（%s），%s %d 天%s\nPro 到期: %s",
+	PayDone:     "✅ MechBot Pro 已開通\n\n收到 %s（%s），%s %d 天%s\nPro 到期: %s",
 	PayReferrer: "🎁 推薦獎勵 +%d 天\n\n你推薦的用戶首次購買了%s。\nPro 到期: %s",
 
 	Help: `MechBot 清算預警
@@ -148,7 +148,7 @@ Pro 到期: %s
 
 每個地址的預警線預設 1.2，可在網頁控制台的地址卡片上修改。
 
-Starter（永久免費）預警 Aave V3（Ethereum、Arbitrum、Optimism）。Pro 額外預警 Compound V3 和 Morpho Blue。`,
+Starter（永久免費）預警 Aave V3（Ethereum、Arbitrum、Base、Optimism）。Pro 額外預警 Compound V3 和 Morpho Blue。`,
 	HelpConsole:       "\n\n網頁控制台: %s",
 	TrialNote:         "\n\n🎁 新用戶送 %d 天 Pro 體驗：全部協議預警、提前預警、即時清算地圖。到期不會自動扣費，沒續費就回到免費的 Starter。",
 	UnknownCommand:    "沒有這個指令。",
