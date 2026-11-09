@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	"mechbot/internal/i18n"
 	"mechbot/internal/liqmap"
 	"mechbot/internal/monitor"
 	"mechbot/internal/pay"
@@ -45,6 +46,12 @@ type Server struct {
 
 	checkMu   sync.Mutex
 	lastCheck map[int64]time.Time
+	inflight  map[string]bool // user:address pairs with an immediate check still running
+
+	apiLimit   *limiter
+	loginLimit *limiter
+	mapLimit   *limiter
+	writeLimit *limiter
 }
 
 type Options struct {
@@ -60,43 +67,102 @@ type Options struct {
 }
 
 func New(o Options) *Server {
-	return &Server{
+	s := &Server{
 		store:       o.Store,
 		monitor:     o.Monitor,
 		pay:         o.Pay,
 		liqmap:      o.LiqMap,
 		lastCheck:   map[int64]time.Time{},
+		inflight:    map[string]bool{},
 		botUsername: o.BotUsername,
 		siteURL:     o.SiteURL,
 		webDir:      o.WebDir,
 		secure:      o.Secure,
 		baseCtx:     o.BaseCtx,
+		apiLimit:    newLimiter(300, time.Minute),
+		loginLimit:  newLimiter(10, time.Minute),
+		mapLimit:    newLimiter(30, time.Minute),
+		writeLimit:  newLimiter(20, time.Minute),
 	}
+	if s.baseCtx != nil {
+		go s.sweepLoop(s.baseCtx)
+	}
+	return s
+}
+
+func (s *Server) sweepLoop(ctx context.Context) {
+	ticker := time.NewTicker(time.Hour)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case now := <-ticker.C:
+			s.sweep(now)
+		}
+	}
+}
+
+func (s *Server) sweep(now time.Time) {
+	for _, l := range []*limiter{s.apiLimit, s.loginLimit, s.mapLimit, s.writeLimit} {
+		l.sweep(now)
+	}
+	s.checkMu.Lock()
+	for id, last := range s.lastCheck {
+		if now.Sub(last) >= checkCooldown {
+			delete(s.lastCheck, id)
+		}
+	}
+	s.checkMu.Unlock()
+	if err := s.store.PurgeExpired(now); err != nil {
+		log.Printf("清理过期登录数据失败: %v", err)
+	}
+}
+
+// checkNow runs an immediate check in the background, skipping it if the same pair is already being checked.
+func (s *Server) checkNow(addr string, userID int64) {
+	key := userKey(userID) + ":" + addr
+	s.checkMu.Lock()
+	if s.inflight[key] {
+		s.checkMu.Unlock()
+		return
+	}
+	s.inflight[key] = true
+	s.checkMu.Unlock()
+	go func() {
+		defer func() {
+			s.checkMu.Lock()
+			delete(s.inflight, key)
+			s.checkMu.Unlock()
+		}()
+		s.monitor.CheckNow(s.baseCtx, addr, userID)
+	}()
 }
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/config", s.handleConfig)
-	mux.HandleFunc("POST /api/auth/start", s.handleLoginStart)
+	mux.HandleFunc("POST /api/auth/start", perIP(s.loginLimit, s.handleLoginStart))
 	mux.HandleFunc("GET /api/auth/poll", s.handleLoginPoll)
 	mux.HandleFunc("POST /api/auth/logout", s.handleLogout)
 
 	mux.HandleFunc("GET /api/me", s.auth(s.handleMe))
+	mux.HandleFunc("PUT /api/me/lang", s.auth(perUser(s.writeLimit, s.handleLang)))
 	mux.HandleFunc("GET /api/addresses", s.auth(s.handleAddresses))
-	mux.HandleFunc("POST /api/addresses", s.auth(s.handleAddAddress))
-	mux.HandleFunc("DELETE /api/addresses/{address}", s.auth(s.handleRemoveAddress))
-	mux.HandleFunc("PUT /api/addresses/{address}/threshold", s.auth(s.handleAddressThreshold))
+	mux.HandleFunc("POST /api/addresses", s.auth(perUser(s.writeLimit, s.handleAddAddress)))
+	mux.HandleFunc("DELETE /api/addresses/{address}", s.auth(perUser(s.writeLimit, s.handleRemoveAddress)))
+	mux.HandleFunc("PUT /api/addresses/{address}/threshold", s.auth(perUser(s.writeLimit, s.handleAddressThreshold)))
 	mux.HandleFunc("GET /api/billing", s.auth(s.handleBilling))
 	mux.HandleFunc("POST /api/billing/check", s.auth(s.handleCheckDeposit))
 	mux.HandleFunc("GET /api/billing/history", s.auth(s.handleBillingHistory))
 	mux.HandleFunc("GET /api/referral", s.auth(s.handleReferral))
-	mux.HandleFunc("GET /api/liqmap", s.handleLiqMap)
+	mux.HandleFunc("GET /api/liqmap", perIP(s.mapLimit, s.handleLiqMap))
 
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "接口不存在")
 	})
 	mux.HandleFunc("/", s.handleStatic)
-	return guardJSON(mux)
+	return s.securityHeaders(s.limitAPI(guardJSON(mux)))
 }
 
 // guardJSON blocks cross-site form posts: mutating API calls must carry a JSON body type, which browsers only send cross-origin after a CORS preflight we never approve.
@@ -401,7 +467,7 @@ func (s *Server) handleAddAddress(w http.ResponseWriter, r *http.Request, userID
 		writeError(w, http.StatusInternalServerError, "添加失败")
 		return
 	}
-	go s.monitor.Refresh(s.baseCtx, addr)
+	s.checkNow(addr, userID)
 	writeJSON(w, http.StatusOK, map[string]string{"address": addr})
 }
 
@@ -449,7 +515,28 @@ func (s *Server) handleAddressThreshold(w http.ResponseWriter, r *http.Request, 
 		writeError(w, http.StatusInternalServerError, "设置失败")
 		return
 	}
+	s.checkNow(addr, userID)
 	writeJSON(w, http.StatusOK, map[string]float64{"threshold": value})
+}
+
+// handleLang makes the bot write to the user in the language they use on the website.
+func (s *Server) handleLang(w http.ResponseWriter, r *http.Request, userID int64) {
+	var body struct {
+		Lang string `json:"lang"`
+	}
+	if !readJSON(w, r, &body) {
+		return
+	}
+	l, ok := i18n.Parse(body.Lang)
+	if !ok {
+		writeError(w, http.StatusBadRequest, "不支持的语言")
+		return
+	}
+	if err := s.store.SetLang(userID, l); err != nil {
+		writeError(w, http.StatusInternalServerError, "设置失败")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"lang": string(l)})
 }
 
 type depositView struct {
@@ -622,8 +709,13 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, dest any) bool {
-	dec := json.NewDecoder(io.LimitReader(r.Body, 64<<10))
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
 	if err := dec.Decode(dest); err != nil && !errors.Is(err, io.EOF) {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			writeError(w, http.StatusRequestEntityTooLarge, "请求内容太大")
+			return false
+		}
 		writeError(w, http.StatusBadRequest, "请求格式不对")
 		return false
 	}

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Position } from "../api";
 import { riskClass, tokenOrUsd, usd, usdShort, usdWhole as usd0 } from "../format";
 import { tr } from "../i18n";
+import { APP_HOSTS, safeUrl } from "../links";
 
 const STRESS_DROPS = [10, 20, 30];
 
@@ -15,6 +16,7 @@ export default function MiniGauge({ position, threshold }: Props) {
   const safe = riskClass(hf, threshold) === "ok";
   const drop = Math.max(0, (1 - 1 / hf) * 100);
   const rescue = !safe ? position.rescue : undefined;
+  const appUrl = safeUrl(position.appUrl, APP_HOSTS);
   const apy = position.borrowApy ?? 0;
 
   return (
@@ -94,8 +96,8 @@ export default function MiniGauge({ position, threshold }: Props) {
             ) : null}
             {tr(`，可回到 ${rescue.target.toFixed(2)}`, ` to get back to ${rescue.target.toFixed(2)}`)}
           </span>
-          {position.appUrl && (
-            <a href={position.appUrl} target="_blank" rel="noreferrer">
+          {appUrl && (
+            <a href={appUrl} target="_blank" rel="noreferrer">
               {tr("去处理 →", "Open app →")}
             </a>
           )}

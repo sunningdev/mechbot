@@ -95,7 +95,7 @@ func (m *Monitor) early(ctx context.Context) {
 		}
 		age := now.Sub(r.at)
 		if (below && age >= recheckGap) || (near && age >= fastInterval) {
-			m.check(ctx, address, watches)
+			m.check(ctx, address, watches, m.cooldown)
 		}
 	}
 }
@@ -135,7 +135,7 @@ func (m *Monitor) earlyAlert(ctx context.Context, w store.Watch, pos protocol.Po
 	if state.InDanger || (!state.LastAlert.IsZero() && now.Sub(state.LastAlert) < m.cooldown) {
 		return
 	}
-	text := notify.Early(w.Address, w.Threshold, pos, est, eth, ethAtRead)
+	text := notify.Early(w.Lang, w.Address, w.Threshold, pos, est, eth, ethAtRead)
 	if err := m.sender.Send(ctx, w.TelegramID, text); err != nil {
 		log.Printf("发送提前预警失败 chat=%d %s: %v", w.TelegramID, pos.Key, err)
 		return

@@ -10,6 +10,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"mechbot/internal/config"
+	"mechbot/internal/i18n"
 )
 
 var (
@@ -35,6 +36,7 @@ type User struct {
 	Trial           bool
 	MinHealthFactor float64
 	AddressCount    int
+	Lang            i18n.Lang
 }
 
 func (u User) ProActive(now time.Time) bool {
@@ -52,6 +54,7 @@ type Watch struct {
 	Threshold float64
 	Pro       bool
 	Active    bool
+	Lang      i18n.Lang
 }
 
 type AlertState struct {
@@ -204,6 +207,9 @@ CREATE TABLE IF NOT EXISTS referral_rewards (
 		{"trial", "INTEGER NOT NULL DEFAULT 0"},
 		// pro_notice: 0 nothing sent for the current Pro period, 1 "ends tomorrow" sent, 2 "ended" sent.
 		{"pro_notice", "INTEGER NOT NULL DEFAULT 0"},
+		// lang is the language picked on the website or with /lang; tg_lang is the Telegram client's language_code.
+		{"lang", "TEXT NOT NULL DEFAULT ''"},
+		{"tg_lang", "TEXT NOT NULL DEFAULT ''"},
 	} {
 		if err := s.ensureColumn("users", c[0], c[1]); err != nil {
 			return err
@@ -309,11 +315,13 @@ func (s *Store) userWhere(where string, arg any) (User, error) {
 	var u User
 	var premium int
 	var expire sql.NullString
+	var lang, tgLang string
 	err := s.db.QueryRow(`
 SELECT u.telegram_id, u.username, u.first_name, u.ref_by, u.expire_at, u.is_premium, u.trial, u.min_health_factor,
-       (SELECT COUNT(*) FROM addresses a WHERE a.telegram_id = u.telegram_id)
+       (SELECT COUNT(*) FROM addresses a WHERE a.telegram_id = u.telegram_id), u.lang, u.tg_lang
 FROM users u WHERE `+where, arg).Scan(
 		&u.TelegramID, &u.Username, &u.FirstName, &u.RefBy, &expire, &premium, &u.Trial, &u.MinHealthFactor, &u.AddressCount,
+		&lang, &tgLang,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return User{}, ErrNotFound
@@ -323,7 +331,32 @@ FROM users u WHERE `+where, arg).Scan(
 	}
 	u.IsPremium = premium == 1
 	u.ExpireAt = parseTime(expire)
+	u.Lang = i18n.Resolve(lang, tgLang)
 	return u, nil
+}
+
+// SetLang records the language the user picked on the website or with /lang.
+func (s *Store) SetLang(telegramID int64, l i18n.Lang) error {
+	_, err := s.db.Exec(`UPDATE users SET lang = ? WHERE telegram_id = ?`, string(l), telegramID)
+	return err
+}
+
+// SetTelegramLang records the Telegram client's language_code, used until the user picks a language.
+func (s *Store) SetTelegramLang(telegramID int64, code string) error {
+	_, err := s.db.Exec(`UPDATE users SET tg_lang = ? WHERE telegram_id = ? AND tg_lang != ?`, code, telegramID, code)
+	return err
+}
+
+// UserLang is the language to answer a user in; tgFallback covers users who have not registered yet.
+func (s *Store) UserLang(telegramID int64, tgFallback string) i18n.Lang {
+	var lang, tgLang string
+	if err := s.db.QueryRow(`SELECT lang, tg_lang FROM users WHERE telegram_id = ?`, telegramID).Scan(&lang, &tgLang); err != nil {
+		return i18n.Resolve("", tgFallback)
+	}
+	if tgLang == "" {
+		tgLang = tgFallback
+	}
+	return i18n.Resolve(lang, tgLang)
 }
 
 func (s *Store) SetAddressThreshold(telegramID int64, address string, threshold float64) error {
@@ -416,7 +449,7 @@ func (s *Store) ListAll() ([]Watch, error) {
 // Active is false for addresses beyond the free limit once Pro has lapsed; they stay listed but are not polled.
 func (s *Store) listWatches(where string, args ...any) ([]Watch, error) {
 	rows, err := s.db.Query(`
-SELECT a.address, a.telegram_id, a.min_health_factor, u.is_premium, u.expire_at,
+SELECT a.address, a.telegram_id, a.min_health_factor, u.is_premium, u.expire_at, u.lang, u.tg_lang,
        ROW_NUMBER() OVER (PARTITION BY a.telegram_id ORDER BY a.created_at, a.address)
 FROM addresses a JOIN users u ON u.telegram_id = a.telegram_id `+where+`
 ORDER BY a.telegram_id, a.created_at, a.address`, args...)
@@ -430,9 +463,11 @@ ORDER BY a.telegram_id, a.created_at, a.address`, args...)
 		var w Watch
 		var premium, rank int
 		var expire sql.NullString
-		if err := rows.Scan(&w.Address, &w.TelegramID, &w.Threshold, &premium, &expire, &rank); err != nil {
+		var lang, tgLang string
+		if err := rows.Scan(&w.Address, &w.TelegramID, &w.Threshold, &premium, &expire, &lang, &tgLang, &rank); err != nil {
 			return nil, err
 		}
+		w.Lang = i18n.Resolve(lang, tgLang)
 		w.Pro = premium == 1 && parseTime(expire).After(now)
 		w.Active = rank <= AddressLimit(w.Pro)
 		out = append(out, w)
@@ -507,26 +542,22 @@ func AddressLimit(pro bool) int {
 }
 
 func FormatStatus(u User) string {
+	t := i18n.T(u.Lang)
 	now := time.Now()
-	plan := "Starter（永久免费，仅 Aave V3 预警）"
+	plan := t.StatusStarter
 	expire := "—"
 	if u.ProActive(now) {
-		plan = "Pro（全协议预警）"
+		plan = t.StatusPro
 		if u.Trial {
-			plan = "Pro 体验（全协议预警，到期回到 Starter）"
+			plan = t.StatusTrial
 		}
 		expire = u.ExpireAt.In(time.Local).Format("2006-01-02 15:04")
 	}
-	ref := "无"
+	ref := t.StatusNone
 	if u.RefBy.Valid {
 		ref = fmt.Sprintf("%d", u.RefBy.Int64)
 	}
-	return fmt.Sprintf(`MechBot 账户状态
-
-版本: %s
-监控地址: %d/%d
-Pro 到期: %s
-推荐人: %s`, plan, u.AddressCount, u.AddressLimit(now), expire, ref)
+	return fmt.Sprintf(t.Status, plan, u.AddressCount, u.AddressLimit(now), expire, ref)
 }
 
 func parseTime(v sql.NullString) time.Time {

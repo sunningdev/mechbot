@@ -13,6 +13,7 @@ import LiquidationFlow from "../components/LiquidationFlow";
 import LoginDialog from "../components/LoginDialog";
 import StatusStrip from "../components/StatusStrip";
 import { tr } from "../i18n";
+import { safeUrl, TELEGRAM_HOSTS } from "../links";
 
 const navLinks = () => [
   { label: tr("清算地图", "Liq. map"), href: "#liqmap" },
@@ -57,15 +58,62 @@ const trust = () => [
   { title: tr("最少数据", "Minimal data"), body: tr("不要邮箱和密码，不记录 IP。", "No email, no password, no IP logging.") },
 ];
 
-const loopPains = () => [
+const heroPoints = () => [
   {
-    pro: true,
-    pain: tr("ETH 一根针，预言机还没动，你已经来不及", "ETH wicks down before the oracle moves, and by then it's too late"),
-    fix: tr(
-      "按币安实时价格估算健康因子，抢在链上预言机更新之前提醒你。",
-      "We estimate your health factor from live Binance prices and alert you before the on-chain oracle updates.",
+    title: tr("比预言机更早", "Ahead of the oracle"),
+    body: tr(
+      "用币安实时价估算健康因子，插针时抢在预言机更新前提醒你。",
+      "Live Binance prices catch a wick before the on-chain oracle does.",
+    ),
+    note: tr(
+      "基于币安实时价估算，仅供参考，不构成链上清算保证。",
+      "An estimate for reference only, not a guarantee about on-chain liquidation.",
     ),
   },
+  {
+    title: tr("告诉你补多少", "Exactly how much to fix"),
+    body: tr(
+      "直接写明「还 12,800 USDC」或「补 8.27 weETH」，附协议直达链接，一点就能处理。",
+      "“Repay 12,800 USDC” or “add 8.27 weETH”, with a direct link to fix it.",
+    ),
+  },
+  {
+    title: tr("一个地址，多链监听", "One address, every chain"),
+    body: tr(
+      "粘贴一个地址，自动找出 Ethereum、Arbitrum、Optimism 上的 Aave、Compound、Morpho 仓位。",
+      "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.",
+    ),
+  },
+  {
+    title: tr("自定义预警线，灵活提醒", "Your own alert line, smart reminders"),
+    body: tr(
+      "每个地址单独设线，改完立刻检查。低于线每小时提醒，低于 1.05 每 15 分钟提醒。",
+      "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.",
+    ),
+  },
+  {
+    title: tr("循环贷专属预警", "Built for loopers"),
+    body: tr(
+      "借款利率飙升、stETH 或稳定币脱锚，在循环收益变负、仓位变危险前提醒你。",
+      "Borrow rate spikes and stETH or stablecoin depegs, flagged before your loop turns negative or risky.",
+    ),
+  },
+  {
+    title: tr("清算地图", "Liquidation map"),
+    body: tr(
+      "ETH 跌到哪、爆多少、清算墙在哪，一张图看清。",
+      "Where ETH breaks, how much gets liquidated, where the walls are, in one chart.",
+    ),
+  },
+];
+
+const heroTags = () => [
+  tr("每 5 分钟检查", "Checked every 5 min"),
+  tr("Telegram 私聊", "Telegram DM"),
+  tr("不连钱包、不签名", "No wallet connect, no signing"),
+];
+
+const loopPains = () => [
   {
     pro: true,
     pain: tr("利率悄悄飙到 20%，循环收益变负，自己没察觉", "Borrow APY quietly hits 20% and your loop turns negative"),
@@ -77,14 +125,6 @@ const loopPains = () => [
     fix: tr(
       "盯住你仓位里的 USDC、USDT、DAI、USDe、GHO、stETH、eETH，偏离锚定就提醒，回到锚定再通知。",
       "We watch the USDC, USDT, DAI, USDe, GHO, stETH and eETH in your position and alert you when one drifts off its peg, then again when it's back.",
-    ),
-  },
-  {
-    pro: false,
-    pain: tr("半夜收到预警，还得自己算还多少", "An alert at 3 a.m., and you still have to do the math"),
-    fix: tr(
-      "预警里直接写明还多少、补多少，附处理链接，一点就去。",
-      "The alert says exactly how much to repay or add, with a link to go fix it.",
     ),
   },
 ];
@@ -229,9 +269,11 @@ export default function Landing() {
   useEffect(() => {
     api.me().then(() => setLoggedIn(true), () => setLoggedIn(false));
     api.config().then((c) => {
+      const bot = safeUrl(c.botUrl, TELEGRAM_HOSTS);
+      if (!bot) return;
       const ref = storedRef();
-      setBotUrl(ref ? `${c.botUrl}?start=ref_${ref}` : c.botUrl);
-      setBotName(c.botUrl.split("/").pop() || "MechFi_bot");
+      setBotUrl(ref ? `${bot}?start=ref_${ref}` : bot);
+      setBotName(bot.split("/").pop() || "MechFi_bot");
     }, () => undefined);
   }, []);
 
@@ -284,40 +326,29 @@ export default function Landing() {
               <br />
               {tr("先提醒你。", "we wake you up.")}
             </h1>
-            <p className="lead">
-              {tr("不只提醒，还告诉你还多少、补多少。", "Not just a warning: exactly how much to repay or add.")}
-              <br />
-              <b className="lead-hl">
-                {tr(
-                  "用交易所实时价格提前预警，抢在链上预言机更新之前。",
-                  "Early alerts from live exchange prices, before the on-chain oracle catches up.",
-                )}
-              </b>
-            </p>
+            <ol className="hero-points">
+              {heroPoints().map((p, i) => (
+                <li key={i}>
+                  <span className="hero-no">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <b>{p.title}</b>
+                    <p>{p.body}</p>
+                    {"note" in p && <small className="hero-note">{p.note}</small>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <ul className="hero-tags">
+              {heroTags().map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
             <div className="hero-actions">
               {start(loggedIn ? consoleLabel : tr("免费追踪", "Track for free"))}
               <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer">
                 {tr("打开", "Open")} @{botName}
               </a>
             </div>
-            <dl className="hero-specs">
-              <div>
-                <dt>{tr("检查间隔", "Interval")}</dt>
-                <dd>5 MIN</dd>
-              </div>
-              <div>
-                <dt>{tr("协议", "Protocols")}</dt>
-                <dd>3</dd>
-              </div>
-              <div>
-                <dt>{tr("链", "Chains")}</dt>
-                <dd>3</dd>
-              </div>
-              <div>
-                <dt>Starter</dt>
-                <dd>FREE</dd>
-              </div>
-            </dl>
           </div>
           <HealthGauge />
         </section>

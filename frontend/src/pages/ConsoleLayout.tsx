@@ -4,7 +4,7 @@ import { api, ApiError, type Me } from "../api";
 import Brand from "../components/Brand";
 import LangToggle from "../components/LangToggle";
 import StatusStrip from "../components/StatusStrip";
-import { tr } from "../i18n";
+import { langChosen, tr, useLang } from "../i18n";
 
 export type ConsoleContext = { me: Me; refresh: () => Promise<void> };
 
@@ -34,6 +34,12 @@ export default function ConsoleLayout() {
     const timer = window.setInterval(() => void refresh(), 30_000);
     return () => window.clearInterval(timer);
   }, [refresh]);
+
+  const lang = useLang();
+  const signedIn = me !== null;
+  useEffect(() => {
+    if (signedIn && langChosen()) api.setLang(lang).catch(() => undefined);
+  }, [lang, signedIn]);
 
   async function logout() {
     await api.logout().catch(() => undefined);

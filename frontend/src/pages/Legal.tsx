@@ -8,7 +8,9 @@ export default function Legal({ kind }: { kind: LegalKind }) {
   useLang();
   const doc = legalDoc(kind);
 
-  useEffect(() => window.scrollTo(0, 0), [kind]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [kind]);
 
   useEffect(() => {
     document.title = `${doc.title} · MechBot`;

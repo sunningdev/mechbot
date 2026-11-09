@@ -17,6 +17,7 @@ import (
 
 	"mechbot/internal/config"
 	"mechbot/internal/evmrpc"
+	"mechbot/internal/i18n"
 	"mechbot/internal/store"
 )
 
@@ -251,21 +252,40 @@ func (s *Service) credit(ctx context.Context, chain Chain, txHash string, logInd
 	}
 	amount := FormatAmount(amountMicro)
 	log.Printf("收到充值 user=%d %s %s USDT tx=%s days=%d", owner, chain.Key, amount, txHash, d.Days)
+	t := s.text(owner)
 	if !ok {
-		s.notify(ctx, owner, fmt.Sprintf("⚠️ 收到 %s USDT（%s）\n\n低于最低套餐 %d USDT，未能开通 Pro。如有疑问请直接回复机器人。",
-			amount, chain.Name, Plans[0].Price))
+		s.notify(ctx, owner, fmt.Sprintf(t.PayTooLow, amount, chain.Name, Plans[0].Price))
 		return
 	}
 	bonus := ""
 	if result.BonusDays > 0 {
-		bonus = fmt.Sprintf("\n🎁 好友推荐奖励 +%d 天", result.BonusDays)
+		bonus = fmt.Sprintf(t.PayBonus, result.BonusDays)
 	}
-	s.notify(ctx, owner, fmt.Sprintf("✅ MechBot Pro 已开通\n\n收到 %s USDT（%s），%s %d 天%s\nPro 到期: %s",
-		amount, chain.Name, plan.Name, plan.Days, bonus, result.ExpireAt.In(time.Local).Format("2006-01-02 15:04")))
+	s.notify(ctx, owner, fmt.Sprintf(t.PayDone,
+		amount, chain.Name, planName(t, plan), plan.Days, bonus, result.ExpireAt.In(time.Local).Format("2006-01-02 15:04")))
 	s.notifySale(ctx, owner, amount, chain, plan)
 	if result.ReferrerID != 0 {
-		s.notify(ctx, result.ReferrerID, fmt.Sprintf("🎁 推荐奖励 +%d 天\n\n你推荐的用户首次购买了%s。\nPro 到期: %s",
-			result.ReferrerDays, plan.Name, result.ReferrerExpire.In(time.Local).Format("2006-01-02 15:04")))
+		rt := s.text(result.ReferrerID)
+		s.notify(ctx, result.ReferrerID, fmt.Sprintf(rt.PayReferrer,
+			result.ReferrerDays, planName(rt, plan), result.ReferrerExpire.In(time.Local).Format("2006-01-02 15:04")))
+	}
+}
+
+// text is the message set for the user's language.
+func (s *Service) text(telegramID int64) *i18n.Text {
+	return i18n.T(s.store.UserLang(telegramID, ""))
+}
+
+func planName(t *i18n.Text, p Plan) string {
+	switch p.Key {
+	case "month":
+		return t.PlanMonth
+	case "quarter":
+		return t.PlanQuarter
+	case "year":
+		return t.PlanYear
+	default:
+		return p.Name
 	}
 }
 

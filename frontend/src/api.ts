@@ -133,6 +133,7 @@ export const api = {
     send<{ ok: boolean }>("DELETE", `/api/addresses/${encodeURIComponent(address)}`),
   setAddressThreshold: (address: string, threshold: number) =>
     send<{ threshold: number }>("PUT", `/api/addresses/${encodeURIComponent(address)}/threshold`, { threshold }),
+  setLang: (lang: string) => send<{ lang: string }>("PUT", "/api/me/lang", { lang }),
   billing: () => request<Billing>("/api/billing").then(normalizeBilling),
   checkDeposit: () => send<Billing>("POST", "/api/billing/check").then(normalizeBilling),
   billingHistory: (page: number) => request<DepositPage>(`/api/billing/history?page=${page}`),

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api, ApiError, type Deposit, type DepositPage } from "../api";
 import { dateTime } from "../format";
 import { planName, tr } from "../i18n";
+import { EXPLORER_HOSTS, safeUrl } from "../links";
 import ChainLogo from "./ChainLogo";
 
 type Props = { reload: number };
@@ -23,7 +24,9 @@ export default function PurchaseHistory({ reload }: Props) {
   const [data, setData] = useState<DepositPage | null>(null);
   const [error, setError] = useState("");
 
-  useEffect(() => setPage(1), [reload]);
+  useEffect(() => {
+    setPage(1);
+  }, [reload]);
 
   useEffect(() => {
     let live = true;
@@ -81,8 +84,8 @@ export default function PurchaseHistory({ reload }: Props) {
                       </span>
                     </td>
                     <td className="mono">
-                      {d.txUrl ? (
-                        <a href={d.txUrl} target="_blank" rel="noreferrer">
+                      {safeUrl(d.txUrl, EXPLORER_HOSTS) ? (
+                        <a href={safeUrl(d.txUrl, EXPLORER_HOSTS)} target="_blank" rel="noreferrer">
                           {short} ↗
                         </a>
                       ) : (

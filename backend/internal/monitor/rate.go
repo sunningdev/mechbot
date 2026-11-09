@@ -56,7 +56,7 @@ func (m *Monitor) rateAlerts(ctx context.Context, watch store.Watch, positions m
 		}
 		switch decideRate(pos.BorrowAPY, state.InDanger, state.LastAlert, now) {
 		case RateAlert:
-			if err := m.sender.Send(ctx, watch.TelegramID, notify.RateHigh(watch.Address, pos)); err != nil {
+			if err := m.sender.Send(ctx, watch.TelegramID, notify.RateHigh(watch.Lang, watch.Address, pos)); err != nil {
 				log.Printf("发送利率提醒失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
 				continue
 			}
@@ -65,7 +65,7 @@ func (m *Monitor) rateAlerts(ctx context.Context, watch store.Watch, positions m
 			}
 			log.Printf("已提醒借款利率 %s %s %.2f%% -> %d", watch.Address, pos.Label, pos.BorrowAPY*100, watch.TelegramID)
 		case RateCalm:
-			if err := m.sender.Send(ctx, watch.TelegramID, notify.RateCalm(watch.Address, pos)); err != nil {
+			if err := m.sender.Send(ctx, watch.TelegramID, notify.RateCalm(watch.Lang, watch.Address, pos)); err != nil {
 				log.Printf("发送利率恢复失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
 				continue
 			}

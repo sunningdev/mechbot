@@ -55,7 +55,9 @@ export function PostMeta({ date, tag, readMin }: { date: string; tag: string; re
 export function BlogList() {
   const lang = useLang();
 
-  useEffect(() => window.scrollTo(0, 0), []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     document.title = tr("博客 · MechBot", "Blog · MechBot");
@@ -116,7 +118,9 @@ export function BlogPost() {
   const post = findPost(slug);
   const title = post?.title;
 
-  useEffect(() => window.scrollTo(0, 0), [slug]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   useEffect(() => {
     document.title = title ? `${title} · MechBot` : tr("文章不存在 · MechBot", "Post not found · MechBot");

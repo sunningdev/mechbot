@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"mechbot/internal/i18n"
 )
 
 var (
@@ -208,6 +210,15 @@ func (s *Store) DeleteSession(id string) error {
 	return err
 }
 
+// PurgeExpired drops stale login tokens and expired sessions, so unauthenticated login starts can't grow the tables forever.
+func (s *Store) PurgeExpired(now time.Time) error {
+	if _, err := s.db.Exec(`DELETE FROM login_tokens WHERE created_unix < ?`, now.Add(-LoginTokenTTL).Unix()); err != nil {
+		return err
+	}
+	_, err := s.db.Exec(`DELETE FROM sessions WHERE expires_unix < ?`, now.Unix())
+	return err
+}
+
 func extendPro(tx *sql.Tx, telegramID int64, days int, now time.Time) (time.Time, error) {
 	var expire sql.NullString
 	if err := tx.QueryRow(`SELECT expire_at FROM users WHERE telegram_id = ?`, telegramID).Scan(&expire); err != nil {
@@ -236,6 +247,7 @@ type ProNotice struct {
 	Stage        int  // the notice due now
 	Stale        bool // ended too long ago to be worth a message; only mark it
 	AddressCount int
+	Lang         i18n.Lang
 	expireRaw    string
 }
 
@@ -244,7 +256,7 @@ type ProNotice struct {
 func (s *Store) ProNoticesDue(now time.Time, notifyBefore, staleAfter time.Duration) ([]ProNotice, error) {
 	rows, err := s.db.Query(`
 SELECT u.telegram_id, u.expire_at, u.trial, u.pro_notice,
-       (SELECT COUNT(*) FROM addresses a WHERE a.telegram_id = u.telegram_id)
+       (SELECT COUNT(*) FROM addresses a WHERE a.telegram_id = u.telegram_id), u.lang, u.tg_lang
 FROM users u WHERE u.is_premium = 1 AND u.expire_at IS NOT NULL AND u.pro_notice < ?`, NoticeEnded)
 	if err != nil {
 		return nil, err
@@ -255,9 +267,11 @@ FROM users u WHERE u.is_premium = 1 AND u.expire_at IS NOT NULL AND u.pro_notice
 		var n ProNotice
 		var expire sql.NullString
 		var sent int
-		if err := rows.Scan(&n.TelegramID, &expire, &n.Trial, &sent, &n.AddressCount); err != nil {
+		var lang, tgLang string
+		if err := rows.Scan(&n.TelegramID, &expire, &n.Trial, &sent, &n.AddressCount, &lang, &tgLang); err != nil {
 			return nil, err
 		}
+		n.Lang = i18n.Resolve(lang, tgLang)
 		n.ExpireAt, n.expireRaw = parseTime(expire), expire.String
 		if n.ExpireAt.IsZero() {
 			continue

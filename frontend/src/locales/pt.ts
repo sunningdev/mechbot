@@ -208,14 +208,30 @@ const pt: Record<string, string> = {
   "00 / DEFI LIQUIDATION ALERTS": "00 / ALERTAS DE LIQUIDAÇÃO DEFI",
   "Before liquidation,": "Antes da liquidação,",
   "we wake you up.": "a gente te acorda.",
-  "Not just a warning: exactly how much to repay or add.": "Não é só um alerta: diz exatamente quanto pagar ou adicionar.",
-  "Early alerts from live exchange prices, before the on-chain oracle catches up.":
-    "Alertas antecipados com preços de exchange em tempo real, antes de o oráculo on-chain atualizar.",
+  "One address, every chain": "Um endereço, todas as redes",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
+    "Cole um endereço e encontramos seus empréstimos no Aave, Compound e Morpho em Ethereum, Arbitrum e Optimism.",
+  "Your own alert line, smart reminders": "Seu próprio limite, lembretes flexíveis",
+  "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
+    "Um limite por endereço, verificado na hora. Lembrete a cada hora abaixo dele, a cada 15 min abaixo de 1.05.",
+  "An estimate for reference only, not a guarantee about on-chain liquidation.":
+    "Estimativa apenas para referência, não é garantia sobre a liquidação on-chain.",
+  "Ahead of the oracle": "Antes do oráculo",
+  "Built for loopers": "Feito para loops",
+  "Borrow rate spikes and stETH or stablecoin depegs, flagged before your loop turns negative or risky.":
+    "Alta na taxa de empréstimo e desancoragem de stETH ou stablecoins, avisadas antes que seu loop fique negativo ou arriscado.",
+  "Live Binance prices catch a wick before the on-chain oracle does.":
+    "Os preços da Binance em tempo real pegam um pavio antes do oráculo on-chain.",
+  "Exactly how much to fix": "Exatamente quanto corrigir",
+  "“Repay 12,800 USDC” or “add 8.27 weETH”, with a direct link to fix it.":
+    "“Pague 12,800 USDC” ou “adicione 8.27 weETH”, com link direto para resolver.",
+  "Where ETH breaks, how much gets liquidated, where the walls are, in one chart.":
+    "Até onde o ETH cai, quanto é liquidado e onde estão os muros, em um só gráfico.",
+  "Checked every 5 min": "Verificado a cada 5 min",
+  "Telegram DM": "Mensagem privada no Telegram",
+  "No wallet connect, no signing": "Sem conectar carteira, sem assinar",
   "Track for free": "Monitore grátis",
   Open: "Abrir",
-  Interval: "Intervalo",
-  Protocols: "Protocolos",
-  Chains: "Redes",
   Flow: "Fluxo",
   "How alerts work": "Como os alertas funcionam",
   "We watch your positions across protocols and DM you the moment the health factor crosses your line.":
@@ -336,16 +352,10 @@ const pt: Record<string, string> = {
   "Borrow APY over 15% alerts, before your loop turns negative": "Alerta se o APY do empréstimo passar de 15%, antes de o loop dar prejuízo",
   "Repay / add-collateral advice": "Sugestão de pagar / adicionar colateral",
   "Checked every minute near the line": "Verificação a cada minuto perto do limite",
-  "ETH wicks down before the oracle moves, and by then it's too late": "O ETH despenca antes de o oráculo se mexer, e aí já é tarde",
-  "We estimate your health factor from live Binance prices and alert you before the on-chain oracle updates.":
-    "Estimamos seu fator de saúde com preços da Binance em tempo real e avisamos antes de o oráculo on-chain atualizar.",
   "Borrow APY quietly hits 20% and your loop turns negative":
     "O APY do empréstimo sobe em silêncio para 20% e seu loop passa a dar prejuízo",
   "Get alerted the moment borrow APY tops 15%, and again when it cools off.":
     "Alerta assim que o APY do empréstimo passar de 15%, e de novo quando baixar.",
-  "An alert at 3 a.m., and you still have to do the math": "Um alerta às 3 da manhã, e você ainda precisa fazer as contas",
-  "The alert says exactly how much to repay or add, with a link to go fix it.":
-    "O alerta diz exatamente quanto pagar ou adicionar, com um link para resolver.",
   "Sample alert": "Alerta de exemplo",
   "Early alert": "Alerta antecipado",
   "Health factor: on-chain → Binance estimate": "Fator de saúde: on-chain → estimado pela Binance",

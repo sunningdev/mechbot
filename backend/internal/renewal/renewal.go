@@ -49,9 +49,9 @@ func check(ctx context.Context, st *store.Store, sender Sender, renewURL string,
 	}
 	for _, n := range due {
 		if !n.Stale {
-			text := notify.ProEnding(n.Trial, store.FreeAddressLimit, renewURL)
+			text := notify.ProEnding(n.Lang, n.Trial, store.FreeAddressLimit, renewURL)
 			if n.Stage == store.NoticeEnded {
-				text = notify.ProEnded(n.Trial, n.AddressCount, store.FreeAddressLimit, renewURL)
+				text = notify.ProEnded(n.Lang, n.Trial, n.AddressCount, store.FreeAddressLimit, renewURL)
 			}
 			// A failed send is still marked: the downgrade happens regardless, and retrying every few minutes would
 			// spam the log for users who blocked the bot.

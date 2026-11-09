@@ -3,6 +3,7 @@ package liqmap
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -100,14 +101,23 @@ func (s *Service) borrowLogs(ctx context.Context, pool common.Address, from, to 
 	return nil, lastErr
 }
 
+// stripURL drops the request URL from url.Error, since it carries the Etherscan API key.
+func stripURL(err error) error {
+	var uerr *url.Error
+	if errors.As(err, &uerr) {
+		return fmt.Errorf("Etherscan %s: %w", uerr.Op, uerr.Err)
+	}
+	return err
+}
+
 func (s *Service) borrowLogsOnce(ctx context.Context, u string) (logs []esLog, retry bool, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		return nil, false, err
+		return nil, false, stripURL(err)
 	}
 	resp, err := s.http.Do(req)
 	if err != nil {
-		return nil, true, err
+		return nil, true, stripURL(err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {

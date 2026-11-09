@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, storedRef, type LoginStart } from "../api";
 import { tr } from "../i18n";
+import { safeUrl, TELEGRAM_HOSTS } from "../links";
 
 type Props = { onClose: () => void };
 
@@ -125,7 +126,7 @@ export default function LoginDialog({ onClose }: Props) {
               {tr("在 Telegram 里确认，验证码要和这里一致。", "Confirm in Telegram. The code there must match this one.")}
             </p>
             <div className="code">{login.code}</div>
-            <a className="btn btn-primary btn-block" href={login.botUrl} target="_blank" rel="noreferrer">
+            <a className="btn btn-primary btn-block" href={safeUrl(login.botUrl, TELEGRAM_HOSTS)} target="_blank" rel="noreferrer">
               {tr("打开 Telegram 确认", "Open Telegram to confirm")}
             </a>
             <p className="hint">

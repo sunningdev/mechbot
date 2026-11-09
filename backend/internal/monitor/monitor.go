@@ -101,11 +101,33 @@ func (m *Monitor) Refresh(ctx context.Context, address string) {
 			log.Printf("刷新地址崩溃已拦截 %s: %v\n%s", address, p, debug.Stack())
 		}
 	}()
-	m.check(ctx, address, nil)
+	m.check(ctx, address, nil, m.cooldown)
+}
+
+// CheckNow reads one user's address right away and alerts if it is already below the line, ignoring the cooldown.
+// Called after the user adds an address or changes its threshold, so they see the alert work without waiting for the next poll.
+func (m *Monitor) CheckNow(ctx context.Context, address string, telegramID int64) {
+	defer func() {
+		if p := recover(); p != nil {
+			log.Printf("立即检查崩溃已拦截 %s: %v\n%s", address, p, debug.Stack())
+		}
+	}()
+	watches, err := m.store.ListAddresses(telegramID)
+	if err != nil {
+		log.Printf("读取监控地址失败: %v", err)
+		return
+	}
+	var mine []store.Watch
+	for _, w := range watches {
+		if w.Address == address && w.Active {
+			mine = append(mine, w)
+		}
+	}
+	m.check(ctx, address, mine, 0)
 }
 
 // check reads one address on chain, stores the snapshot and runs alerts for the given watches.
-func (m *Monitor) check(ctx context.Context, address string, watches []store.Watch) []protocol.Result {
+func (m *Monitor) check(ctx context.Context, address string, watches []store.Watch, cooldown time.Duration) []protocol.Result {
 	m.checkMu.Lock()
 	defer m.checkMu.Unlock()
 	eth, btc := m.marketPrices()
@@ -115,7 +137,7 @@ func (m *Monitor) check(ctx context.Context, address string, watches []store.Wat
 	m.saveSnapshots(address, results)
 	m.remember(address, results, eth, btc)
 	for _, watch := range watches {
-		m.apply(ctx, watch, results)
+		m.apply(ctx, watch, results, cooldown)
 	}
 	return results
 }
@@ -179,7 +201,7 @@ func (m *Monitor) poll(ctx context.Context) {
 		if ctx.Err() != nil {
 			return
 		}
-		results := m.check(ctx, address, byAddress[address])
+		results := m.check(ctx, address, byAddress[address], m.cooldown)
 		for _, r := range results {
 			if r.Failure != nil {
 				failCount[r.Failure.Label]++
@@ -243,7 +265,7 @@ func (m *Monitor) saveSnapshots(address string, results []protocol.Result) {
 	}
 }
 
-func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protocol.Result) {
+func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protocol.Result, cooldown time.Duration) {
 	positions := map[string]protocol.Position{}
 	failed := map[string]struct{}{}
 	for _, result := range results {
@@ -280,9 +302,9 @@ func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protoc
 			log.Printf("读取预警状态失败: %v", err)
 			continue
 		}
-		switch decide(pos.HasDebt, pos.HealthFactor, watch.Threshold, state.InDanger, state.LastAlert, now, m.cooldown) {
+		switch decide(pos.HasDebt, pos.HealthFactor, watch.Threshold, state.InDanger, state.LastAlert, now, cooldown) {
 		case ActionAlert:
-			text := notify.Danger(watch.Address, watch.Threshold, pos)
+			text := notify.Danger(watch.Lang, watch.Address, watch.Threshold, pos)
 			if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
 				log.Printf("发送预警失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
 				continue
@@ -292,7 +314,7 @@ func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protoc
 			}
 			log.Printf("已预警 %s %s 健康因子 %.4f -> %d", watch.Address, pos.Label, pos.HealthFactor, watch.TelegramID)
 		case ActionSafe:
-			text := notify.Safe(watch.Address, watch.Threshold, pos)
+			text := notify.Safe(watch.Lang, watch.Address, watch.Threshold, pos)
 			if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
 				log.Printf("发送安全通知失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
 				continue

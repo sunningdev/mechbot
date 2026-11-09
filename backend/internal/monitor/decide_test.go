@@ -38,3 +38,15 @@ func TestDecide(t *testing.T) {
 		})
 	}
 }
+
+// An immediate check after adding an address or changing its threshold passes a zero cooldown.
+func TestDecideImmediate(t *testing.T) {
+	now := time.Date(2026, 10, 28, 12, 0, 0, 0, time.UTC)
+	justAlerted := now.Add(-time.Minute)
+	if got := decide(true, 1.1, 1.2, true, justAlerted, now, 0); got != ActionAlert {
+		t.Fatalf("below the line: got %v want alert", got)
+	}
+	if got := decide(true, 1.5, 1.2, false, time.Time{}, now, 0); got != ActionNone {
+		t.Fatalf("above the line: got %v want none", got)
+	}
+}

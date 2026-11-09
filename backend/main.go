@@ -74,6 +74,7 @@ func main() {
 	pegs := depeg.NewFeed()
 	go pegs.Run(ctx)
 	poller.SetDepeg(pegs)
+	bot.SetCheckNow(poller.CheckNow)
 	liqMap := liqmap.New(st, cfg.LiqmapRPCURL, cfg.EtherscanKey)
 	defer liqMap.Close()
 
@@ -92,6 +93,9 @@ func main() {
 		Addr:              cfg.HTTPAddr,
 		Handler:           site.Handler(),
 		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      60 * time.Second, // above the 45s deposit check
+		IdleTimeout:       120 * time.Second,
 	}
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

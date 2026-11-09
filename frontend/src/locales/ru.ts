@@ -208,14 +208,30 @@ const ru: Record<string, string> = {
   "00 / DEFI LIQUIDATION ALERTS": "00 / ОПОВЕЩЕНИЯ О ЛИКВИДАЦИИ DEFI",
   "Before liquidation,": "До ликвидации",
   "we wake you up.": "мы вас разбудим.",
-  "Not just a warning: exactly how much to repay or add.": "Не просто сигнал: сколько погасить или добавить.",
-  "Early alerts from live exchange prices, before the on-chain oracle catches up.":
-    "Ранние оповещения по живым ценам бирж, до обновления ончейн-оракула.",
+  "One address, every chain": "Один адрес — все сети",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
+    "Вставьте один адрес — найдём его займы в Aave, Compound и Morpho на Ethereum, Arbitrum и Optimism.",
+  "Your own alert line, smart reminders": "Свой порог, гибкие напоминания",
+  "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
+    "Свой порог для каждого адреса, проверка сразу. Напоминание каждый час ниже порога, каждые 15 мин ниже 1.05.",
+  "An estimate for reference only, not a guarantee about on-chain liquidation.":
+    "Оценка только для справки, не гарантия относительно ончейн-ликвидации.",
+  "Ahead of the oracle": "Раньше оракула",
+  "Built for loopers": "Для лупинга",
+  "Borrow rate spikes and stETH or stablecoin depegs, flagged before your loop turns negative or risky.":
+    "Скачок ставки займа и депег stETH или стейблкоина — предупредим, пока луп не ушёл в минус и не стал опасным.",
+  "Live Binance prices catch a wick before the on-chain oracle does.":
+    "Живые цены Binance замечают прокол раньше ончейн-оракула.",
+  "Exactly how much to fix": "Сколько именно исправить",
+  "“Repay 12,800 USDC” or “add 8.27 weETH”, with a direct link to fix it.":
+    "«Погасите 12,800 USDC» или «добавьте 8.27 weETH» — с прямой ссылкой, чтобы сразу исправить.",
+  "Where ETH breaks, how much gets liquidated, where the walls are, in one chart.":
+    "Куда упадёт ETH, сколько ликвидируют, где стены — на одном графике.",
+  "Checked every 5 min": "Проверка каждые 5 мин",
+  "Telegram DM": "Личные сообщения в Telegram",
+  "No wallet connect, no signing": "Без подключения кошелька и подписей",
   "Track for free": "Отслеживать бесплатно",
   Open: "Открыть",
-  Interval: "Интервал",
-  Protocols: "Протоколы",
-  Chains: "Сети",
   Flow: "Процесс",
   "How alerts work": "Как работают оповещения",
   "We watch your positions across protocols and DM you the moment the health factor crosses your line.":
@@ -336,15 +352,9 @@ const ru: Record<string, string> = {
   "Borrow APY over 15% alerts, before your loop turns negative": "Оповещение при ставке займа выше 15%, пока цикл не ушёл в минус",
   "Repay / add-collateral advice": "Совет: погасить / добавить залог",
   "Checked every minute near the line": "Проверка каждую минуту у порога",
-  "ETH wicks down before the oracle moves, and by then it's too late": "ETH резко падает раньше, чем обновится оракул, и уже поздно",
-  "We estimate your health factor from live Binance prices and alert you before the on-chain oracle updates.":
-    "Мы оцениваем фактор здоровья по живым ценам Binance и предупреждаем до обновления ончейн-оракула.",
   "Borrow APY quietly hits 20% and your loop turns negative": "Ставка займа тихо дошла до 20%, и ваш цикл ушёл в минус",
   "Get alerted the moment borrow APY tops 15%, and again when it cools off.":
     "Оповещение, как только APY займа превысит 15%, и ещё одно, когда он снизится.",
-  "An alert at 3 a.m., and you still have to do the math": "Оповещение в 3 часа ночи, а считать всё равно вам",
-  "The alert says exactly how much to repay or add, with a link to go fix it.":
-    "В оповещении сказано, сколько погасить или довнести, и есть ссылка, чтобы сразу всё исправить.",
   "Sample alert": "Пример оповещения",
   "Early alert": "Раннее оповещение",
   "Health factor: on-chain → Binance estimate": "Фактор здоровья: ончейн → оценка по Binance",

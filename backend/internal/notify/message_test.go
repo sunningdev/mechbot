@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"mechbot/internal/i18n"
 	"mechbot/internal/protocol"
 )
 
@@ -36,30 +37,42 @@ func TestDangerIncludesRescue(t *testing.T) {
 		LiqETHPrice:  2272.73,
 		AppURL:       "https://app.aave.com/?marketName=proto_mainnet_v3",
 	}
-	text := Danger("0xabc", 1.2, pos)
+	text := Danger(i18n.ZH, "0xabc", 1.2, pos)
 	for _, want := range []string{"回到 1.50", "还款 2,667 USDC", "或补抵押 2.00 WETH", "ETH 再跌 9.1%", "去处理: https://app.aave.com"} {
 		if !strings.Contains(text, want) {
 			t.Errorf("missing %q in:\n%s", want, text)
+		}
+	}
+
+	text = Danger(i18n.EN, "0xabc", 1.2, pos)
+	for _, want := range []string{"Health factor: 1.1000", "Repay 2,667 USDC", "Stay calm, stay ahead."} {
+		if !strings.Contains(text, want) {
+			t.Errorf("missing %q in:\n%s", want, text)
+		}
+	}
+	for _, r := range text {
+		if r >= 0x4e00 && r <= 0x9fff {
+			t.Fatalf("English alert contains Chinese:\n%s", text)
 		}
 	}
 }
 
 func TestAdded(t *testing.T) {
 	quiet := []protocol.Result{{Position: protocol.Position{Label: "Aave V3 · Ethereum"}}}
-	if text := Added("0xabc", 1.2, quiet, false); !strings.Contains(text, "目前没有借款") || !strings.Contains(text, "需要 Pro") {
+	if text := Added(i18n.ZH, "0xabc", 1.2, quiet, false); !strings.Contains(text, "目前没有借款") || !strings.Contains(text, "需要 Pro") {
 		t.Errorf("starter no-debt reply:\n%s", text)
 	}
-	if text := Added("0xabc", 1.2, quiet, true); strings.Contains(text, "需要 Pro") {
+	if text := Added(i18n.ZH, "0xabc", 1.2, quiet, true); strings.Contains(text, "需要 Pro") {
 		t.Errorf("pro reply should not upsell:\n%s", text)
 	}
 
 	failed := append(quiet, protocol.Result{Failure: &protocol.Failure{Label: "Morpho Blue", Err: errors.New("timeout")}})
-	if text := Added("0xabc", 1.2, failed, false); strings.Contains(text, "目前没有借款") || !strings.Contains(text, "/list") {
+	if text := Added(i18n.ZH, "0xabc", 1.2, failed, false); strings.Contains(text, "目前没有借款") || !strings.Contains(text, "/list") {
 		t.Errorf("a failed lookup must not claim no debt:\n%s", text)
 	}
 
 	debt := []protocol.Result{{Position: protocol.Position{Label: "Aave V3 · Ethereum", HasDebt: true, HealthFactor: 1.12, DebtUSD: 1000}}}
-	if text := Added("0xabc", 1.2, debt, false); !strings.Contains(text, "健康因子 1.1200") {
+	if text := Added(i18n.ZH, "0xabc", 1.2, debt, false); !strings.Contains(text, "健康因子 1.1200") {
 		t.Errorf("debt reply should list the position:\n%s", text)
 	}
 }

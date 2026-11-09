@@ -4,6 +4,8 @@ package evmrpc
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -101,10 +103,23 @@ func (p *Pool) Do(ctx context.Context, urls []string, fn func(*ethclient.Client)
 			}
 			return nil
 		}
-		lastErr = err
+		lastErr = redact(err)
 		if ctx.Err() != nil {
 			break
 		}
 	}
 	return lastErr
+}
+
+// redact reduces a url.Error to the endpoint's host, since RPC URLs often carry provider keys in the path or query.
+func redact(err error) error {
+	var uerr *url.Error
+	if !errors.As(err, &uerr) {
+		return err
+	}
+	host := "rpc"
+	if u, perr := url.Parse(uerr.URL); perr == nil && u.Host != "" {
+		host = u.Host
+	}
+	return fmt.Errorf("%s %s: %w", uerr.Op, host, uerr.Err)
 }

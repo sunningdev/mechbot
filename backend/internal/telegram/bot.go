@@ -13,37 +13,46 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"mechbot/internal/config"
+	"mechbot/internal/i18n"
 	"mechbot/internal/notify"
 	"mechbot/internal/protocol"
 	"mechbot/internal/store"
 )
 
-const loginPrefix = "login_"
+const (
+	loginPrefix = "login_"
+	langData    = "lang:"
+)
 
 type Bot struct {
 	client  *Client
 	store   *store.Store
 	chains  *protocol.Registry
 	siteURL string
+	// checkNow, when set, alerts right away if a newly added address is already below its line.
+	checkNow func(ctx context.Context, address string, telegramID int64)
 }
 
 func NewBot(client *Client, st *store.Store, chains *protocol.Registry, siteURL string) *Bot {
 	return &Bot{client: client, store: st, chains: chains, siteURL: siteURL}
 }
 
-func (b *Bot) helpText() string {
-	text := `MechBot 清算预警
+func (b *Bot) SetCheckNow(f func(ctx context.Context, address string, telegramID int64)) {
+	b.checkNow = f
+}
 
-/add 0x... 添加监控地址（Starter 3 个，Pro 20 个）
-/list 查看各协议健康因子
-/remove 0x... 删除地址
-/status 查看账户状态
+// lang remembers the Telegram client language and returns the language to answer this user in.
+func (b *Bot) lang(from User) i18n.Lang {
+	if from.LanguageCode != "" {
+		_ = b.store.SetTelegramLang(from.ID, from.LanguageCode)
+	}
+	return b.store.UserLang(from.ID, from.LanguageCode)
+}
 
-每个地址的预警线默认 1.2，可在网页控制台的地址卡片上修改。
-
-Starter（永久免费）预警 Aave V3（Ethereum、Arbitrum、Optimism）。Pro 额外预警 Compound V3 和 Morpho Blue。`
+func (b *Bot) helpText(t *i18n.Text) string {
+	text := t.Help
 	if b.siteURL != "" {
-		text += "\n\n网页控制台: " + b.siteURL
+		text += fmt.Sprintf(t.HelpConsole, b.siteURL)
 	}
 	return text
 }
@@ -99,11 +108,16 @@ func (b *Bot) handle(ctx context.Context, update Update) {
 	if cmd == "" {
 		return
 	}
-	if cmd == "/start" && strings.HasPrefix(args, loginPrefix) {
-		b.askLogin(ctx, msg, strings.TrimPrefix(args, loginPrefix))
+	t := i18n.T(b.lang(*msg.From))
+	switch {
+	case cmd == "/start" && strings.HasPrefix(args, loginPrefix):
+		b.askLogin(ctx, msg, t, strings.TrimPrefix(args, loginPrefix))
+		return
+	case cmd == "/lang":
+		b.askLang(ctx, msg.Chat.ID, t)
 		return
 	}
-	reply := b.dispatch(ctx, *msg.From, cmd, args)
+	reply := b.dispatch(ctx, *msg.From, t, cmd, args)
 	if reply == "" {
 		return
 	}
@@ -112,92 +126,136 @@ func (b *Bot) handle(ctx context.Context, update Update) {
 	}
 }
 
-func (b *Bot) askLogin(ctx context.Context, msg *Message, token string) {
+func (b *Bot) askLogin(ctx context.Context, msg *Message, t *i18n.Text, token string) {
 	if msg.Chat.Type != "" && msg.Chat.Type != "private" {
-		_ = b.client.Send(ctx, msg.Chat.ID, "请在和机器人的私聊里确认登录。")
+		_ = b.client.Send(ctx, msg.Chat.ID, t.LoginPrivate)
 		return
 	}
 	login, err := b.store.LoginToken(token)
 	if err != nil || login.Status != "pending" {
-		_ = b.client.Send(ctx, msg.Chat.ID, "登录链接无效或已过期。回到网页重新点「用 Telegram 登录」。")
+		_ = b.client.Send(ctx, msg.Chat.ID, t.LoginInvalid)
 		return
 	}
-	text := fmt.Sprintf(`你正在登录 MechBot 网页控制台。
-
-网页上显示的验证码: %s
-
-验证码一致再点「确认登录」。如果不是你本人刚在网页上点的登录，不要确认。`, login.Code)
-	if err := b.client.SendButtons(ctx, msg.Chat.ID, text, Button{Text: "确认登录", Data: "login:" + token}); err != nil {
+	text := fmt.Sprintf(t.LoginPrompt, login.Code)
+	if err := b.client.SendButtons(ctx, msg.Chat.ID, text, Button{Text: t.LoginButton, Data: "login:" + token}); err != nil {
 		log.Printf("发送登录确认失败: %v", err)
 	}
 }
 
+// askLang shows every language in its own name, two per row.
+func (b *Bot) askLang(ctx context.Context, chatID int64, t *i18n.Text) {
+	var rows [][]Button
+	for i, l := range i18n.All {
+		if i%2 == 0 {
+			rows = append(rows, nil)
+		}
+		rows[len(rows)-1] = append(rows[len(rows)-1], Button{Text: l.Name(), Data: langData + string(l)})
+	}
+	if err := b.client.SendKeyboard(ctx, chatID, t.LangPrompt, rows); err != nil {
+		log.Printf("发送语言选择失败: %v", err)
+	}
+}
+
 func (b *Bot) handleCallback(ctx context.Context, cb *CallbackQuery) {
-	if !strings.HasPrefix(cb.Data, "login:") || cb.From.IsBot {
+	if cb.From.IsBot {
 		_ = b.client.AnswerCallback(ctx, cb.ID, "")
 		return
 	}
-	token := strings.TrimPrefix(cb.Data, "login:")
+	switch {
+	case strings.HasPrefix(cb.Data, "login:"):
+		b.confirmLogin(ctx, cb, i18n.T(b.lang(cb.From)), strings.TrimPrefix(cb.Data, "login:"))
+	case strings.HasPrefix(cb.Data, langData):
+		b.pickLang(ctx, cb, strings.TrimPrefix(cb.Data, langData))
+	default:
+		_ = b.client.AnswerCallback(ctx, cb.ID, "")
+	}
+}
+
+func (b *Bot) pickLang(ctx context.Context, cb *CallbackQuery, code string) {
+	l, ok := i18n.Parse(code)
+	if !ok {
+		_ = b.client.AnswerCallback(ctx, cb.ID, "")
+		return
+	}
+	_, err := b.store.EnsureUser(cb.From.ID, nil, config.DefaultThreshold)
+	if err == nil {
+		err = b.store.SetLang(cb.From.ID, l)
+	}
+	if err != nil {
+		log.Printf("保存语言失败: %v", err)
+		_ = b.client.AnswerCallback(ctx, cb.ID, i18n.T(b.lang(cb.From)).QueryFailed)
+		return
+	}
+	_ = b.client.AnswerCallback(ctx, cb.ID, "")
+	b.editCallback(ctx, cb, i18n.T(l).LangSet)
+}
+
+func (b *Bot) confirmLogin(ctx context.Context, cb *CallbackQuery, t *i18n.Text, token string) {
 	login, err := b.store.LoginToken(token)
 	if err != nil {
-		_ = b.client.AnswerCallback(ctx, cb.ID, "登录链接已过期")
-		b.editCallback(ctx, cb, "登录链接已过期。回到网页重新点「用 Telegram 登录」。")
+		_ = b.client.AnswerCallback(ctx, cb.ID, t.LoginExpiredToast)
+		b.editCallback(ctx, cb, t.LoginExpired)
 		return
 	}
 	created, err := b.store.EnsureUser(cb.From.ID, login.RefBy, config.DefaultThreshold)
 	if err != nil {
 		log.Printf("登录注册用户失败: %v", err)
-		_ = b.client.AnswerCallback(ctx, cb.ID, "登录失败，请重试")
+		_ = b.client.AnswerCallback(ctx, cb.ID, t.LoginFailedToast)
 		return
 	}
 	_ = b.store.UpdateProfile(cb.From.ID, cb.From.Username, cb.From.FirstName)
+	if cb.From.LanguageCode != "" {
+		_ = b.store.SetTelegramLang(cb.From.ID, cb.From.LanguageCode)
+	}
 	if err := b.store.ConfirmLoginToken(token, cb.From.ID); err != nil {
-		_ = b.client.AnswerCallback(ctx, cb.ID, "登录链接已失效")
-		b.editCallback(ctx, cb, "这个登录链接已经用过或已过期。")
+		_ = b.client.AnswerCallback(ctx, cb.ID, t.LoginUsedToast)
+		b.editCallback(ctx, cb, t.LoginUsed)
 		return
 	}
-	_ = b.client.AnswerCallback(ctx, cb.ID, "已确认")
-	text := "已确认登录。回到网页即可，页面会自动进入控制台。"
+	_ = b.client.AnswerCallback(ctx, cb.ID, t.LoginConfirmToast)
+	text := t.LoginConfirmed
 	if created {
-		text += trialNote
+		text += trialNote(t)
 	}
 	b.editCallback(ctx, cb, text)
 }
 
-var trialNote = fmt.Sprintf("\n\n🎁 新用户送 %d 天 Pro 体验：全部协议预警、提前预警、实时清算地图。到期不会自动扣费，没续费就回到免费的 Starter。", store.TrialDays)
+func trialNote(t *i18n.Text) string {
+	return fmt.Sprintf(t.TrialNote, store.TrialDays)
+}
 
 func (b *Bot) editCallback(ctx context.Context, cb *CallbackQuery, text string) {
 	if cb.Message == nil {
 		return
 	}
 	if err := b.client.EditText(ctx, cb.Message.Chat.ID, cb.Message.MessageID, text); err != nil {
-		log.Printf("更新登录消息失败: %v", err)
+		log.Printf("更新按钮消息失败: %v", err)
 	}
 }
 
-func (b *Bot) dispatch(ctx context.Context, from User, cmd, args string) string {
+func (b *Bot) dispatch(ctx context.Context, from User, t *i18n.Text, cmd, args string) string {
 	userID := from.ID
 	switch cmd {
 	case "/start":
-		return b.start(from, args)
+		return b.start(from, t, args)
 	case "/help":
-		return b.helpText()
+		return b.helpText(t)
 	case "/status":
-		return b.status(userID)
+		return b.status(t, userID)
 	case "/add":
-		return b.add(ctx, userID, args)
+		return b.add(ctx, t, userID, args)
 	case "/remove":
-		return b.remove(userID, args)
+		return b.remove(t, userID, args)
 	case "/set_threshold":
-		return b.setThresholdMoved()
+		return b.setThresholdMoved(t)
 	case "/list":
-		return b.list(ctx, userID)
+		return b.list(ctx, t, userID)
 	default:
-		return "没有这个命令。\n\n" + b.helpText()
+		return t.UnknownCommand + "\n\n" + b.helpText(t)
 	}
 }
 
-func (b *Bot) start(from User, args string) string {
+func (b *Bot) start(from User, t *i18n.Text, args string) string {
 	var ref *int64
 	if id, ok := parseRef(args); ok {
 		ref = &id
@@ -205,37 +263,40 @@ func (b *Bot) start(from User, args string) string {
 	created, err := b.store.EnsureUser(from.ID, ref, config.DefaultThreshold)
 	if err != nil {
 		log.Printf("注册用户失败: %v", err)
-		return "注册失败，请稍后再试。"
+		return t.RegisterFailed
 	}
 	_ = b.store.UpdateProfile(from.ID, from.Username, from.FirstName)
-	if created {
-		return "已注册。" + trialNote + "\n\n" + b.helpText()
+	if from.LanguageCode != "" {
+		_ = b.store.SetTelegramLang(from.ID, from.LanguageCode)
 	}
-	return "你已经注册过了。\n\n" + b.helpText()
+	if created {
+		return t.Registered + trialNote(t) + "\n\n" + b.helpText(t)
+	}
+	return t.AlreadyRegistered + "\n\n" + b.helpText(t)
 }
 
-func (b *Bot) status(userID int64) string {
+func (b *Bot) status(t *i18n.Text, userID int64) string {
 	if _, err := b.store.EnsureUser(userID, nil, config.DefaultThreshold); err != nil {
-		return "查询失败，请稍后再试。"
+		return t.QueryFailed
 	}
 	user, err := b.store.GetUser(userID)
 	if err != nil {
-		return "查询失败，请稍后再试。"
+		return t.QueryFailed
 	}
 	return store.FormatStatus(user)
 }
 
-func (b *Bot) add(ctx context.Context, userID int64, args string) string {
+func (b *Bot) add(ctx context.Context, t *i18n.Text, userID int64, args string) string {
 	addr, ok := NormalizeAddress(args)
 	if !ok {
-		return "用法: /add 0x 开头的钱包地址"
+		return t.AddUsage
 	}
 	if _, err := b.store.EnsureUser(userID, nil, config.DefaultThreshold); err != nil {
-		return "添加失败，请稍后再试。"
+		return t.AddFailed
 	}
 	user, err := b.store.GetUser(userID)
 	if err != nil {
-		return "添加失败，请稍后再试。"
+		return t.AddFailed
 	}
 	limit := user.AddressLimit(time.Now())
 	err = b.store.AddAddress(userID, addr, limit)
@@ -244,60 +305,63 @@ func (b *Bot) add(ctx context.Context, userID int64, args string) string {
 		callCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 		defer cancel()
 		results := b.chains.Fetch(callCtx, common.HexToAddress(addr))
-		return notify.Added(addr, config.DefaultThreshold, results, user.ProActive(time.Now()))
+		if b.checkNow != nil {
+			go b.checkNow(ctx, addr, userID)
+		}
+		return notify.Added(user.Lang, addr, config.DefaultThreshold, results, user.ProActive(time.Now()))
 	case errors.Is(err, store.ErrAddressExists):
-		return "这个地址已经在监控里。"
+		return t.AddExists
 	case errors.Is(err, store.ErrAddressLimit):
-		return fmt.Sprintf("当前版本最多 %d 个地址。", limit)
+		return fmt.Sprintf(t.AddLimit, limit)
 	default:
 		log.Printf("添加地址失败: %v", err)
-		return "添加失败，请稍后再试。"
+		return t.AddFailed
 	}
 }
 
-func (b *Bot) remove(userID int64, args string) string {
+func (b *Bot) remove(t *i18n.Text, userID int64, args string) string {
 	addr, ok := NormalizeAddress(args)
 	if !ok {
-		return "用法: /remove 0x 开头的钱包地址"
+		return t.RemoveUsage
 	}
 	err := b.store.RemoveAddress(userID, addr)
 	switch {
 	case err == nil:
-		return "已删除 " + addr
+		return fmt.Sprintf(t.Removed, addr)
 	case errors.Is(err, store.ErrNotFound):
-		return "监控列表里没有这个地址。"
+		return t.RemoveMissing
 	default:
 		log.Printf("删除地址失败: %v", err)
-		return "删除失败，请稍后再试。"
+		return t.RemoveFailed
 	}
 }
 
 // setThresholdMoved answers the retired command: alert lines are now set per address in the web console.
-func (b *Bot) setThresholdMoved() string {
-	text := "预警线现在按地址设置，每个地址默认 1.2，请在网页控制台的地址卡片上修改。"
+func (b *Bot) setThresholdMoved(t *i18n.Text) string {
+	text := t.ThresholdMoved
 	if b.siteURL != "" {
 		text += "\n\n" + b.siteURL
 	}
 	return text
 }
 
-func (b *Bot) list(ctx context.Context, userID int64) string {
+func (b *Bot) list(ctx context.Context, t *i18n.Text, userID int64) string {
 	watches, err := b.store.ListAddresses(userID)
 	if err != nil {
 		log.Printf("读取地址失败: %v", err)
-		return "查询失败，请稍后再试。"
+		return t.QueryFailed
 	}
 	if len(watches) == 0 {
-		return "还没有监控地址。用 /add 0x... 添加。"
+		return t.NoAddresses
 	}
 	callCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	defer cancel()
 	var parts []string
 	for _, watch := range watches {
 		results := b.chains.Fetch(callCtx, common.HexToAddress(watch.Address))
-		text := notify.List(watch.Address, watch.Threshold, results)
+		text := notify.List(watch.Lang, watch.Address, watch.Threshold, results)
 		if !watch.Active {
-			text += "\n\n（超出 Starter 额度，已暂停预警）"
+			text += t.Paused
 		}
 		parts = append(parts, text)
 	}

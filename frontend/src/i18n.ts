@@ -100,6 +100,9 @@ function applyDocument(lang: Lang) {
 
 applyDocument(current);
 
+// langChosen is false while the page only shows the English default, so the bot keeps the Telegram language.
+export const langChosen = () => isLang(localStorage.getItem(KEY));
+
 export function setLang(lang: Lang) {
   if (lang === current) return;
   current = lang;

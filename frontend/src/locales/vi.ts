@@ -208,14 +208,30 @@ const vi: Record<string, string> = {
   "00 / DEFI LIQUIDATION ALERTS": "00 / CẢNH BÁO THANH LÝ DEFI",
   "Before liquidation,": "Trước khi bị thanh lý,",
   "we wake you up.": "chúng tôi đánh thức bạn.",
-  "Not just a warning: exactly how much to repay or add.": "Không chỉ cảnh báo: cho biết chính xác cần trả hay nạp thêm bao nhiêu.",
-  "Early alerts from live exchange prices, before the on-chain oracle catches up.":
-    "Cảnh báo sớm theo giá sàn thời gian thực, trước khi oracle on-chain cập nhật.",
+  "One address, every chain": "Một địa chỉ, mọi chuỗi",
+  "Paste one address to find its Aave, Compound and Morpho loans on Ethereum, Arbitrum and Optimism.":
+    "Dán một địa chỉ, tìm các khoản vay Aave, Compound và Morpho trên Ethereum, Arbitrum và Optimism.",
+  "Your own alert line, smart reminders": "Tự đặt ngưỡng, nhắc linh hoạt",
+  "Set a line per address, checked instantly. Reminders hourly below it, every 15 min under 1.05.":
+    "Mỗi địa chỉ một ngưỡng, kiểm tra ngay. Dưới ngưỡng nhắc mỗi giờ, dưới 1.05 nhắc mỗi 15 phút.",
+  "An estimate for reference only, not a guarantee about on-chain liquidation.":
+    "Chỉ là ước tính để tham khảo, không đảm bảo về thanh lý on-chain.",
+  "Ahead of the oracle": "Nhanh hơn oracle",
+  "Built for loopers": "Dành cho vay vòng",
+  "Borrow rate spikes and stETH or stablecoin depegs, flagged before your loop turns negative or risky.":
+    "Lãi vay tăng vọt, stETH hoặc stablecoin mất neo, báo trước khi vòng vay bị lỗ hay trở nên nguy hiểm.",
+  "Live Binance prices catch a wick before the on-chain oracle does.":
+    "Giá Binance thời gian thực bắt được cú cắm râu trước oracle on-chain.",
+  "Exactly how much to fix": "Biết chính xác cần xử lý bao nhiêu",
+  "“Repay 12,800 USDC” or “add 8.27 weETH”, with a direct link to fix it.":
+    "“Trả 12,800 USDC” hoặc “nạp thêm 8.27 weETH”, kèm liên kết thẳng để xử lý.",
+  "Where ETH breaks, how much gets liquidated, where the walls are, in one chart.":
+    "ETH giảm tới đâu, bao nhiêu bị thanh lý, bức tường ở đâu, gói gọn trong một biểu đồ.",
+  "Checked every 5 min": "Kiểm tra mỗi 5 phút",
+  "Telegram DM": "Nhắn riêng qua Telegram",
+  "No wallet connect, no signing": "Không kết nối ví, không ký",
   "Track for free": "Theo dõi miễn phí",
   Open: "Mở",
-  Interval: "Chu kỳ",
-  Protocols: "Giao thức",
-  Chains: "Chuỗi",
   Flow: "Quy trình",
   "How alerts work": "Cảnh báo hoạt động thế nào",
   "We watch your positions across protocols and DM you the moment the health factor crosses your line.":
@@ -336,15 +352,9 @@ const vi: Record<string, string> = {
   "Borrow APY over 15% alerts, before your loop turns negative": "Báo khi APY vay vượt 15%, trước khi vòng lặp chuyển sang lỗ",
   "Repay / add-collateral advice": "Gợi ý trả nợ / nạp thêm tài sản thế chấp",
   "Checked every minute near the line": "Kiểm tra mỗi phút khi gần ngưỡng",
-  "ETH wicks down before the oracle moves, and by then it's too late": "ETH cắm râu trước khi oracle kịp cập nhật, lúc đó đã quá muộn",
-  "We estimate your health factor from live Binance prices and alert you before the on-chain oracle updates.":
-    "Chúng tôi ước tính hệ số sức khỏe theo giá Binance thời gian thực và cảnh báo trước khi oracle on-chain cập nhật.",
   "Borrow APY quietly hits 20% and your loop turns negative": "Lãi vay lặng lẽ vọt lên 20%, vòng lặp của bạn chuyển sang lỗ",
   "Get alerted the moment borrow APY tops 15%, and again when it cools off.":
     "Cảnh báo ngay khi APY vay vượt 15%, và báo lại khi lãi hạ nhiệt.",
-  "An alert at 3 a.m., and you still have to do the math": "Nhận cảnh báo lúc 3 giờ sáng mà vẫn phải tự tính toán",
-  "The alert says exactly how much to repay or add, with a link to go fix it.":
-    "Cảnh báo ghi rõ cần trả bao nhiêu hoặc nạp thêm bao nhiêu, kèm liên kết để xử lý ngay.",
   "Sample alert": "Tin nhắn mẫu",
   "Early alert": "Cảnh báo sớm",
   "Health factor: on-chain → Binance estimate": "Hệ số sức khỏe: on-chain → ước tính theo Binance",

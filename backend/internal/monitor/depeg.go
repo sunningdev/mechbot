@@ -86,7 +86,7 @@ func (m *Monitor) depegAlerts(ctx context.Context, watch store.Watch, positions 
 			}
 			switch decideDepeg(st.Deviation, p.coin.Threshold, state.InDanger, state.LastAlert, now) {
 			case RateAlert:
-				text := notify.Depeg(watch.Address, pos, p.symbol, p.coin.Name, p.coin.Peg, st.Price, st.Deviation, p.debtSide)
+				text := notify.Depeg(watch.Lang, watch.Address, pos, p.symbol, p.coin.Name, p.coin.Peg, st.Price, st.Deviation, p.debtSide)
 				if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
 					log.Printf("发送脱锚提醒失败 chat=%d %s: %v", watch.TelegramID, key, err)
 					continue
@@ -96,7 +96,7 @@ func (m *Monitor) depegAlerts(ctx context.Context, watch store.Watch, positions 
 				}
 				log.Printf("已提醒脱锚 %s %s %s %+.2f%% -> %d", watch.Address, pos.Label, p.coin.Name, st.Deviation*100, watch.TelegramID)
 			case RateCalm:
-				text := notify.DepegCalm(watch.Address, pos, p.coin.Name, p.coin.Peg, st.Price)
+				text := notify.DepegCalm(watch.Lang, watch.Address, pos, p.coin.Name, p.coin.Peg, st.Price)
 				if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
 					log.Printf("发送脱锚恢复失败 chat=%d %s: %v", watch.TelegramID, key, err)
 					continue

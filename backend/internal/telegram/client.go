@@ -47,6 +47,8 @@ type User struct {
 	IsBot     bool   `json:"is_bot"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name"`
+	// LanguageCode is the IETF tag of the user's Telegram client language, when Telegram shares it.
+	LanguageCode string `json:"language_code"`
 }
 
 type Chat struct {
@@ -102,13 +104,18 @@ func (c *Client) Send(ctx context.Context, chatID int64, text string) error {
 }
 
 func (c *Client) SendButtons(ctx context.Context, chatID int64, text string, buttons ...Button) error {
-	return c.sendOne(ctx, chatID, text, buttons)
+	return c.SendKeyboard(ctx, chatID, text, [][]Button{buttons})
 }
 
-func (c *Client) sendOne(ctx context.Context, chatID int64, text string, buttons []Button) error {
+// SendKeyboard sends text with an inline keyboard laid out row by row.
+func (c *Client) SendKeyboard(ctx context.Context, chatID int64, text string, rows [][]Button) error {
+	return c.sendOne(ctx, chatID, text, rows)
+}
+
+func (c *Client) sendOne(ctx context.Context, chatID int64, text string, rows [][]Button) error {
 	payload := map[string]any{"chat_id": chatID, "text": text, "disable_web_page_preview": true}
-	if len(buttons) > 0 {
-		payload["reply_markup"] = map[string]any{"inline_keyboard": [][]Button{buttons}}
+	if len(rows) > 0 {
+		payload["reply_markup"] = map[string]any{"inline_keyboard": rows}
 	}
 	return c.expectOK(ctx, "sendMessage", payload)
 }
