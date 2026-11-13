@@ -36,6 +36,8 @@ type Config struct {
 	// LiqmapRPCURL feeds the liquidation-map scanner; kept separate so its bulk reads never slow alerts.
 	LiqmapRPCURL string
 	EtherscanKey string
+	// WalletConnectID is the public Reown project ID for paying from a phone wallet; it is shipped to browsers.
+	WalletConnectID string
 }
 
 // PayNet is where deposits are watched. NETWORK=testnet moves only payments to testnets; monitoring always reads mainnet.
@@ -116,24 +118,25 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		BotToken:      token,
-		DBPath:        DBPath(payNet.Testnet),
-		Pay:           payNet,
-		EthRPCURL:     firstNonEmpty(os.Getenv("ETH_RPC_URL"), "https://ethereum.publicnode.com"),
-		ArbRPCURL:     firstNonEmpty(os.Getenv("ARB_RPC_URL"), "https://arb1.arbitrum.io/rpc"),
-		BaseRPCURL:    firstNonEmpty(os.Getenv("BASE_RPC_URL"), "https://base-rpc.publicnode.com"),
-		OpRPCURL:      firstNonEmpty(os.Getenv("OP_RPC_URL"), "https://optimism.publicnode.com"),
-		Interval:      interval,
-		SeedAddress:   strings.TrimSpace(os.Getenv("WATCH_ADDRESS")),
-		SeedThreshold: threshold,
-		HTTPAddr:      firstNonEmpty(os.Getenv("HTTP_ADDR"), "127.0.0.1:8080"),
-		SiteURL:       strings.TrimRight(firstNonEmpty(os.Getenv("SITE_URL"), "http://localhost:5173"), "/"),
-		WebDir:        firstNonEmpty(os.Getenv("WEB_DIR"), "../frontend/dist"),
-		CookieSecure:  strings.EqualFold(strings.TrimSpace(os.Getenv("COOKIE_SECURE")), "true"),
-		PayXpubEVM:    strings.TrimSpace(os.Getenv("PAY_XPUB_EVM")),
-		PayXpubTron:   strings.TrimSpace(os.Getenv("PAY_XPUB_TRON")),
-		LiqmapRPCURL:  strings.TrimSpace(os.Getenv("LIQMAP_ETH_RPC_URL")),
-		EtherscanKey:  strings.TrimSpace(os.Getenv("ETHERSCAN_API_KEY")),
+		BotToken:        token,
+		DBPath:          DBPath(payNet.Testnet),
+		Pay:             payNet,
+		EthRPCURL:       firstNonEmpty(os.Getenv("ETH_RPC_URL"), "https://ethereum.publicnode.com"),
+		ArbRPCURL:       firstNonEmpty(os.Getenv("ARB_RPC_URL"), "https://arb1.arbitrum.io/rpc"),
+		BaseRPCURL:      firstNonEmpty(os.Getenv("BASE_RPC_URL"), "https://base-rpc.publicnode.com"),
+		OpRPCURL:        firstNonEmpty(os.Getenv("OP_RPC_URL"), "https://optimism.publicnode.com"),
+		Interval:        interval,
+		SeedAddress:     strings.TrimSpace(os.Getenv("WATCH_ADDRESS")),
+		SeedThreshold:   threshold,
+		HTTPAddr:        firstNonEmpty(os.Getenv("HTTP_ADDR"), "127.0.0.1:8080"),
+		SiteURL:         strings.TrimRight(firstNonEmpty(os.Getenv("SITE_URL"), "http://localhost:5173"), "/"),
+		WebDir:          firstNonEmpty(os.Getenv("WEB_DIR"), "../frontend/dist"),
+		CookieSecure:    strings.EqualFold(strings.TrimSpace(os.Getenv("COOKIE_SECURE")), "true"),
+		PayXpubEVM:      strings.TrimSpace(os.Getenv("PAY_XPUB_EVM")),
+		PayXpubTron:     strings.TrimSpace(os.Getenv("PAY_XPUB_TRON")),
+		LiqmapRPCURL:    strings.TrimSpace(os.Getenv("LIQMAP_ETH_RPC_URL")),
+		EtherscanKey:    strings.TrimSpace(os.Getenv("ETHERSCAN_API_KEY")),
+		WalletConnectID: strings.TrimSpace(os.Getenv("WALLETCONNECT_PROJECT_ID")),
 	}
 	if raw := strings.TrimSpace(os.Getenv("TELEGRAM_CHAT_ID")); raw != "" {
 		id, err := strconv.ParseInt(raw, 10, 64)

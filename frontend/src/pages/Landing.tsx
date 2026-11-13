@@ -14,6 +14,7 @@ import LoginDialog from "../components/LoginDialog";
 import StatusStrip from "../components/StatusStrip";
 import { tr } from "../i18n";
 import { safeUrl, TELEGRAM_HOSTS } from "../links";
+import { coinOrder, sortByChain } from "../payorder";
 
 const navLinks = () => [
   { label: tr("清算地图", "Liq. map"), href: "#liqmap" },
@@ -246,6 +247,23 @@ const proPlans = () => [
   { key: "quarter", label: tr("季付", "Quarterly"), price: 12, months: 3 },
   { key: "year", label: tr("年付", "Yearly"), price: 36, months: 12 },
 ];
+
+function payLine() {
+  const networks = sortByChain(
+    [
+      ["bsc", "BNB Chain"],
+      ["arbitrum", "Arbitrum"],
+      ["base", "Base"],
+      ["optimism", "Optimism"],
+      ["ethereum", "Ethereum"],
+      ["tron", tr("TRON（季付起）", "TRON (from quarterly)")],
+    ],
+    ([key]) => key,
+  ).map(([, name]) => name);
+  return tr("{0} 开通：{1}", "Pay in {0}: {1}")
+    .replace("{0}", coinOrder().join(" / "))
+    .replace("{1}", networks.join(" / "));
+}
 
 const planSave = (p: { price: number; months: number }) => Math.round((1 - p.price / (5 * p.months)) * 100);
 
@@ -562,12 +580,7 @@ export default function Landing() {
                 <li>{tr("20 个监控地址", "20 watched addresses")}</li>
                 <li>{tr("Aave V3、Compound V3、Morpho Blue 全协议预警", "Alerts for Aave V3, Compound V3 and Morpho Blue")}</li>
                 <li>{tr("Telegram 私聊通知", "Telegram DM alerts")}</li>
-                <li>
-                  {tr(
-                    "USDT / USDC 开通：BNB Chain / Arbitrum / Base / Optimism / Ethereum；TRON 季付起",
-                    "Pay in USDT / USDC: BNB Chain / Arbitrum / Base / Optimism / Ethereum; TRON from quarterly",
-                  )}
-                </li>
+                <li>{payLine()}</li>
               </ul>
               <div className="plan-cta">
                 {loggedIn ? (

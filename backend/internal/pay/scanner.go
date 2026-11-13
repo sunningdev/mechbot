@@ -71,7 +71,7 @@ func (s *Service) scanChain(ctx context.Context, c Chain) (err error) {
 	})
 }
 
-// ScanUser refreshes the user's watch window and runs a scan right away, for the "我已转账" button.
+// ScanUser refreshes the user's watch window and runs a scan right away, for the "I've paid, check now" button.
 func (s *Service) ScanUser(ctx context.Context, telegramID int64) error {
 	if _, _, err := s.DepositAddress(telegramID); err != nil {
 		return err

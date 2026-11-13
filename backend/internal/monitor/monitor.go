@@ -40,7 +40,8 @@ type Monitor struct {
 	interval time.Duration
 	cooldown time.Duration
 
-	// checkMu serialises fetch-and-alert per round so the regular poll and early checks never alert twice.
+	// checkMu serialises applying a read and sending alerts so the regular poll, early checks and
+	// CheckNow never alert twice. On-chain reads happen outside it so a slow read never queues the others.
 	checkMu sync.Mutex
 
 	stateMu sync.Mutex
@@ -123,23 +124,75 @@ func (m *Monitor) CheckNow(ctx context.Context, address string, telegramID int64
 			mine = append(mine, w)
 		}
 	}
-	m.check(ctx, address, mine, 0)
+	// The fresh read confirms the cached alert; with the normal cooldown it won't repeat it, only report a recovery.
+	cooldown := time.Duration(0)
+	if m.alertCached(ctx, address, mine) {
+		cooldown = m.cooldown
+	}
+	m.check(ctx, address, mine, cooldown)
+}
+
+// cachedReadAge is how old the last on-chain read may be for CheckNow to alert from it before reading again.
+const cachedReadAge = 10 * time.Minute
+
+// alertCached alerts from the last on-chain read, so a raised threshold is answered at once instead of after
+// a fresh read that takes several seconds. It only sends alerts; recoveries wait for the fresh read.
+func (m *Monitor) alertCached(ctx context.Context, address string, watches []store.Watch) bool {
+	m.checkMu.Lock()
+	defer m.checkMu.Unlock()
+	m.stateMu.Lock()
+	r, ok := m.reads[address]
+	m.stateMu.Unlock()
+	if !ok || time.Since(r.at) > cachedReadAge {
+		return false
+	}
+	now := time.Now()
+	sent := false
+	for _, watch := range m.current(address, watches) {
+		for _, pos := range r.positions {
+			if !Covered(pos.Key, watch.Pro) {
+				continue
+			}
+			state, err := m.store.AlertState(watch.Address, watch.TelegramID, pos.Key)
+			if err != nil {
+				log.Printf("读取预警状态失败: %v", err)
+				continue
+			}
+			if decide(pos.HasDebt, pos.HealthFactor, watch.Threshold, state.InDanger, state.LastAlert, now, 0) == ActionAlert &&
+				m.alert(ctx, watch, pos, now) {
+				sent = true
+			}
+		}
+	}
+	return sent
 }
 
 // check reads one address on chain, stores the snapshot and runs alerts for the given watches.
 func (m *Monitor) check(ctx context.Context, address string, watches []store.Watch, cooldown time.Duration) []protocol.Result {
-	m.checkMu.Lock()
-	defer m.checkMu.Unlock()
 	eth, btc := m.marketPrices()
+	started := time.Now()
 	callCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	results := m.chains.Fetch(callCtx, common.HexToAddress(address))
 	cancel()
+	m.checkMu.Lock()
+	defer m.checkMu.Unlock()
+	// A read that started later has already been applied; applying this older one could flip alert and recovery.
+	if m.newerRead(address, started) {
+		return results
+	}
 	m.saveSnapshots(address, results)
-	m.remember(address, results, eth, btc)
+	m.remember(address, results, eth, btc, started)
 	for _, watch := range m.current(address, watches) {
 		m.apply(ctx, watch, results, cooldown)
 	}
 	return results
+}
+
+func (m *Monitor) newerRead(address string, started time.Time) bool {
+	m.stateMu.Lock()
+	defer m.stateMu.Unlock()
+	r, ok := m.reads[address]
+	return ok && r.at.After(started)
 }
 
 // current re-reads the given watches, because a poll round lists them up front and the user may change a
@@ -176,8 +229,8 @@ func (m *Monitor) marketPrices() (eth, btc float64) {
 	return eth, btc
 }
 
-func (m *Monitor) remember(address string, results []protocol.Result, eth, btc float64) {
-	r := reading{at: time.Now(), eth: eth, btc: btc}
+func (m *Monitor) remember(address string, results []protocol.Result, eth, btc float64, at time.Time) {
+	r := reading{at: at, eth: eth, btc: btc}
 	for _, result := range results {
 		if result.Failure == nil && result.Position.HasDebt && result.Position.Key != "" {
 			r.positions = append(r.positions, result.Position)
@@ -329,15 +382,7 @@ func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protoc
 		}
 		switch decide(pos.HasDebt, pos.HealthFactor, watch.Threshold, state.InDanger, state.LastAlert, now, cooldown) {
 		case ActionAlert:
-			text := notify.Danger(watch.Lang, watch.Address, watch.Threshold, pos)
-			if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
-				log.Printf("发送预警失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
-				continue
-			}
-			if err := m.store.MarkDanger(watch.Address, watch.TelegramID, pos.Key, now); err != nil {
-				log.Printf("记录预警失败: %v", err)
-			}
-			log.Printf("已预警 %s %s 健康因子 %.4f -> %d", watch.Address, pos.Label, pos.HealthFactor, watch.TelegramID)
+			m.alert(ctx, watch, pos, now)
 		case ActionSafe:
 			text := notify.Safe(watch.Lang, watch.Address, watch.Threshold, pos)
 			if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
@@ -352,6 +397,19 @@ func (m *Monitor) apply(ctx context.Context, watch store.Watch, results []protoc
 	}
 	m.rateAlerts(ctx, watch, positions, now)
 	m.depegAlerts(ctx, watch, positions, now)
+}
+
+func (m *Monitor) alert(ctx context.Context, watch store.Watch, pos protocol.Position, now time.Time) bool {
+	text := notify.Danger(watch.Lang, watch.Address, watch.Threshold, pos)
+	if err := m.sender.Send(ctx, watch.TelegramID, text); err != nil {
+		log.Printf("发送预警失败 chat=%d %s: %v", watch.TelegramID, pos.Key, err)
+		return false
+	}
+	if err := m.store.MarkDanger(watch.Address, watch.TelegramID, pos.Key, now); err != nil {
+		log.Printf("记录预警失败: %v", err)
+	}
+	log.Printf("已预警 %s %s 健康因子 %.4f -> %d", watch.Address, pos.Label, pos.HealthFactor, watch.TelegramID)
+	return true
 }
 
 // Covered reports whether a protocol position triggers alerts for the user's plan.

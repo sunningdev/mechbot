@@ -1,12 +1,12 @@
--- MechBot MySQL 建表脚本（需要 MySQL 8.0+），与 internal/store 里的 SQLite 表结构一一对应
--- 执行: mysql -u root -p < schema/mechbot.sql
--- 可重复执行，已存在的表不会被改动。
--- 目前后端仍用 SQLite；切换到 MySQL 时还要改 store 层的 SQL 方言（INSERT OR IGNORE、ON CONFLICT 等）。
+-- MechBot MySQL schema (MySQL 8.0+), mirroring the SQLite tables in internal/store
+-- Run: mysql -u root -p < schema/mechbot.sql
+-- Safe to rerun; existing tables are left untouched.
+-- The backend still uses SQLite; moving to MySQL also means porting the store layer's SQL dialect (INSERT OR IGNORE, ON CONFLICT, ...).
 
 CREATE DATABASE IF NOT EXISTS mechbot DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 USE mechbot;
 
--- 用户。expire_at 为 RFC3339 文本，空表示从未开通 Pro
+-- Users. expire_at is RFC3339 text; empty means Pro was never activated
 CREATE TABLE IF NOT EXISTS users (
   telegram_id       BIGINT       NOT NULL,
   username          VARCHAR(64)  NOT NULL DEFAULT '',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   KEY users_ref_by (ref_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 用户监控的钱包地址
+-- Wallet addresses each user watches
 CREATE TABLE IF NOT EXISTS addresses (
   address           VARCHAR(64) NOT NULL,
   telegram_id       BIGINT      NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS addresses (
   KEY addresses_user (telegram_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 每个地址每个协议的预警状态，用于去重和冷却
+-- Alert state per address and protocol, for dedup and cooldown
 CREATE TABLE IF NOT EXISTS alert_state (
   address         VARCHAR(64) NOT NULL,
   telegram_id     BIGINT      NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS alert_state (
   PRIMARY KEY (address, telegram_id, protocol_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 最近一次查询到的仓位
+-- Latest position reading
 CREATE TABLE IF NOT EXISTS snapshots (
   address        VARCHAR(64)  NOT NULL,
   protocol_key   VARCHAR(64)  NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS address_checks (
   PRIMARY KEY (address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 网页登录：Telegram 里确认后换成 session
+-- Web login: exchanged for a session once confirmed in Telegram
 CREATE TABLE IF NOT EXISTS login_tokens (
   token        VARCHAR(64) NOT NULL,
   code         VARCHAR(16) NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 每个用户的专属充值地址。idx 是 HD 派生序号，从 1 开始，0 留给归集用的 gas 钱包
+-- Each user's personal deposit address. idx is the HD derivation index, starting at 1; 0 is reserved for the sweep gas wallet
 CREATE TABLE IF NOT EXISTS deposit_addresses (
   telegram_id      BIGINT       NOT NULL,
   idx              INT UNSIGNED NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS deposit_addresses (
   KEY deposit_addresses_tron (tron)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 链上到账记录。主键保证同一笔转账只入账一次；days = 0 表示金额不够任何套餐
+-- On-chain payments. The primary key credits each transfer only once; days = 0 means the amount matched no plan
 CREATE TABLE IF NOT EXISTS deposits (
   chain        VARCHAR(16) NOT NULL,
   tx_hash      VARCHAR(80) NOT NULL,
@@ -104,14 +104,14 @@ CREATE TABLE IF NOT EXISTS deposits (
   KEY deposits_user (telegram_id, created_unix)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 各 EVM 链已扫描到的区块
+-- Last scanned block per EVM chain
 CREATE TABLE IF NOT EXISTS scan_cursors (
   chain VARCHAR(16)     NOT NULL,
   block BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (chain)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- 推荐奖励，每个被推荐人只奖励一次
+-- Referral rewards, at most one per referred user
 CREATE TABLE IF NOT EXISTS referral_rewards (
   referee_id   BIGINT NOT NULL,
   referrer_id  BIGINT NOT NULL,

@@ -79,15 +79,16 @@ func main() {
 	defer liqMap.Close()
 
 	site := web.New(web.Options{
-		Store:       st,
-		Monitor:     poller,
-		Pay:         payments,
-		LiqMap:      liqMap,
-		BotUsername: me.Username,
-		SiteURL:     cfg.SiteURL,
-		WebDir:      cfg.WebDir,
-		Secure:      cfg.CookieSecure,
-		BaseCtx:     ctx,
+		Store:           st,
+		Monitor:         poller,
+		Pay:             payments,
+		LiqMap:          liqMap,
+		BotUsername:     me.Username,
+		SiteURL:         cfg.SiteURL,
+		WebDir:          cfg.WebDir,
+		Secure:          cfg.CookieSecure,
+		BaseCtx:         ctx,
+		WalletConnectID: cfg.WalletConnectID,
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,

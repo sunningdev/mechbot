@@ -26,7 +26,17 @@ const send = <T,>(method: string, path: string, body: unknown = {}) =>
   request<T>(path, { method, body: JSON.stringify(body) });
 
 export type Plan = { key: string; name: string; price: number; days: number };
-export type Chain = { key: string; name: string; token: string; family: "evm" | "tron"; minPrice: number };
+export type Coin = { symbol: string; address: string; decimals: number };
+export type Chain = {
+  key: string;
+  name: string;
+  token: string;
+  family: "evm" | "tron";
+  minPrice: number;
+  explorer?: string;
+  chainId?: number;
+  coins?: Coin[];
+};
 
 export type SiteConfig = {
   botUsername: string;
@@ -34,7 +44,11 @@ export type SiteConfig = {
   plans: Plan[];
   freeLimit: number;
   proLimit: number;
+  walletConnectId?: string;
 };
+
+// Raw on-chain balances of a connected wallet, as decimal strings keyed by token contract.
+export type WalletBalance = { chain: string; native: string; coins: Record<string, string>; error?: boolean };
 
 export type LoginStart = { token: string; code: string; botUrl: string; expiresIn: number };
 
@@ -137,6 +151,8 @@ export const api = {
   setLang: (lang: string) => send<{ lang: string }>("PUT", "/api/me/lang", { lang }),
   billing: () => request<Billing>("/api/billing").then(normalizeBilling),
   checkDeposit: () => send<Billing>("POST", "/api/billing/check").then(normalizeBilling),
+  walletBalances: (address: string) =>
+    request<{ balances: WalletBalance[] }>(`/api/billing/wallet?address=${encodeURIComponent(address)}`).then((r) => r.balances ?? []),
   billingHistory: (page: number) => request<DepositPage>(`/api/billing/history?page=${page}`),
   referral: () => request<Referral>("/api/referral"),
   liqmap: () => request<LiqMap>("/api/liqmap"),

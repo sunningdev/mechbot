@@ -3233,6 +3233,100 @@ input:disabled {
   gap: 6px;
 }
 
+.tier-pick {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tier-pick:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.tier-pick.on {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.pay-switch {
+  justify-self: center;
+  font-size: 13px;
+}
+
+.wallet-pay {
+  display: grid;
+  gap: 10px;
+}
+
+.wallet-pay p {
+  margin: 0;
+}
+
+.wallet-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-change {
+  justify-self: start;
+  font-size: 13px;
+}
+
+.wallet-options {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+}
+
+.wallet-options li + li {
+  border-top: 1px solid var(--line);
+}
+
+.wallet-options button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wallet-options button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.wallet-options button.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.wallet-options button.on .coin-chip {
+  border-color: currentColor;
+}
+
+.wallet-bal {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.wallet-options button.on .wallet-bal {
+  color: inherit;
+}
+
+.wallet-safe .mono {
+  font-size: 12px;
+}
+
 .tier-save {
   font-size: 15px;
   font-weight: 800;

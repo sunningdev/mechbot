@@ -1,84 +1,97 @@
 # MechBot
 
-Telegram 清算预警 + 网页控制台。程序每 5 分钟查询 Aave V3、Compound V3、Morpho Blue，健康因子低于预警线就私聊提醒。
+Telegram liquidation alerts plus a web console. Every 5 minutes the bot reads Aave V3, Compound V3 and Morpho Blue positions and sends a DM when the health factor drops below the alert line.
 
-- Starter（永久免费）：3 个地址，Aave V3 预警
-- Pro：20 个地址，全协议预警。5 USDT/月，12 USDT/季，36 USDT/年，转 USDT 到专属地址自动开通
-- 推荐：新用户首次购买，推荐人和新用户各得 Pro 天数（月付各 7 天，季付各 15 天，年付各 30 天），推荐多人累加；续费不再奖励
+- Starter (free forever): 3 addresses, Aave V3 alerts
+- Pro: 20 addresses, alerts for every protocol. 5 USD / month, 12 USD / quarter, 36 USD / year in USDT or USDC, activated automatically when the transfer reaches the user's deposit address
+- Referrals: on a new user's first purchase, both the referrer and the new user get Pro days (7 each for monthly, 15 for quarterly, 30 for yearly). Rewards stack across referrals; renewals are not rewarded again
 
-## 本机开发
+## Local development
 
-两个终端：
+Two terminals:
 
 ```powershell
-# 终端 1：后端（机器人 + 接口，监听 127.0.0.1:8080）
+# Terminal 1: backend (bot + API, listens on 127.0.0.1:8080)
 cd backend
 go run .
 
-# 终端 2：页面（http://localhost:5173，/api 自动转发到后端）
+# Terminal 2: frontend (http://localhost:5173, /api is proxied to the backend)
 cd frontend
 npm install
 npm run dev
 ```
 
-`.env` 里至少要有 `TELEGRAM_BOT_TOKEN`。数据存在 `backend/mechbot.db`（SQLite），首次启动自动建表；以后换 MySQL 时用 `schema/mechbot.sql` 建库。`PAY_XPUB_EVM` 或 `PAY_XPUB_TRON` 至少填一个，网页才开放充值（见下方「充值」）。
+`.env` needs at least `TELEGRAM_BOT_TOKEN`. Use a separate test bot locally: two processes polling the same token get Telegram 409 conflicts. Data lives in `backend/mechbot.db` (SQLite) and tables are created on first start; `schema/mechbot.sql` is there for a future move to MySQL. Billing is enabled once at least one of `PAY_XPUB_EVM` or `PAY_XPUB_TRON` is set (see "Payments" below).
 
-## 打包上线
+## Build and deploy
 
 ```powershell
 cd frontend
 npm run build
 ```
 
-后端会直接提供 `frontend/dist` 里的页面，打开 `http://127.0.0.1:8080` 即可。上线时用 Nginx 或 Caddy 配 HTTPS 反代到 `127.0.0.1:8080`，并在 `.env` 里设置 `SITE_URL=https://你的域名`、`COOKIE_SECURE=true`。
+The backend serves the pages in `frontend/dist`; open `http://127.0.0.1:8080`. In production, put Nginx or Caddy in front with HTTPS, proxy to `127.0.0.1:8080`, and set `SITE_URL=https://your-domain` and `COOKIE_SECURE=true` in `.env`.
 
-## 登录
-
-网页点「用 Telegram 登录」，页面显示 4 位验证码，跳到 @MechFi_bot 后核对验证码并点「确认登录」，网页自动进入控制台。登录本身就让机器人拿到了私聊权限，预警一定发得出去。
-
-## 充值
-
-每个用户有一个永久的专属充值地址（HD 钱包派生）：一个 EVM 地址同时用于 Ethereum、BNB Chain、Arbitrum，另有一个 TRON 地址。用户往自己的地址转 USDT，后台每 30 秒扫链，到账按金额自动开通，并在 Telegram 通知用户和推荐人。
-
-| 到账金额 | 开通 |
-|---------|------|
-| ≥ 5 USDT | 30 天 |
-| ≥ 12 USDT | 90 天 |
-| ≥ 36 USDT | 365 天 |
-
-超出档位的部分不累计；低于 5 USDT 记为「金额不足」并通知用户。
-
-TRON 只展示季付和年付：归集一个 TRON 地址要烧约 6.5 TRX 能量费（约 2 美元），月付不划算。万一用户在 TRON 上转了 5 USDT，仍照常开通 30 天。
-
-### 一次性设置（在你自己的电脑上，不要在服务器上）
+Linux build from Windows:
 
 ```powershell
 cd backend
-go run ./cmd/mechwallet init   # 生成 24 词助记词，抄在纸上离线保存
-go run ./cmd/mechwallet xpub   # 输入助记词，输出两行 PAY_XPUB_EVM / PAY_XPUB_TRON
+$env:GOOS="linux"; $env:GOARCH="amd64"; $env:CGO_ENABLED="0"; go build -o mechbot .
+Remove-Item Env:GOOS,Env:GOARCH,Env:CGO_ENABLED
 ```
 
-把两行 xpub 写进服务器的 `.env` 后重启。服务器只有 xpub，只能推出地址，动不了钱。助记词丢了钱就找不回，泄露了钱就会被转走。
+## Login
 
-`xpub` 会同时打印 index 0 的地址：这是**手续费钱包**，归集时用它给充值地址打 gas。把助记词导入 MetaMask / TronLink，第一个账户就是它，往里放少量 BNB / ETH / TRX。
+On the website, "Log in with Telegram" shows a 4-digit code and opens @MechFi_bot; the user checks the code and taps "Confirm login", and the page enters the console by itself. Logging in also gives the bot DM permission, so alerts can always be delivered.
 
-### 归集
+## Payments
 
-钱分散在各用户的充值地址里，定期在本机归集到你的主钱包（完整步骤、主钱包地址和常见报错见 [SWEEP.md](SWEEP.md)）：
+Every user has a permanent deposit address derived from an HD wallet: one EVM address shared by Ethereum, BNB Chain, Arbitrum, Base and Optimism, plus one TRON address. The user sends USDT or USDC to their own address; the backend scans every 30 seconds, activates the matching plan and notifies the user and the referrer on Telegram.
+
+There are two ways to pay, and both end up as a plain transfer to the same deposit address:
+
+- Send manually: copy the address or scan the QR code. Default for Chinese, Russian and Vietnamese.
+- Connect a wallet (RainbowKit): the backend reads the wallet's balances, suggests a network and coin with enough funds and gas, and the wallet sends a single ERC-20 `transfer`. No approvals, no signatures. Default for English, French, Spanish and Portuguese. Set `WALLETCONNECT_PROJECT_ID` (free at cloud.reown.com) to enable mobile wallets; without it only browser-extension wallets work.
+
+| Amount received | Pro |
+|---------|------|
+| ≥ 5 USD | 30 days |
+| ≥ 12 USD | 90 days |
+| ≥ 36 USD | 365 days |
+
+Anything above a tier is not carried over. Less than 5 is recorded as "amount too low" and the user is notified.
+
+TRON is offered only for quarterly and yearly plans: sweeping one TRON address burns about 6.5 TRX of energy (around 2 USD), which doesn't pay off for a monthly plan. If someone sends 5 USDT on TRON anyway, they still get 30 days.
+
+### One-time setup (on your own computer, never on the server)
 
 ```powershell
-go run ./cmd/mechwallet balances -db mechbot.db                       # 各地址余额
-go run ./cmd/mechwallet sweep -chain bsc -to 0x你的主钱包 -db mechbot.db  # 演练，只显示计划
-go run ./cmd/mechwallet sweep -chain bsc -to 0x你的主钱包 -db mechbot.db -yes
-go run ./cmd/mechwallet sweep -chain tron -to T你的主钱包 -min 50 -db mechbot.db -yes
+cd backend
+go run ./cmd/mechwallet init   # generates a 24-word mnemonic; write it on paper and keep it offline
+go run ./cmd/mechwallet xpub   # asks for the mnemonic, prints PAY_XPUB_EVM / PAY_XPUB_TRON
 ```
 
-`-db` 指向服务器数据库的副本（只读取地址列表）。默认只归集余额 ≥ 20 USDT 的地址。成本参考：BSC、Arbitrum 每笔不到 1 美分；Ethereum 平时约 1 美分，拥堵时 0.2–2 美元；TRON 每笔约烧 6.5 TRX 能量费（收款地址没有 USDT 时约 13 TRX），建议攒到 50 USDT 以上再归集，或提前租能量。
+Put the two xpub lines in the server's `.env` and restart. The server only has the xpubs: it can derive addresses but cannot move funds. Lose the mnemonic and the funds are gone; leak it and they will be stolen.
 
-## 机器人命令
+`xpub` also prints the index 0 address. That is the **fee wallet**, used to send gas to deposit addresses when sweeping; it is never assigned to a user. Import the mnemonic into MetaMask / TronLink and it is the first account; keep a little BNB / ETH / TRX in it.
+
+### Sweeping
+
+Funds sit on each user's deposit address. Sweep them to your main wallet from your own computer from time to time (full steps and common errors in [SWEEP.md](SWEEP.md)):
+
+```powershell
+go run ./cmd/mechwallet balances -db mechbot.db                              # balances per address
+go run ./cmd/mechwallet sweep -chain bsc -to <your EVM wallet> -db mechbot.db       # dry run, shows the plan only
+go run ./cmd/mechwallet sweep -chain bsc -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain tron -to <your TRON wallet> -min 50 -db mechbot.db -yes
+```
+
+`-db` points to a copy of the server database (only the address list is read). By default only addresses holding at least 20 USDT are swept. Rough costs: under 1 cent per address on BSC and Arbitrum; about 1 cent on Ethereum normally, 0.2–2 USD when congested; about 6.5 TRX of energy per transfer on TRON (about 13 TRX if the receiving address has never held USDT), so wait until you have 50 USDT or more, or rent energy first.
+
+## Bot commands
 
 ```text
 /start  /add 0x...  /list  /remove 0x...  /status
 ```
 
-推荐链接：`https://t.me/MechFi_bot?start=ref_<telegram_id>` 或 `SITE_URL/?ref=<telegram_id>`。
+Referral links: `https://t.me/MechFi_bot?start=ref_<telegram_id>` or `SITE_URL/?ref=<telegram_id>`.

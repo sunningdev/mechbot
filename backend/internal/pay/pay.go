@@ -67,6 +67,9 @@ type Chain struct {
 	MinPrice int64 `json:"minPrice"`
 	// Explorer is the transaction URL prefix; the tx hash is appended.
 	Explorer string `json:"explorer"`
+	// ChainID and Coins let the website send a wallet transfer; both are empty on TRON.
+	ChainID int64  `json:"chainId,omitempty"`
+	Coins   []Coin `json:"coins,omitempty"`
 
 	tokens   []Token
 	tronUSDT string // base58 TRON contract
@@ -105,6 +108,21 @@ func (c Chain) addresses() []common.Address {
 
 func tok(symbol, addr string, decimals int) Token {
 	return Token{Symbol: symbol, Address: common.HexToAddress(addr), Decimals: decimals}
+}
+
+// Coin is a token contract as the website sees it. USDT0 is shown as USDT, which is what wallets call it.
+type Coin struct {
+	Symbol   string `json:"symbol"`
+	Address  string `json:"address"`
+	Decimals int    `json:"decimals"`
+}
+
+func evmChain(id int64, c Chain) Chain {
+	c.ChainID = id
+	for _, t := range c.tokens {
+		c.Coins = append(c.Coins, Coin{Symbol: strings.TrimSuffix(t.Symbol, "0"), Address: t.Address.Hex(), Decimals: t.Decimals})
+	}
+	return c
 }
 
 type Options struct {
@@ -156,35 +174,35 @@ func EVMChains(net config.PayNet) []Chain {
 	minPrice := Plans[0].Price
 	if net.Testnet {
 		return []Chain{
-			{Key: "bsc", Name: "BNB Chain Testnet", Token: "Test USDT (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://testnet.bscscan.com/tx/", tokens: []Token{tok("USDT", bscTestUSDT, 18)}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc-testnet"), minConf: 3, lookback: 1200},
-			{Key: "arbitrum", Name: "Arbitrum Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.arbiscan.io/tx/", tokens: []Token{tok("USDC", arbSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum-sepolia"), minConf: 1, lookback: 14400},
-			{Key: "base", Name: "Base Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.basescan.org/tx/", tokens: []Token{tok("USDC", baseSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.BaseRPC, "base-sepolia"), minConf: 3, lookback: 1800},
-			{Key: "optimism", Name: "OP Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia-optimism.etherscan.io/tx/", tokens: []Token{tok("USDC", opSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism-sepolia"), minConf: 3, lookback: 1800},
-			{Key: "ethereum", Name: "Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.etherscan.io/tx/", tokens: []Token{tok("USDC", sepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.EthRPC, "sepolia"), minConf: 3, lookback: 300},
+			evmChain(97, Chain{Key: "bsc", Name: "BNB Chain Testnet", Token: "Test USDT (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://testnet.bscscan.com/tx/", tokens: []Token{tok("USDT", bscTestUSDT, 18)}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc-testnet"), minConf: 3, lookback: 1200}),
+			evmChain(421614, Chain{Key: "arbitrum", Name: "Arbitrum Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.arbiscan.io/tx/", tokens: []Token{tok("USDC", arbSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum-sepolia"), minConf: 1, lookback: 14400}),
+			evmChain(84532, Chain{Key: "base", Name: "Base Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.basescan.org/tx/", tokens: []Token{tok("USDC", baseSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.BaseRPC, "base-sepolia"), minConf: 3, lookback: 1800}),
+			evmChain(11155420, Chain{Key: "optimism", Name: "OP Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia-optimism.etherscan.io/tx/", tokens: []Token{tok("USDC", opSepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism-sepolia"), minConf: 3, lookback: 1800}),
+			evmChain(11155111, Chain{Key: "ethereum", Name: "Sepolia", Token: "Test USDC (Circle)", Family: "evm", MinPrice: minPrice, Explorer: "https://sepolia.etherscan.io/tx/", tokens: []Token{tok("USDC", sepoliaUSDC, 6)}, rpc: evmrpc.Endpoints(net.EthRPC, "sepolia"), minConf: 3, lookback: 300}),
 		}
 	}
 	return []Chain{
-		{Key: "bsc", Name: "BNB Chain", Token: "USDT / USDC (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://bscscan.com/tx/", tokens: []Token{
+		evmChain(56, Chain{Key: "bsc", Name: "BNB Chain", Token: "USDT / USDC (BEP20)", Family: "evm", MinPrice: minPrice, Explorer: "https://bscscan.com/tx/", tokens: []Token{
 			tok("USDT", "0x55d398326f99059fF775485246999027B3197955", 18),
 			tok("USDC", "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", 18),
-		}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc"), minConf: 5, lookback: 4800},
-		{Key: "arbitrum", Name: "Arbitrum One", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://arbiscan.io/tx/", tokens: []Token{
+		}, rpc: evmrpc.Endpoints(net.BscRPC, "bsc"), minConf: 5, lookback: 4800}),
+		evmChain(42161, Chain{Key: "arbitrum", Name: "Arbitrum One", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://arbiscan.io/tx/", tokens: []Token{
 			tok("USDT", "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", 6),
 			tok("USDC", "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", 6),
-		}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum"), minConf: 1, lookback: 14400},
-		{Key: "base", Name: "Base", Token: "USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://basescan.org/tx/", tokens: []Token{
+		}, rpc: evmrpc.Endpoints(net.ArbRPC, "arbitrum"), minConf: 1, lookback: 14400}),
+		evmChain(8453, Chain{Key: "base", Name: "Base", Token: "USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://basescan.org/tx/", tokens: []Token{
 			tok("USDC", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", 6),
-		}, rpc: evmrpc.Endpoints(net.BaseRPC, "base"), minConf: 3, lookback: 1800},
+		}, rpc: evmrpc.Endpoints(net.BaseRPC, "base"), minConf: 3, lookback: 1800}),
 		// Optimism has two USDT contracts in wide use, the bridged one and USDT0; both are accepted.
-		{Key: "optimism", Name: "Optimism", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://optimistic.etherscan.io/tx/", tokens: []Token{
+		evmChain(10, Chain{Key: "optimism", Name: "Optimism", Token: "USDT / USDC", Family: "evm", MinPrice: minPrice, Explorer: "https://optimistic.etherscan.io/tx/", tokens: []Token{
 			tok("USDT", "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", 6),
 			tok("USDT0", "0x01bFF41798a0BcF287b996046Ca68b395DbC1071", 6),
 			tok("USDC", "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", 6),
-		}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism"), minConf: 3, lookback: 1800},
-		{Key: "ethereum", Name: "Ethereum", Token: "USDT / USDC (ERC20)", Family: "evm", MinPrice: minPrice, Explorer: "https://etherscan.io/tx/", tokens: []Token{
+		}, rpc: evmrpc.Endpoints(net.OpRPC, "optimism"), minConf: 3, lookback: 1800}),
+		evmChain(1, Chain{Key: "ethereum", Name: "Ethereum", Token: "USDT / USDC (ERC20)", Family: "evm", MinPrice: minPrice, Explorer: "https://etherscan.io/tx/", tokens: []Token{
 			tok("USDT", "0xdAC17F958D2ee523a2206206994597C13D831ec7", 6),
 			tok("USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6),
-		}, rpc: evmrpc.Endpoints(net.EthRPC, "ethereum"), minConf: 3, lookback: 300},
+		}, rpc: evmrpc.Endpoints(net.EthRPC, "ethereum"), minConf: 3, lookback: 300}),
 	}
 }
 

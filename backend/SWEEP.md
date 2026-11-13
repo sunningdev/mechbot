@@ -1,132 +1,142 @@
-# USDT 归集说明
+# Sweeping deposits
 
-用户付款的 USDT 分散在每个人的专属充值地址上，需要定期**由你本人在自己电脑上**运行命令，把钱转到主钱包。服务器不会、也没有能力自动归集。
+User payments sit on each user's personal deposit address. **You** sweep them to your main wallet from time to time by running a command **on your own computer**. The server does not sweep and has no way to.
 
-## 为什么要手动
+## Why it is manual
 
-- 服务器 `.env` 里只有 xpub（公钥）：能生成充值地址、能查到账，**不能签名转账**。
-- 转账要用助记词推出私钥。助记词只在运行归集命令时在本机输入（输入时不显示），用完不保存。
-- 服务器就算被入侵，也转不走任何资金。
+- The server `.env` only holds xpubs (public keys): it can derive deposit addresses and see payments, but **cannot sign transfers**.
+- Transfers need private keys derived from the mnemonic. The mnemonic is typed in locally only while the sweep command runs (input is hidden) and is never saved.
+- Even if the server is compromised, no funds can be moved.
 
-## 归集到哪里
+## Where funds go
 
-| 链 | `-chain` | 主钱包（`-to`） |
+| Chain | `-chain` | Main wallet (`-to`) |
 |---|---|---|
-| BNB Chain | `bsc` | `0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842` |
-| Arbitrum One | `arbitrum` | `0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842` |
-| Ethereum | `ethereum` | `0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842` |
-| TRON | `tron` | `TBCVLnWiKHSRQVkXUbeiYtTJHB4p4KKDuK` |
+| BNB Chain | `bsc` | `<your EVM wallet>` |
+| Arbitrum One | `arbitrum` | `<your EVM wallet>` |
+| Base | `base` | `<your EVM wallet>` |
+| Optimism | `optimism` | `<your EVM wallet>` |
+| Ethereum | `ethereum` | `<your EVM wallet>` |
+| TRON | `tron` | `<your TRON wallet>` |
 
-主钱包必须是你自己掌握私钥的地址，填错转出去追不回。
+The main wallet must be an address whose keys you control. A wrong address cannot be undone.
 
-## 准备：手续费钱包
+## Preparation: the fee wallet
 
-充值地址里只有 USDT，没有付手续费的币。归集时程序先从**手续费钱包**给每个充值地址补 gas，再把 USDT 转走。
+Deposit addresses only hold USDT / USDC and nothing to pay gas with. The sweep first sends gas from the **fee wallet** to each deposit address, then moves the stablecoins.
 
-手续费钱包 = 助记词推出的 **index 0** 地址（运行 `go run ./cmd/mechwallet xpub` 会打印出来；把助记词导入 MetaMask / TronLink，第一个账户也是它）。提前往里转：
+Fee wallet = the **index 0** address of your mnemonic (`go run ./cmd/mechwallet xpub` prints it; it is also the first account when you import the mnemonic into MetaMask / TronLink). Fund it in advance:
 
-| 链 | 放什么 | 每个充值地址大约消耗 |
+| Chain | What to hold | Cost per deposit address |
 |---|---|---|
-| BNB Chain | BNB | 不到 1 美分 |
-| Arbitrum | ETH（Arbitrum 网络） | 不到 1 美分 |
-| Ethereum | ETH（主网） | 平时约 1 美分，拥堵时 0.2–2 美元 |
-| TRON | TRX | 每笔烧约 6.5 TRX 能量费，收款地址从没收过 USDT 时约 13 TRX |
+| BNB Chain | BNB | under 1 cent |
+| Arbitrum | ETH (on Arbitrum) | under 1 cent |
+| Base | ETH (on Base) | under 1 cent |
+| Optimism | ETH (on Optimism) | under 1 cent |
+| Ethereum | ETH (mainnet) | about 1 cent normally, 0.2–2 USD when congested |
+| TRON | TRX | about 6.5 TRX of energy per transfer, about 13 TRX if the receiving address has never held USDT |
 
-TRON 默认会把每个待归集的充值地址补到 **30 TRX**（`-trx 30`），手续费钱包里要按「待归集地址数 × 30」备好 TRX。补进去没烧完的 TRX 会留在充值地址上，下次归集还能接着用。
+On TRON each deposit address is topped up to **30 TRX** by default (`-trx 30`), so keep "addresses to sweep × 30" TRX in the fee wallet. TRX that isn't burned stays on the deposit address and is used next time.
 
-## 数据库
+## Database
 
-命令需要读取充值地址列表（只读，不改数据）：
+The command reads the list of deposit addresses (read-only, nothing is changed):
 
-- 在服务器上：把服务器的 `mechbot.db` 复制一份到你电脑的 `backend` 目录。**不要在服务器上运行归集命令**，也不要在服务器上输入助记词。
-- 本地开发时：直接在 `backend` 目录运行即可，默认读 `mechbot.db`；也可以用 `-db 路径` 指定。
+- Production: copy the server's `mechbot.db` into `backend` on your computer. **Never run the sweep on the server** and never type the mnemonic there.
+- Local development: just run it in `backend`; it reads `mechbot.db` by default, or pass `-db <path>`.
 
-## 操作步骤
+## Steps
 
-以下命令都在 `backend` 目录运行（PowerShell）。
+Run everything below in `backend` (PowerShell).
 
-### 0. 查看所有充值地址（可选）
+### 0. List deposit addresses (optional)
 
 ```powershell
 go run ./cmd/mechwallet addresses -db mechbot.db
 ```
 
-列出每个用户的 index、Telegram ID、用户名、EVM 地址（BNB Chain / Arbitrum / Ethereum 共用）和 TRON 地址，不需要助记词。
+Lists each user's index, Telegram ID, username, EVM address (shared by all EVM chains) and TRON address. No mnemonic needed.
 
-### 1. 看余额
+### 1. Check balances
 
 ```powershell
 go run ./cmd/mechwallet balances -db mechbot.db
 ```
 
-按链列出有 USDT 的充值地址和合计金额，不需要助记词。
+Lists deposit addresses holding stablecoins, per chain, with totals. No mnemonic needed.
 
-### 2. 演练（不发交易）
-
-```powershell
-go run ./cmd/mechwallet sweep -chain bsc -to 0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842 -db mechbot.db
-```
-
-会要求输入助记词，然后显示：要归集哪些地址、各补多少 gas、手续费钱包地址。**不加 `-yes` 不会发送任何交易。**
-
-### 3. 正式归集
-
-确认演练结果无误后，加上 `-yes`：
+### 2. Dry run (no transactions)
 
 ```powershell
-go run ./cmd/mechwallet sweep -chain bsc      -to 0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842 -db mechbot.db -yes
-go run ./cmd/mechwallet sweep -chain arbitrum -to 0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842 -db mechbot.db -yes
-go run ./cmd/mechwallet sweep -chain ethereum -to 0x4C02C6bE8A572c1dDf401ee03B7a0a02d6B57842 -db mechbot.db -yes
-go run ./cmd/mechwallet sweep -chain tron     -to TBCVLnWiKHSRQVkXUbeiYtTJHB4p4KKDuK -min 50 -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain bsc -to <your EVM wallet> -db mechbot.db
 ```
 
-每条链单独跑一次。
+Asks for the mnemonic, then shows which addresses would be swept, how much gas each gets and the fee wallet address. **Nothing is sent without `-yes`.**
 
-### 4. 核对
+### 3. Sweep for real
 
-在区块浏览器查看主钱包是否收到：
+Once the dry run looks right, add `-yes`:
 
-- BNB Chain：https://bscscan.com
-- Arbitrum：https://arbiscan.io
-- Ethereum：https://etherscan.io
-- TRON：https://tronscan.org
+```powershell
+go run ./cmd/mechwallet sweep -chain bsc      -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain arbitrum -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain base     -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain optimism -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain ethereum -to <your EVM wallet> -db mechbot.db -yes
+go run ./cmd/mechwallet sweep -chain tron     -to <your TRON wallet> -min 50 -db mechbot.db -yes
+```
 
-再跑一次 `balances`，已归集的地址应不再出现。
+Run each chain separately.
 
-## 参数
+### 4. Verify
 
-| 参数 | 默认 | 说明 |
+Check that the main wallet received the funds on a block explorer:
+
+- BNB Chain: https://bscscan.com
+- Arbitrum: https://arbiscan.io
+- Base: https://basescan.org
+- Optimism: https://optimistic.etherscan.io
+- Ethereum: https://etherscan.io
+- TRON: https://tronscan.org
+
+Run `balances` again; swept addresses should no longer appear.
+
+## Flags
+
+| Flag | Default | Meaning |
 |---|---|---|
-| `-chain` | 必填 | `tron` / `bsc` / `arbitrum` / `ethereum` |
-| `-to` | 必填 | 主钱包地址：EVM 链用 0x 开头，TRON 用 T 开头 |
-| `-min` | `20` | 余额低于这个数（USDT）的地址先不归集，免得手续费比钱还多 |
-| `-trx` | `30` | 仅 TRON：每个充值地址补到多少 TRX 用来烧能量 |
-| `-db` | `mechbot.db` | 数据库路径（也读 `.env` 里的 `DB_PATH`） |
-| `-yes` | 不加 | 加上才真正发送交易；不加只演练 |
+| `-chain` | required | `tron` / `bsc` / `arbitrum` / `base` / `optimism` / `ethereum` |
+| `-to` | required | Main wallet: 0x address on EVM chains, T address on TRON |
+| `-min` | `20` | Skip addresses holding less than this many USD, so fees don't exceed the amount |
+| `-trx` | `30` | TRON only: top each deposit address up to this many TRX for energy |
+| `-db` | `mechbot.db` | Database path (also reads `DB_PATH` from `.env`) |
+| `-yes` | off | Actually send transactions; without it the command only does a dry run |
 
-RPC 节点默认用公共节点，可在 `.env` 里用 `BSC_RPC_URL`、`ARB_RPC_URL`、`ETH_RPC_URL` 指定；TRON 可设 `TRON_API_KEY` 提高查询限额。
+Public RPC nodes are used by default; override them in `.env` with `BSC_RPC_URL`, `ARB_RPC_URL`, `BASE_RPC_URL`, `OP_RPC_URL` and `ETH_RPC_URL`. On TRON, `TRON_API_KEY` raises the query limit.
 
-## 建议节奏
+## Suggested routine
 
-- 不必每笔都归集，攒到一定金额集中归集一次。
-- BNB Chain、Arbitrum 手续费极低，`-min 20` 即可。
-- TRON 每笔成本约 2 美元，建议 `-min 50` 以上；量大时可以先租能量再归集。
-- Ethereum 主网手续费波动大，挑不拥堵的时候归集。
+- No need to sweep every payment; let it build up and sweep in batches.
+- BNB Chain, Arbitrum, Base and Optimism are very cheap, `-min 20` is fine.
+- TRON costs about 2 USD per address, so use `-min 50` or more; rent energy first when volumes grow.
+- Ethereum mainnet fees swing a lot; sweep when the network is quiet.
 
-## 常见报错
+## Common errors
 
-| 报错 | 原因 / 处理 |
+The tool prints its errors in Chinese:
+
+| Error | Cause / fix |
 |---|---|
-| `助记词无效，检查拼写和词数` | 单词拼错或数量不对（应为 24 个词） |
-| `index N 推出的地址 … 与数据库 … 不一致，助记词不对` | 输入的助记词不是生成这批充值地址的那一套，立即停止，核对助记词 |
-| `补 gas 失败（手续费钱包 … 余额够吗？）` / `补 TRX 失败` | 手续费钱包里的 BNB / ETH / TRX 不够，充值后重跑 |
-| `找不到数据库 mechbot.db` | 不在 `backend` 目录运行，或用 `-db` 指定正确路径 |
-| `-to 需要 T 开头的 TRON 地址` / `-to 需要 0x 开头的地址` | 链和地址类型不匹配 |
+| `助记词无效，检查拼写和词数` | Invalid mnemonic: a word is misspelled or the count is wrong (should be 24 words) |
+| `index N 推出的地址 … 与数据库 … 不一致，助记词不对` | The address derived at index N doesn't match the database: this is not the mnemonic that generated these deposit addresses. Stop and check the mnemonic |
+| `补 gas 失败（手续费钱包 … 余额够吗？）` / `补 TRX 失败` | Topping up gas / TRX failed: the fee wallet lacks BNB / ETH / TRX. Fund it and rerun |
+| `找不到数据库 mechbot.db` | Database not found: run from `backend`, or pass the right path with `-db` |
+| `-to 需要 T 开头的 TRON 地址` / `-to 需要 0x 开头的地址` | `-to` doesn't match the chain: TRON needs a T address, EVM chains need a 0x address |
 
-中途失败可以直接重跑：已转走的地址余额为 0，会被自动跳过。
+A failed run can simply be rerun: addresses already swept have a zero balance and are skipped.
 
-## 安全
+## Security
 
-- 助记词只抄在纸上离线保存：不截图、不存云盘、不发聊天、不放服务器。
-- 只在自己信任的电脑上运行归集命令。
-- 助记词丢了，充值地址里的钱就找不回；泄露了，钱会被转走。
+- Keep the mnemonic on paper, offline: no screenshots, no cloud storage, no chat apps, never on the server.
+- Only run the sweep on a computer you trust.
+- Lose the mnemonic and the deposits are gone; leak it and they will be stolen.

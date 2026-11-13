@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"mechbot/internal/i18n"
 	"mechbot/internal/liqmap"
 	"mechbot/internal/monitor"
@@ -43,6 +45,7 @@ type Server struct {
 	webDir      string
 	secure      bool
 	baseCtx     context.Context
+	walletID    string
 
 	checkMu   sync.Mutex
 	lastCheck map[int64]time.Time
@@ -64,6 +67,8 @@ type Options struct {
 	WebDir      string
 	Secure      bool
 	BaseCtx     context.Context
+	// WalletConnectID is the public Reown project ID; empty limits wallet payments to browser extensions.
+	WalletConnectID string
 }
 
 func New(o Options) *Server {
@@ -79,6 +84,7 @@ func New(o Options) *Server {
 		webDir:      o.WebDir,
 		secure:      o.Secure,
 		baseCtx:     o.BaseCtx,
+		walletID:    o.WalletConnectID,
 		apiLimit:    newLimiter(300, time.Minute),
 		loginLimit:  newLimiter(10, time.Minute),
 		mapLimit:    newLimiter(30, time.Minute),
@@ -155,6 +161,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/billing", s.auth(s.handleBilling))
 	mux.HandleFunc("POST /api/billing/check", s.auth(s.handleCheckDeposit))
 	mux.HandleFunc("GET /api/billing/history", s.auth(s.handleBillingHistory))
+	mux.HandleFunc("GET /api/billing/wallet", s.auth(perUser(s.writeLimit, s.handleWalletBalances)))
 	mux.HandleFunc("GET /api/referral", s.auth(s.handleReferral))
 	mux.HandleFunc("GET /api/liqmap", perIP(s.mapLimit, s.handleLiqMap))
 
@@ -199,11 +206,12 @@ func (s *Server) auth(next authedHandler) http.HandlerFunc {
 
 func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
-		"botUsername": s.botUsername,
-		"botUrl":      "https://t.me/" + s.botUsername,
-		"plans":       pay.Plans,
-		"freeLimit":   store.FreeAddressLimit,
-		"proLimit":    store.ProAddressLimit,
+		"botUsername":     s.botUsername,
+		"botUrl":          "https://t.me/" + s.botUsername,
+		"plans":           pay.Plans,
+		"freeLimit":       store.FreeAddressLimit,
+		"proLimit":        store.ProAddressLimit,
+		"walletConnectId": s.walletID,
 	})
 }
 
@@ -615,6 +623,20 @@ func (s *Server) handleBilling(w http.ResponseWriter, r *http.Request, userID in
 		return
 	}
 	writeJSON(w, http.StatusOK, resp)
+}
+
+// handleWalletBalances tells the website what a connected wallet holds, read through our own RPC nodes.
+func (s *Server) handleWalletBalances(w http.ResponseWriter, r *http.Request, userID int64) {
+	if !s.pay.Enabled() {
+		writeError(w, http.StatusBadRequest, pay.ErrDisabled.Error())
+		return
+	}
+	raw := r.URL.Query().Get("address")
+	if !common.IsHexAddress(raw) {
+		writeError(w, http.StatusBadRequest, "钱包地址格式不对")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"balances": s.pay.WalletBalances(r.Context(), common.HexToAddress(raw))})
 }
 
 const historyPageSize = 10

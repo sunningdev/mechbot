@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { Chain } from "../api";
 import { tr } from "../i18n";
+import { tokenLabel } from "../payorder";
 import ChainLogo from "./ChainLogo";
 
 type Props = { chains: Chain[]; value: string; onChange: (key: string) => void };
 
 // "USDT / USDC (BEP20)" → ["USDT", "USDC"]; the token standard is repeated in the deposit notes.
 const coins = (c: Chain) =>
-  c.token
+  tokenLabel(c.token)
     .replace(/\s*\(.*\)$/, "")
     .split("/")
     .map((s) => s.trim())

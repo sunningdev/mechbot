@@ -114,8 +114,15 @@ func userKey(id int64) string {
 }
 
 // The SPA loads only its own bundled scripts, styles, fonts and images; data: covers the QR code, CSS icons and the small font files Vite inlines.
-// connect-src must list the Binance streams PriceTicker.tsx opens.
-const contentSecurityPolicy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' wss://stream.binance.com:9443 wss://data-stream.binance.vision; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+// connect-src must list the Binance streams PriceTicker.tsx opens, and the WalletConnect relay and Coinbase Wallet
+// services the wallet payment uses. WalletConnect also checks the site's domain inside a verify iframe.
+const contentSecurityPolicy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+	"img-src 'self' data: https://*.walletconnect.com https://*.walletconnect.org; font-src 'self' data:; " +
+	"connect-src 'self' wss://stream.binance.com:9443 wss://data-stream.binance.vision " +
+	"https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org " +
+	"https://*.reown.com wss://*.reown.com https://*.web3modal.org https://*.coinbase.com wss://*.coinbase.com; " +
+	"frame-src https://verify.walletconnect.com https://verify.walletconnect.org; " +
+	"object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
 func (s *Server) securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
