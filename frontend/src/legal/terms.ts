@@ -4,8 +4,8 @@ export const terms: LegalSet = {
   zh: {
     title: "服务条款",
     summary:
-      "简单说：我们只读取你提供的公开地址，用来发送预警；预警不保证送达，也不构成投资建议；付费按套餐开通，如果我们停止服务，会提前通知并按剩余天数退款。",
-    updated: "生效日期：2026 年 11 月 9 日",
+      "简单说：我们只读取你提供的公开地址，用来发送预警；预警不保证送达，也不构成投资建议；付费按套餐开通，不退款；只有服务停止时，才按剩余天数退款。",
+    updated: "生效日期：2026 年 11 月 14 日",
     body: [
       { type: "h", text: "1. 服务内容" },
       {
@@ -42,9 +42,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "已开通的付费时长一般不退款。转账金额有误等特殊情况，请联系客服处理。",
-          "如果我们决定停止服务，会至少提前 30 天通过 Telegram 机器人和网站公告通知，通知期内服务照常运行。",
-          "停止服务时，按付费时长的剩余天数折算，以 USDT 退回到你提供的地址。例如年付 60 USDT、剩余 200 天，退还约 32.9 USDT。",
+          "已开通的付费时长不退款。唯一的例外是服务停止，见下面两条。",
+          "如果我们主动决定停止服务，会至少提前 30 天通过 Telegram 机器人和网站公告通知，通知期内服务照常运行。如果因不可抗力被迫停止，会尽快通知。",
+          "无论是主动停止还是因不可抗力停止，都按付费时长的剩余天数折算，以 USDT 退回到你提供的地址。例如年付 60 USDT、剩余 200 天，退还约 32.9 USDT。",
           "赠送的天数（试用、推荐奖励）不参与退款。",
         ],
       },
@@ -83,8 +83,8 @@ export const terms: LegalSet = {
   en: {
     title: "Terms of Service",
     summary:
-      "In short: we only read the public addresses you give us and send alerts. Alerts are not guaranteed and are not investment advice. Paid plans activate by amount, and if we ever shut down, we give notice and refund the unused days.",
-    updated: "Effective: November 9, 2026",
+      "In short: we only read the public addresses you give us and send alerts. Alerts are not guaranteed and are not investment advice. Paid plans activate by amount and are non-refundable, except that if the service ever shuts down, we refund the unused days.",
+    updated: "Effective: November 14, 2026",
     body: [
       { type: "h", text: "1. The service" },
       {
@@ -121,9 +121,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "Paid time is generally non-refundable once activated. For special cases such as a wrong amount, contact support.",
-          "If we decide to shut down, we will announce it at least 30 days in advance through the Telegram bot and the website. The service keeps running during that period.",
-          "At shutdown, we refund the unused days of your paid time in USDT to an address you provide. Example: a 60 USDT yearly plan with 200 days left gets about 32.9 USDT back.",
+          "Paid time is non-refundable once activated. The only exception is a shutdown of the service, described below.",
+          "If we decide to shut down, we will announce it at least 30 days in advance through the Telegram bot and the website. The service keeps running during that period. If we are forced to stop by circumstances beyond our control, we will notify you as soon as possible.",
+          "Whether we shut down by choice or by force majeure, we refund the unused days of your paid time in USDT to an address you provide. Example: a 60 USDT yearly plan with 200 days left gets about 32.9 USDT back.",
           "Free days (trial, referral rewards) are not refunded.",
         ],
       },
@@ -162,8 +162,8 @@ export const terms: LegalSet = {
   ru: {
     title: "Условия использования",
     summary:
-      "Коротко: мы только читаем публичные адреса, которые вы добавили, и отправляем оповещения. Доставка оповещений не гарантируется, и это не инвестиционный совет. Платные тарифы включаются по сумме оплаты, а если мы когда-нибудь закроемся, мы заранее предупредим и вернём деньги за неиспользованные дни.",
-    updated: "Действует с 9 ноября 2026 г.",
+      "Коротко: мы только читаем публичные адреса, которые вы добавили, и отправляем оповещения. Доставка оповещений не гарантируется, и это не инвестиционный совет. Платные тарифы включаются по сумме оплаты и не возвращаются; исключение — если сервис когда-нибудь закроется, мы вернём деньги за неиспользованные дни.",
+    updated: "Действует с 14 ноября 2026 г.",
     body: [
       { type: "h", text: "1. Сервис" },
       {
@@ -200,9 +200,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "Оплаченное время после включения, как правило, не возвращается. В особых случаях, например при ошибке в сумме, обратитесь в поддержку.",
-          "Если мы решим закрыть сервис, мы сообщим об этом минимум за 30 дней через Telegram-бота и сайт. В этот период сервис работает как обычно.",
-          "При закрытии мы вернём стоимость неиспользованных оплаченных дней в USDT на указанный вами адрес. Пример: годовой тариф за 60 USDT, осталось 200 дней — возврат около 32,9 USDT.",
+          "Оплаченное время после включения не возвращается. Единственное исключение — закрытие сервиса, см. ниже.",
+          "Если мы решим закрыть сервис, мы сообщим об этом минимум за 30 дней через Telegram-бота и сайт. В этот период сервис работает как обычно. Если мы будем вынуждены остановиться из-за форс-мажора, мы сообщим об этом как можно скорее.",
+          "При закрытии, добровольном или из-за форс-мажора, мы вернём стоимость неиспользованных оплаченных дней в USDT на указанный вами адрес. Пример: годовой тариф за 60 USDT, осталось 200 дней — возврат около 32,9 USDT.",
           "Бесплатные дни (пробный период, реферальные бонусы) не возвращаются.",
         ],
       },
@@ -241,8 +241,8 @@ export const terms: LegalSet = {
   es: {
     title: "Términos del servicio",
     summary:
-      "En resumen: solo leemos las direcciones públicas que nos das y enviamos alertas. Las alertas no están garantizadas y no son asesoramiento de inversión. Los planes de pago se activan según el importe y, si algún día cerramos, avisaremos con antelación y devolveremos los días no usados.",
-    updated: "Vigente desde el 9 de noviembre de 2026",
+      "En resumen: solo leemos las direcciones públicas que nos das y enviamos alertas. Las alertas no están garantizadas y no son asesoramiento de inversión. Los planes de pago se activan según el importe y no son reembolsables, salvo que, si algún día el servicio cierra, devolveremos los días no usados.",
+    updated: "Vigente desde el 14 de noviembre de 2026",
     body: [
       { type: "h", text: "1. El servicio" },
       {
@@ -279,9 +279,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "El tiempo pagado, una vez activado, en general no es reembolsable. Para casos especiales, como un importe equivocado, contacta con soporte.",
-          "Si decidimos cerrar el servicio, lo anunciaremos con al menos 30 días de antelación por el bot de Telegram y la web. Durante ese periodo el servicio sigue funcionando.",
-          "Al cerrar, devolveremos los días pagados no usados en USDT a la dirección que nos indiques. Ejemplo: un plan anual de 60 USDT con 200 días restantes recibe unos 32,9 USDT.",
+          "El tiempo pagado, una vez activado, no es reembolsable. La única excepción es el cierre del servicio, descrito abajo.",
+          "Si decidimos cerrar el servicio, lo anunciaremos con al menos 30 días de antelación por el bot de Telegram y la web. Durante ese periodo el servicio sigue funcionando. Si nos vemos obligados a parar por fuerza mayor, avisaremos lo antes posible.",
+          "Tanto si cerramos por decisión propia como por fuerza mayor, devolveremos los días pagados no usados en USDT a la dirección que nos indiques. Ejemplo: un plan anual de 60 USDT con 200 días restantes recibe unos 32,9 USDT.",
           "Los días gratuitos (prueba, recompensas por referidos) no se reembolsan.",
         ],
       },
@@ -320,8 +320,8 @@ export const terms: LegalSet = {
   fr: {
     title: "Conditions d'utilisation",
     summary:
-      "En bref : nous lisons uniquement les adresses publiques que vous nous donnez et envoyons des alertes. Les alertes ne sont pas garanties et ne constituent pas un conseil en investissement. Les offres payantes s'activent selon le montant reçu et, si nous fermons un jour, nous prévenons à l'avance et remboursons les jours non utilisés.",
-    updated: "En vigueur depuis le 9 novembre 2026",
+      "En bref : nous lisons uniquement les adresses publiques que vous nous donnez et envoyons des alertes. Les alertes ne sont pas garanties et ne constituent pas un conseil en investissement. Les offres payantes s'activent selon le montant reçu et ne sont pas remboursables, sauf si le service ferme un jour : nous remboursons alors les jours non utilisés.",
+    updated: "En vigueur depuis le 14 novembre 2026",
     body: [
       { type: "h", text: "1. Le service" },
       {
@@ -358,9 +358,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "Le temps payé n'est en général pas remboursable une fois activé. Pour les cas particuliers, comme un montant erroné, contactez le support.",
-          "Si nous décidons de fermer le service, nous l'annoncerons au moins 30 jours à l'avance via le bot Telegram et le site. Le service continue de fonctionner pendant cette période.",
-          "À la fermeture, nous remboursons les jours payés non utilisés en USDT à l'adresse que vous indiquez. Exemple : une offre annuelle à 60 USDT avec 200 jours restants donne droit à environ 32,9 USDT.",
+          "Le temps payé n'est pas remboursable une fois activé. La seule exception est la fermeture du service, décrite ci-dessous.",
+          "Si nous décidons de fermer le service, nous l'annoncerons au moins 30 jours à l'avance via le bot Telegram et le site. Le service continue de fonctionner pendant cette période. Si nous sommes contraints d'arrêter en cas de force majeure, nous vous préviendrons dès que possible.",
+          "Que la fermeture soit volontaire ou due à un cas de force majeure, nous remboursons les jours payés non utilisés en USDT à l'adresse que vous indiquez. Exemple : une offre annuelle à 60 USDT avec 200 jours restants donne droit à environ 32,9 USDT.",
           "Les jours offerts (essai, récompenses de parrainage) ne sont pas remboursés.",
         ],
       },
@@ -399,8 +399,8 @@ export const terms: LegalSet = {
   pt: {
     title: "Termos de serviço",
     summary:
-      "Resumindo: só lemos os endereços públicos que você nos passa e enviamos alertas. Os alertas não são garantidos e não são recomendação de investimento. Os planos pagos são ativados conforme o valor recebido e, se um dia encerrarmos, avisaremos com antecedência e devolveremos os dias não usados.",
-    updated: "Em vigor desde 9 de novembro de 2026",
+      "Resumindo: só lemos os endereços públicos que você nos passa e enviamos alertas. Os alertas não são garantidos e não são recomendação de investimento. Os planos pagos são ativados conforme o valor recebido e não são reembolsáveis, exceto se um dia o serviço for encerrado: nesse caso devolvemos os dias não usados.",
+    updated: "Em vigor desde 14 de novembro de 2026",
     body: [
       { type: "h", text: "1. O serviço" },
       {
@@ -437,9 +437,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "O tempo pago, depois de ativado, em geral não é reembolsável. Para casos especiais, como valor errado, fale com o suporte.",
-          "Se decidirmos encerrar o serviço, avisaremos com pelo menos 30 dias de antecedência pelo bot do Telegram e pelo site. Nesse período o serviço continua funcionando.",
-          "No encerramento, devolvemos os dias pagos não usados em USDT para o endereço que você informar. Exemplo: um plano anual de 60 USDT com 200 dias restantes recebe cerca de 32,9 USDT.",
+          "O tempo pago, depois de ativado, não é reembolsável. A única exceção é o encerramento do serviço, descrito abaixo.",
+          "Se decidirmos encerrar o serviço, avisaremos com pelo menos 30 dias de antecedência pelo bot do Telegram e pelo site. Nesse período o serviço continua funcionando. Se formos obrigados a parar por força maior, avisaremos o quanto antes.",
+          "Seja o encerramento por decisão nossa ou por força maior, devolvemos os dias pagos não usados em USDT para o endereço que você informar. Exemplo: um plano anual de 60 USDT com 200 dias restantes recebe cerca de 32,9 USDT.",
           "Dias gratuitos (teste, recompensas de indicação) não são reembolsados.",
         ],
       },
@@ -478,8 +478,8 @@ export const terms: LegalSet = {
   vi: {
     title: "Điều khoản dịch vụ",
     summary:
-      "Tóm tắt: chúng tôi chỉ đọc các địa chỉ công khai bạn cung cấp và gửi cảnh báo. Cảnh báo không được bảo đảm và không phải lời khuyên đầu tư. Gói trả phí được kích hoạt theo số tiền nhận được, và nếu một ngày chúng tôi ngừng dịch vụ, chúng tôi sẽ báo trước và hoàn tiền cho số ngày chưa dùng.",
-    updated: "Có hiệu lực từ ngày 9 tháng 11 năm 2026",
+      "Tóm tắt: chúng tôi chỉ đọc các địa chỉ công khai bạn cung cấp và gửi cảnh báo. Cảnh báo không được bảo đảm và không phải lời khuyên đầu tư. Gói trả phí được kích hoạt theo số tiền nhận được và không được hoàn tiền, trừ khi một ngày dịch vụ ngừng hoạt động: khi đó chúng tôi hoàn tiền cho số ngày chưa dùng.",
+    updated: "Có hiệu lực từ ngày 14 tháng 11 năm 2026",
     body: [
       { type: "h", text: "1. Dịch vụ" },
       {
@@ -516,9 +516,9 @@ export const terms: LegalSet = {
       {
         type: "list",
         items: [
-          "Thời gian đã trả phí sau khi kích hoạt nhìn chung không được hoàn tiền. Với trường hợp đặc biệt, như chuyển sai số tiền, hãy liên hệ hỗ trợ.",
-          "Nếu quyết định ngừng dịch vụ, chúng tôi sẽ thông báo trước ít nhất 30 ngày qua bot Telegram và trang web. Trong thời gian đó dịch vụ vẫn chạy bình thường.",
-          "Khi ngừng dịch vụ, chúng tôi hoàn lại số ngày trả phí chưa dùng bằng USDT về địa chỉ bạn cung cấp. Ví dụ: gói năm 60 USDT còn 200 ngày sẽ được hoàn khoảng 32,9 USDT.",
+          "Thời gian đã trả phí sau khi kích hoạt không được hoàn tiền. Ngoại lệ duy nhất là khi dịch vụ ngừng hoạt động, xem bên dưới.",
+          "Nếu quyết định ngừng dịch vụ, chúng tôi sẽ thông báo trước ít nhất 30 ngày qua bot Telegram và trang web. Trong thời gian đó dịch vụ vẫn chạy bình thường. Nếu buộc phải dừng do bất khả kháng, chúng tôi sẽ thông báo sớm nhất có thể.",
+          "Dù ngừng dịch vụ theo quyết định của chúng tôi hay do bất khả kháng, chúng tôi đều hoàn lại số ngày trả phí chưa dùng bằng USDT về địa chỉ bạn cung cấp. Ví dụ: gói năm 60 USDT còn 200 ngày sẽ được hoàn khoảng 32,9 USDT.",
           "Các ngày được tặng (dùng thử, thưởng giới thiệu) không được hoàn tiền.",
         ],
       },
