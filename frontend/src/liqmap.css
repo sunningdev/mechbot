@@ -58,7 +58,7 @@
 
 .liq-bar.all,
 .liq-swatch.all {
-  background: var(--ink);
+  background: #7c8aa0;
 }
 
 .liq-bar.aave,
@@ -116,6 +116,7 @@
   font-size: 10px;
   line-height: 14px;
   border: 1px solid currentColor;
+  border-radius: 3px;
 }
 
 .liq-drop {
@@ -303,6 +304,7 @@
   grid-template-columns: 1fr 1fr;
   margin: 0;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
 }
 
 .liq-teaser-stats div {

@@ -572,7 +572,7 @@ export default function Landing() {
             </div>
             <div className="price-card featured frame">
               <div className="plan-head">
-                <span className="micro signal">{tr("PLAN B · 推荐", "PLAN B · RECOMMENDED")}</span>
+                <span className="micro accent">{tr("PLAN B · 推荐", "PLAN B · RECOMMENDED")}</span>
                 <h3 className="plan-title">Pro</h3>
                 <p className="plan-sub">{tr("循环贷和多仓位首选", "Built for loops and multiple positions")}</p>
               </div>

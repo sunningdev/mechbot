@@ -1,5 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
-import { connectorsForWallets, lightTheme, RainbowKitProvider, useConnectModal, type Locale } from "@rainbow-me/rainbowkit";
+import { connectorsForWallets, darkTheme, RainbowKitProvider, useConnectModal, type Locale } from "@rainbow-me/rainbowkit";
 import {
   binanceWallet,
   coinbaseWallet,
@@ -94,7 +94,7 @@ export default function WalletPay(props: WalletPayProps) {
           locale={locales[getLang()]}
           modalSize="compact"
           initialChain={chains[0]}
-          theme={lightTheme({ accentColor: "#1f1f1f", accentColorForeground: "#ffffff", borderRadius: "small" })}
+          theme={darkTheme({ accentColor: "#2dd4bf", accentColorForeground: "#04201c", borderRadius: "medium" })}
         >
           <Pay {...props} chains={evm} />
         </RainbowKitProvider>

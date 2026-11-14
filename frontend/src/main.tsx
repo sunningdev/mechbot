@@ -15,7 +15,6 @@ import Referral from "./pages/Referral";
 import "@fontsource-variable/inter";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/600.css";
-import "@fontsource/barlow-condensed/latin-800.css";
 import "./styles.css";
 import "./liqmap.css";
 
