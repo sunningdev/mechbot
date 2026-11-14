@@ -482,6 +482,11 @@ const vi: Record<string, string> = {
   "Change network or coin": "Đổi mạng hoặc đồng",
   "Balance {0}": "Số dư {0}",
   "This sends one transfer only, with no approvals or signatures, to your personal deposit address:": "Chỉ gửi một giao dịch chuyển tiền, không yêu cầu phê duyệt hay chữ ký, tới địa chỉ nạp riêng của bạn:",
+  "Developer": "Nhà phát triển",
+  "Built by one person who uses it too.": "Do một người làm, và chính người đó cũng dùng.",
+  "I'm @sunningdev, the independent developer behind MechBot. I've run positions on Aave myself and once came close to being liquidated. I couldn't find an alert tool that watched Aave, Compound and Morpho together, so I built one.": "Tôi là @sunningdev, nhà phát triển độc lập của MechBot. Tôi từng mở vị thế trên Aave và có lần suýt bị thanh lý. Tôi không tìm được công cụ cảnh báo nào theo dõi cùng lúc Aave, Compound và Morpho, nên tự làm một cái.",
+  "The code is open source on GitHub and the server only holds payment public keys, so you can check for yourself. For feedback or problems, find me in the Telegram support group.": "Mã nguồn mở trên GitHub, máy chủ chỉ giữ khóa công khai để nhận thanh toán, bạn có thể tự kiểm tra. Góp ý hoặc gặp sự cố, hãy tìm tôi trong nhóm hỗ trợ Telegram.",
+  "Telegram support group": "Nhóm hỗ trợ Telegram",
 };
 
 export default vi;

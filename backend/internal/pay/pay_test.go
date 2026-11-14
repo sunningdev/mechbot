@@ -69,26 +69,26 @@ func TestCreditNotifiesOnlySalesAccount(t *testing.T) {
 	}
 
 	box.notes = nil
-	svc.credit(context.Background(), chain, "USDT", "0xbuy", 0, 42, 12_000_000)
+	svc.credit(context.Background(), chain, "USDT", "0xbuy", 0, 42, 20_000_000)
 	if len(box.notes) != 2 || box.notes[0].chat != 42 || box.notes[1].chat != 7 {
 		t.Fatalf("chats: %+v", box.notes)
 	}
 	notice := box.notes[1].text
-	for _, part := range []string{"@alice", "Alice", "ID 42", "12 USDT", "BNB Chain", "季付", "未归集余额（不含主地址）"} {
+	for _, part := range []string{"@alice", "Alice", "ID 42", "20 USDT", "BNB Chain", "季付", "未归集余额（不含主地址）"} {
 		if !strings.Contains(notice, part) {
 			t.Fatalf("notice %q missing %s", notice, part)
 		}
 	}
 
 	box.notes = nil
-	svc.credit(context.Background(), chain, "USDT", "0xbuy", 0, 42, 12_000_000)
+	svc.credit(context.Background(), chain, "USDT", "0xbuy", 0, 42, 20_000_000)
 	if len(box.notes) != 0 {
 		t.Fatalf("repeat payment notified again: %+v", box.notes)
 	}
 
 	box.notes = nil
-	svc.credit(context.Background(), Chain{Key: "base", Name: "Base"}, "USDC", "0xusdc", 3, 42, 5_000_000)
-	if len(box.notes) != 2 || !strings.Contains(box.notes[0].text, "5 USDC") || !strings.Contains(box.notes[1].text, "5 USDC") {
+	svc.credit(context.Background(), Chain{Key: "base", Name: "Base"}, "USDC", "0xusdc", 3, 42, 8_000_000)
+	if len(box.notes) != 2 || !strings.Contains(box.notes[0].text, "8 USDC") || !strings.Contains(box.notes[1].text, "8 USDC") {
 		t.Fatalf("USDC payment should be credited and named: %+v", box.notes)
 	}
 	deps, err := st.Deposits(42, 10)
@@ -126,11 +126,11 @@ func TestCreditPlanTiersStackProDays(t *testing.T) {
 		plan  string
 	}{
 		{4_600_000, 0, "4.6 USDT"},
-		{6_000_000, 30, "月付"},
-		{11_000_000, 30, "月付"},
-		{12_000_000, 90, "季付"},
-		{35_600_000, 90, "季付"},
-		{36_000_000, 365, "年付"},
+		{7_800_000, 30, "月付"},
+		{19_000_000, 30, "月付"},
+		{20_000_000, 90, "季付"},
+		{59_600_000, 90, "季付"},
+		{60_000_000, 365, "年付"},
 	} {
 		box.notes = nil
 		now := time.Now()
@@ -202,7 +202,7 @@ func TestFormatAmount(t *testing.T) {
 }
 
 func TestMatchPlan(t *testing.T) {
-	cases := map[int64]int{4_699_999: 0, 4_700_000: 30, 4_999_999: 30, 5_000_000: 30, 11_699_999: 30, 11_700_000: 90, 12_000_000: 90, 35_699_999: 90, 35_700_000: 365, 36_000_000: 365, 500_000_000: 365}
+	cases := map[int64]int{7_699_999: 0, 7_700_000: 30, 7_999_999: 30, 8_000_000: 30, 19_699_999: 30, 19_700_000: 90, 20_000_000: 90, 59_699_999: 90, 59_700_000: 365, 60_000_000: 365, 500_000_000: 365}
 	for amount, days := range cases {
 		p, ok := MatchPlan(amount)
 		if ok != (days > 0) || p.Days != days {
@@ -213,11 +213,11 @@ func TestMatchPlan(t *testing.T) {
 
 func TestChainMinPrice(t *testing.T) {
 	for _, testnet := range []bool{false, true} {
-		if p := TronChain(testnet).MinPrice; p != 12 {
+		if p := TronChain(testnet).MinPrice; p != 20 {
 			t.Fatalf("tron min price %d", p)
 		}
 		for _, c := range EVMChains(config.PayNet{Testnet: testnet}) {
-			if c.MinPrice != 5 {
+			if c.MinPrice != 8 {
 				t.Fatalf("%s min price %d", c.Key, c.MinPrice)
 			}
 		}
@@ -450,13 +450,13 @@ func TestLiveScanEVMCredits(t *testing.T) {
 	var target *types.Log
 	for i := range logs {
 		tk, _ := bsc.token(logs[i].Address)
-		if ToMicro(new(big.Int).SetBytes(logs[i].Data), tk.Decimals) >= 5_000_000 {
+		if ToMicro(new(big.Int).SetBytes(logs[i].Data), tk.Decimals) >= Plans[0].Price*usdtDecimals {
 			target = &logs[i]
 			break
 		}
 	}
 	if target == nil {
-		t.Skip("no transfer of 5 USDT or more in the sampled blocks")
+		t.Skip("no transfer covering the monthly plan in the sampled blocks")
 	}
 	recipient := common.BytesToAddress(target.Topics[2].Bytes()).Hex()
 	if _, err := st.EnsureUser(42, nil, 1.2); err != nil {

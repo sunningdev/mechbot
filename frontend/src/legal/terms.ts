@@ -30,7 +30,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter 免费：最多 3 个地址，仅 Aave V3 预警。",
-          "Pro：月付 5 USDT（30 天）、季付 12 USDT（90 天）、年付 36 USDT（365 天）。支持 BNB Chain、Arbitrum、Base、Optimism、Ethereum 上的 USDT / USDC，以及 TRON 上的 USDT；TRON 仅支持季付及以上。",
+          "Pro：月付 8 USDT（30 天）、季付 20 USDT（90 天）、年付 60 USDT（365 天）。支持 BNB Chain、Arbitrum、Base、Optimism、Ethereum 上的 USDT / USDC，以及 TRON 上的 USDT；TRON 仅支持季付及以上。",
           "到账金额对应的套餐自动开通；超出部分不累计，低于最低套餐价格不开通。请按页面显示的网络和币种转账，转错可能无法找回。",
           "Pro 时长累加：续费和推荐奖励都在现有到期时间上叠加。",
           "新用户可获赠 7 天 Pro 体验，到期自动回到 Starter，不会扣费。",
@@ -44,7 +44,7 @@ export const terms: LegalSet = {
         items: [
           "已开通的付费时长一般不退款。转账金额有误等特殊情况，请联系客服处理。",
           "如果我们决定停止服务，会至少提前 30 天通过 Telegram 机器人和网站公告通知，通知期内服务照常运行。",
-          "停止服务时，按付费时长的剩余天数折算，以 USDT 退回到你提供的地址。例如年付 36 USDT、剩余 200 天，退还约 19.7 USDT。",
+          "停止服务时，按付费时长的剩余天数折算，以 USDT 退回到你提供的地址。例如年付 60 USDT、剩余 200 天，退还约 32.9 USDT。",
           "赠送的天数（试用、推荐奖励）不参与退款。",
         ],
       },
@@ -109,7 +109,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter is free: up to 3 addresses, Aave V3 alerts only.",
-          "Pro: 5 USDT monthly (30 days), 12 USDT quarterly (90 days), 36 USDT yearly (365 days). Pay in USDT or USDC on BNB Chain, Arbitrum, Base, Optimism or Ethereum, or in USDT on TRON; TRON accepts quarterly and up.",
+          "Pro: 8 USDT monthly (30 days), 20 USDT quarterly (90 days), 60 USDT yearly (365 days). Pay in USDT or USDC on BNB Chain, Arbitrum, Base, Optimism or Ethereum, or in USDT on TRON; TRON accepts quarterly and up.",
           "The plan matching the amount received activates automatically. Any excess is not carried over, and amounts below the cheapest plan do not activate anything. Send only the token and network shown on the page; mistakes may not be recoverable.",
           "Pro time stacks: renewals and referral rewards are added to your current expiry date.",
           "New users get a free 7-day Pro trial. It falls back to Starter at the end, with no charge.",
@@ -123,7 +123,7 @@ export const terms: LegalSet = {
         items: [
           "Paid time is generally non-refundable once activated. For special cases such as a wrong amount, contact support.",
           "If we decide to shut down, we will announce it at least 30 days in advance through the Telegram bot and the website. The service keeps running during that period.",
-          "At shutdown, we refund the unused days of your paid time in USDT to an address you provide. Example: a 36 USDT yearly plan with 200 days left gets about 19.7 USDT back.",
+          "At shutdown, we refund the unused days of your paid time in USDT to an address you provide. Example: a 60 USDT yearly plan with 200 days left gets about 32.9 USDT back.",
           "Free days (trial, referral rewards) are not refunded.",
         ],
       },
@@ -188,7 +188,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter бесплатно: до 3 адресов, оповещения только по Aave V3.",
-          "Pro: 5 USDT в месяц (30 дней), 12 USDT в квартал (90 дней), 36 USDT в год (365 дней). Оплата в USDT или USDC в сетях BNB Chain, Arbitrum, Base, Optimism или Ethereum, либо в USDT в TRON; в TRON — от квартального тарифа.",
+          "Pro: 8 USDT в месяц (30 дней), 20 USDT в квартал (90 дней), 60 USDT в год (365 дней). Оплата в USDT или USDC в сетях BNB Chain, Arbitrum, Base, Optimism или Ethereum, либо в USDT в TRON; в TRON — от квартального тарифа.",
           "Тариф, соответствующий полученной сумме, включается автоматически. Излишек не переносится, сумма ниже минимального тарифа ничего не включает. Отправляйте только указанный на странице токен в указанной сети: ошибку может быть невозможно исправить.",
           "Время Pro суммируется: продления и реферальные бонусы добавляются к текущей дате окончания.",
           "Новые пользователи получают 7 дней Pro бесплатно. После этого аккаунт переходит на Starter без списаний.",
@@ -202,7 +202,7 @@ export const terms: LegalSet = {
         items: [
           "Оплаченное время после включения, как правило, не возвращается. В особых случаях, например при ошибке в сумме, обратитесь в поддержку.",
           "Если мы решим закрыть сервис, мы сообщим об этом минимум за 30 дней через Telegram-бота и сайт. В этот период сервис работает как обычно.",
-          "При закрытии мы вернём стоимость неиспользованных оплаченных дней в USDT на указанный вами адрес. Пример: годовой тариф за 36 USDT, осталось 200 дней — возврат около 19,7 USDT.",
+          "При закрытии мы вернём стоимость неиспользованных оплаченных дней в USDT на указанный вами адрес. Пример: годовой тариф за 60 USDT, осталось 200 дней — возврат около 32,9 USDT.",
           "Бесплатные дни (пробный период, реферальные бонусы) не возвращаются.",
         ],
       },
@@ -267,7 +267,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter es gratis: hasta 3 direcciones, solo alertas de Aave V3.",
-          "Pro: 5 USDT al mes (30 días), 12 USDT al trimestre (90 días), 36 USDT al año (365 días). Pago en USDT o USDC en BNB Chain, Arbitrum, Base, Optimism o Ethereum, o en USDT en TRON; en TRON, desde el plan trimestral.",
+          "Pro: 8 USDT al mes (30 días), 20 USDT al trimestre (90 días), 60 USDT al año (365 días). Pago en USDT o USDC en BNB Chain, Arbitrum, Base, Optimism o Ethereum, o en USDT en TRON; en TRON, desde el plan trimestral.",
           "El plan que corresponde al importe recibido se activa automáticamente. El exceso no se acumula y un importe inferior al plan más barato no activa nada. Envía solo el token y la red que indica la página: un error puede no tener solución.",
           "El tiempo Pro se acumula: las renovaciones y las recompensas por referidos se suman a tu fecha de vencimiento actual.",
           "Los usuarios nuevos reciben 7 días de Pro gratis. Al terminar vuelven a Starter, sin ningún cargo.",
@@ -281,7 +281,7 @@ export const terms: LegalSet = {
         items: [
           "El tiempo pagado, una vez activado, en general no es reembolsable. Para casos especiales, como un importe equivocado, contacta con soporte.",
           "Si decidimos cerrar el servicio, lo anunciaremos con al menos 30 días de antelación por el bot de Telegram y la web. Durante ese periodo el servicio sigue funcionando.",
-          "Al cerrar, devolveremos los días pagados no usados en USDT a la dirección que nos indiques. Ejemplo: un plan anual de 36 USDT con 200 días restantes recibe unos 19,7 USDT.",
+          "Al cerrar, devolveremos los días pagados no usados en USDT a la dirección que nos indiques. Ejemplo: un plan anual de 60 USDT con 200 días restantes recibe unos 32,9 USDT.",
           "Los días gratuitos (prueba, recompensas por referidos) no se reembolsan.",
         ],
       },
@@ -346,7 +346,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter est gratuit : jusqu'à 3 adresses, alertes Aave V3 uniquement.",
-          "Pro : 5 USDT par mois (30 jours), 12 USDT par trimestre (90 jours), 36 USDT par an (365 jours). Paiement en USDT ou USDC sur BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou en USDT sur TRON ; sur TRON, à partir de l'offre trimestrielle.",
+          "Pro : 8 USDT par mois (30 jours), 20 USDT par trimestre (90 jours), 60 USDT par an (365 jours). Paiement en USDT ou USDC sur BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou en USDT sur TRON ; sur TRON, à partir de l'offre trimestrielle.",
           "L'offre correspondant au montant reçu s'active automatiquement. L'excédent n'est pas reporté et un montant inférieur à l'offre la moins chère n'active rien. N'envoyez que le jeton et le réseau indiqués sur la page : une erreur peut être irrécupérable.",
           "Le temps Pro se cumule : les renouvellements et les récompenses de parrainage s'ajoutent à votre date d'expiration actuelle.",
           "Les nouveaux utilisateurs reçoivent 7 jours de Pro gratuits. À la fin, le compte repasse en Starter, sans aucun prélèvement.",
@@ -360,7 +360,7 @@ export const terms: LegalSet = {
         items: [
           "Le temps payé n'est en général pas remboursable une fois activé. Pour les cas particuliers, comme un montant erroné, contactez le support.",
           "Si nous décidons de fermer le service, nous l'annoncerons au moins 30 jours à l'avance via le bot Telegram et le site. Le service continue de fonctionner pendant cette période.",
-          "À la fermeture, nous remboursons les jours payés non utilisés en USDT à l'adresse que vous indiquez. Exemple : une offre annuelle à 36 USDT avec 200 jours restants donne droit à environ 19,7 USDT.",
+          "À la fermeture, nous remboursons les jours payés non utilisés en USDT à l'adresse que vous indiquez. Exemple : une offre annuelle à 60 USDT avec 200 jours restants donne droit à environ 32,9 USDT.",
           "Les jours offerts (essai, récompenses de parrainage) ne sont pas remboursés.",
         ],
       },
@@ -425,7 +425,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter é grátis: até 3 endereços, alertas apenas da Aave V3.",
-          "Pro: 5 USDT por mês (30 dias), 12 USDT por trimestre (90 dias), 36 USDT por ano (365 dias). Pagamento em USDT ou USDC na BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou em USDT na TRON; na TRON, a partir do plano trimestral.",
+          "Pro: 8 USDT por mês (30 dias), 20 USDT por trimestre (90 dias), 60 USDT por ano (365 dias). Pagamento em USDT ou USDC na BNB Chain, Arbitrum, Base, Optimism ou Ethereum, ou em USDT na TRON; na TRON, a partir do plano trimestral.",
           "O plano correspondente ao valor recebido é ativado automaticamente. O excedente não é acumulado e valores abaixo do plano mais barato não ativam nada. Envie apenas o token e a rede indicados na página: um erro pode não ter volta.",
           "O tempo Pro se acumula: renovações e recompensas de indicação são somadas à sua data de vencimento atual.",
           "Novos usuários ganham 7 dias de Pro grátis. Ao final, a conta volta para o Starter, sem nenhuma cobrança.",
@@ -439,7 +439,7 @@ export const terms: LegalSet = {
         items: [
           "O tempo pago, depois de ativado, em geral não é reembolsável. Para casos especiais, como valor errado, fale com o suporte.",
           "Se decidirmos encerrar o serviço, avisaremos com pelo menos 30 dias de antecedência pelo bot do Telegram e pelo site. Nesse período o serviço continua funcionando.",
-          "No encerramento, devolvemos os dias pagos não usados em USDT para o endereço que você informar. Exemplo: um plano anual de 36 USDT com 200 dias restantes recebe cerca de 19,7 USDT.",
+          "No encerramento, devolvemos os dias pagos não usados em USDT para o endereço que você informar. Exemplo: um plano anual de 60 USDT com 200 dias restantes recebe cerca de 32,9 USDT.",
           "Dias gratuitos (teste, recompensas de indicação) não são reembolsados.",
         ],
       },
@@ -504,7 +504,7 @@ export const terms: LegalSet = {
         type: "list",
         items: [
           "Starter miễn phí: tối đa 3 địa chỉ, chỉ cảnh báo Aave V3.",
-          "Pro: 5 USDT mỗi tháng (30 ngày), 12 USDT mỗi quý (90 ngày), 36 USDT mỗi năm (365 ngày). Thanh toán bằng USDT hoặc USDC trên BNB Chain, Arbitrum, Base, Optimism hoặc Ethereum, hoặc USDT trên TRON; TRON chỉ nhận từ gói quý trở lên.",
+          "Pro: 8 USDT mỗi tháng (30 ngày), 20 USDT mỗi quý (90 ngày), 60 USDT mỗi năm (365 ngày). Thanh toán bằng USDT hoặc USDC trên BNB Chain, Arbitrum, Base, Optimism hoặc Ethereum, hoặc USDT trên TRON; TRON chỉ nhận từ gói quý trở lên.",
           "Gói tương ứng với số tiền nhận được sẽ tự động kích hoạt. Phần dư không được cộng dồn, số tiền thấp hơn gói rẻ nhất sẽ không kích hoạt gì. Chỉ gửi đúng token và mạng hiển thị trên trang: gửi nhầm có thể không lấy lại được.",
           "Thời gian Pro được cộng dồn: gia hạn và thưởng giới thiệu đều cộng vào ngày hết hạn hiện tại.",
           "Người dùng mới được tặng 7 ngày Pro. Hết hạn sẽ tự quay về Starter, không bị trừ tiền.",
@@ -518,7 +518,7 @@ export const terms: LegalSet = {
         items: [
           "Thời gian đã trả phí sau khi kích hoạt nhìn chung không được hoàn tiền. Với trường hợp đặc biệt, như chuyển sai số tiền, hãy liên hệ hỗ trợ.",
           "Nếu quyết định ngừng dịch vụ, chúng tôi sẽ thông báo trước ít nhất 30 ngày qua bot Telegram và trang web. Trong thời gian đó dịch vụ vẫn chạy bình thường.",
-          "Khi ngừng dịch vụ, chúng tôi hoàn lại số ngày trả phí chưa dùng bằng USDT về địa chỉ bạn cung cấp. Ví dụ: gói năm 36 USDT còn 200 ngày sẽ được hoàn khoảng 19,7 USDT.",
+          "Khi ngừng dịch vụ, chúng tôi hoàn lại số ngày trả phí chưa dùng bằng USDT về địa chỉ bạn cung cấp. Ví dụ: gói năm 60 USDT còn 200 ngày sẽ được hoàn khoảng 32,9 USDT.",
           "Các ngày được tặng (dùng thử, thưởng giới thiệu) không được hoàn tiền.",
         ],
       },

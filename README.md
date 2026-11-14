@@ -23,7 +23,7 @@ An alert is more than a health factor. It includes collateral, debt, how far the
 | Early alerts, borrow rate, stablecoin / LST depeg | No | Yes |
 | Liquidation map | 1 hour delay, coarse bands | Live, finer price bands |
 
-New users get a 7-day Pro trial on sign-up; it falls back to Starter afterwards with no charge. Pro costs 5 USD / 30 days, 12 USD / 90 days or 36 USD / 365 days, paid in USDT or USDC. Every user has a permanent personal deposit address; Pro is activated as soon as the transfer lands. Users can also connect a wallet and send the transfer in one click. On a new user's first purchase, both the referrer and the new user get extra Pro days (7 for monthly, 15 for quarterly, 30 for yearly); renewals are not rewarded again.
+New users get a 7-day Pro trial on sign-up; it falls back to Starter afterwards with no charge. Pro costs 8 USD / 30 days, 20 USD / 90 days (save 17%) or 60 USD / 365 days (save 38%), paid in USDT or USDC. Every user has a permanent personal deposit address; Pro is activated as soon as the transfer lands. Users can also connect a wallet and send the transfer in one click. On a new user's first purchase, both the referrer and the new user get extra Pro days (7 for monthly, 15 for quarterly, 30 for yearly); renewals are not rewarded again.
 
 Web login goes through Telegram: the page shows a code, the user checks it in the bot and confirms. Logging in also grants DM permission, so alerts can always be delivered.
 

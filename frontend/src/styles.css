@@ -298,6 +298,11 @@ p {
   color: var(--text);
 }
 
+.nav-gh {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* buttons */
 .btn {
   display: inline-flex;
@@ -1887,6 +1892,43 @@ html:not([lang^="zh"]) .hero h1 {
   }
 }
 
+.about-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+  padding: 26px 28px;
+}
+
+.about-copy {
+  display: grid;
+  gap: 10px;
+  max-width: 680px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.about-copy p {
+  margin: 0;
+}
+
+.about-links {
+  display: grid;
+  gap: 10px;
+}
+
+.about-links .btn {
+  gap: 8px;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .about-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 /* footer */
 .footer {
   background: var(--ink);
@@ -3445,7 +3487,7 @@ input:disabled {
     gap: 12px;
   }
 
-  .nav-links > a:not(.btn),
+  .nav-links > a:not(.btn):not(.nav-gh),
   .hide-sm {
     display: none !important;
   }

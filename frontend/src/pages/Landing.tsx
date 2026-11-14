@@ -243,9 +243,9 @@ const referralTiers = () => [
 ];
 
 const proPlans = () => [
-  { key: "month", label: tr("月付", "Monthly"), price: 5, months: 1 },
-  { key: "quarter", label: tr("季付", "Quarterly"), price: 12, months: 3 },
-  { key: "year", label: tr("年付", "Yearly"), price: 36, months: 12 },
+  { key: "month", label: tr("月付", "Monthly"), price: 8, months: 1 },
+  { key: "quarter", label: tr("季付", "Quarterly"), price: 20, months: 3 },
+  { key: "year", label: tr("年付", "Yearly"), price: 60, months: 12 },
 ];
 
 function payLine() {
@@ -265,7 +265,7 @@ function payLine() {
     .replace("{1}", networks.join(" / "));
 }
 
-const planSave = (p: { price: number; months: number }) => Math.round((1 - p.price / (5 * p.months)) * 100);
+const planSave = (p: { price: number; months: number }) => Math.round((1 - p.price / (proPlans()[0].price * p.months)) * 100);
 
 function SectionHead({ index, label, title, sub }: { index: string; label: string; title: ReactNode; sub?: string }) {
   return (
@@ -276,6 +276,14 @@ function SectionHead({ index, label, title, sub }: { index: string; label: strin
       <h2>{title}</h2>
       {sub && <p className="muted">{sub}</p>}
     </div>
+  );
+}
+
+function GitHubIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
   );
 }
 
@@ -327,6 +335,16 @@ export default function Landing() {
                 {l.label}
               </a>
             ))}
+            <a
+              className="nav-gh"
+              href="https://github.com/sunningdev/mechbot"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              title="GitHub"
+            >
+              <GitHubIcon size={18} />
+            </a>
             <LangToggle />
             {loggedIn ? (
               <Link className="btn btn-small btn-primary" to="/app">
@@ -663,6 +681,39 @@ export default function Landing() {
               ))}
           </div>
         </section>
+
+        <section className="container section" id="about">
+          <SectionHead
+            index="09"
+            label={tr("开发者", "Developer")}
+            title={tr("一个人做的，自己也在用。", "Built by one person who uses it too.")}
+          />
+          <div className="about-card frame">
+            <div className="about-copy">
+              <p>
+                {tr(
+                  "我是 @sunningdev，MechBot 的独立开发者。自己在 Aave 上开过仓位，有一次差点被清算。当时找不到一个能同时盯住 Aave、Compound、Morpho 的预警工具，就自己写了 MechBot。",
+                  "I'm @sunningdev, the independent developer behind MechBot. I've run positions on Aave myself and once came close to being liquidated. I couldn't find an alert tool that watched Aave, Compound and Morpho together, so I built one.",
+                )}
+              </p>
+              <p className="muted">
+                {tr(
+                  "代码在 GitHub 开源，服务器只有收款公钥，你可以自己核对。产品建议、问题反馈，直接到 Telegram 客服群找我。",
+                  "The code is open source on GitHub and the server only holds payment public keys, so you can check for yourself. For feedback or problems, find me in the Telegram support group.",
+                )}
+              </p>
+            </div>
+            <div className="about-links">
+              <a className="btn btn-ghost" href="https://github.com/sunningdev/mechbot" target="_blank" rel="noreferrer">
+                <GitHubIcon size={16} />
+                GitHub
+              </a>
+              <a className="btn btn-primary" href="https://t.me/+LWTqp4To2ilhY2M1" target="_blank" rel="noreferrer">
+                {tr("Telegram 客服群", "Telegram support group")}
+              </a>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="footer">
@@ -689,6 +740,7 @@ export default function Landing() {
               <a href="#pricing">{tr("定价", "Pricing")}</a>
               <a href="#referral">{tr("推荐计划", "Referral")}</a>
               <a href="#blog">{tr("博客", "Blog")}</a>
+              <a href="#about">{tr("开发者", "Developer")}</a>
             </nav>
             <nav className="footer-links">
               <Link to="/terms">{tr("服务条款", "Terms")}</Link>
@@ -710,9 +762,7 @@ export default function Landing() {
                 MechBot Telegram
               </a>
               <a className="footer-tg" href="https://github.com/sunningdev/mechbot" target="_blank" rel="noreferrer">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                </svg>
+                <GitHubIcon size={14} />
                 GitHub
               </a>
             </nav>

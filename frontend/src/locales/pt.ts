@@ -483,6 +483,11 @@ const pt: Record<string, string> = {
   "Change network or coin": "Trocar rede ou moeda",
   "Balance {0}": "Saldo {0}",
   "This sends one transfer only, with no approvals or signatures, to your personal deposit address:": "Envia apenas uma transferência, sem aprovações nem assinaturas, para seu endereço de depósito pessoal:",
+  "Developer": "Desenvolvedor",
+  "Built by one person who uses it too.": "Feito por uma pessoa que também usa.",
+  "I'm @sunningdev, the independent developer behind MechBot. I've run positions on Aave myself and once came close to being liquidated. I couldn't find an alert tool that watched Aave, Compound and Morpho together, so I built one.": "Sou @sunningdev, o desenvolvedor independente por trás do MechBot. Já tive posições na Aave e uma vez quase fui liquidado. Não encontrei nenhuma ferramenta de alertas que monitorasse Aave, Compound e Morpho juntos, então criei uma.",
+  "The code is open source on GitHub and the server only holds payment public keys, so you can check for yourself. For feedback or problems, find me in the Telegram support group.": "O código é aberto no GitHub e o servidor só guarda chaves públicas de pagamento, então você pode conferir por conta própria. Para sugestões ou problemas, me encontre no grupo de suporte do Telegram.",
+  "Telegram support group": "Grupo de suporte no Telegram",
 };
 
 export default pt;

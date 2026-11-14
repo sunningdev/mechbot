@@ -39,9 +39,9 @@ type Plan struct {
 }
 
 var Plans = []Plan{
-	{Key: "month", Name: "Pro 月付", Price: 5, Days: 30},
-	{Key: "quarter", Name: "Pro 季付", Price: 12, Days: 90},
-	{Key: "year", Name: "Pro 年付", Price: 36, Days: 365},
+	{Key: "month", Name: "Pro 月付", Price: 8, Days: 30},
+	{Key: "quarter", Name: "Pro 季付", Price: 20, Days: 90},
+	{Key: "year", Name: "Pro 年付", Price: 60, Days: 365},
 }
 
 // planTolerance absorbs exchange withdrawal fees taken out of the amount sent. Never shown to users.

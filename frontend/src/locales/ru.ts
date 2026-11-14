@@ -482,6 +482,11 @@ const ru: Record<string, string> = {
   "Change network or coin": "Сменить сеть или монету",
   "Balance {0}": "Баланс {0}",
   "This sends one transfer only, with no approvals or signatures, to your personal deposit address:": "Будет отправлен только один перевод, без одобрений и подписей, на ваш личный адрес пополнения:",
+  "Developer": "Разработчик",
+  "Built by one person who uses it too.": "Сделано одним человеком, который сам этим пользуется.",
+  "I'm @sunningdev, the independent developer behind MechBot. I've run positions on Aave myself and once came close to being liquidated. I couldn't find an alert tool that watched Aave, Compound and Morpho together, so I built one.": "Я @sunningdev, независимый разработчик MechBot. Сам держал позиции в Aave и однажды чуть не попал под ликвидацию. Инструмента, который следил бы за Aave, Compound и Morpho сразу, я не нашёл, поэтому сделал его сам.",
+  "The code is open source on GitHub and the server only holds payment public keys, so you can check for yourself. For feedback or problems, find me in the Telegram support group.": "Код открыт на GitHub, а на сервере хранятся только публичные ключи для приёма оплаты, так что всё можно проверить самому. С предложениями и проблемами пишите мне в группу поддержки в Telegram.",
+  "Telegram support group": "Группа поддержки в Telegram",
 };
 
 export default ru;

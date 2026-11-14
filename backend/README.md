@@ -3,7 +3,7 @@
 Telegram liquidation alerts plus a web console. Every 5 minutes the bot reads Aave V3, Compound V3 and Morpho Blue positions and sends a DM when the health factor drops below the alert line.
 
 - Starter (free forever): 3 addresses, Aave V3 alerts
-- Pro: 20 addresses, alerts for every protocol. 5 USD / month, 12 USD / quarter, 36 USD / year in USDT or USDC, activated automatically when the transfer reaches the user's deposit address
+- Pro: 20 addresses, alerts for every protocol. 8 USD / month, 20 USD / quarter (save 17%), 60 USD / year (save 38%) in USDT or USDC, activated automatically when the transfer reaches the user's deposit address
 - Referrals: on a new user's first purchase, both the referrer and the new user get Pro days (7 each for monthly, 15 for quarterly, 30 for yearly). Rewards stack across referrals; renewals are not rewarded again
 
 ## Local development
@@ -55,13 +55,13 @@ There are two ways to pay, and both end up as a plain transfer to the same depos
 
 | Amount received | Pro |
 |---------|------|
-| ≥ 5 USD | 30 days |
-| ≥ 12 USD | 90 days |
-| ≥ 36 USD | 365 days |
+| ≥ 8 USD | 30 days |
+| ≥ 20 USD | 90 days |
+| ≥ 60 USD | 365 days |
 
-Anything above a tier is not carried over. Less than 5 is recorded as "amount too low" and the user is notified.
+A shortfall of up to 0.3 is tolerated, so exchange withdrawal fees don't drop a payment to the lower tier. Anything above a tier is not carried over. Less than that is recorded as "amount too low" and the user is notified.
 
-TRON is offered only for quarterly and yearly plans: sweeping one TRON address burns about 6.5 TRX of energy (around 2 USD), which doesn't pay off for a monthly plan. If someone sends 5 USDT on TRON anyway, they still get 30 days.
+TRON is offered only for quarterly and yearly plans: sweeping one TRON address burns about 6.5 TRX of energy (around 2 USD), which doesn't pay off for a monthly plan. If someone sends 8 USDT on TRON anyway, they still get 30 days.
 
 ### One-time setup (on your own computer, never on the server)
 
