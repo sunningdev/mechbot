@@ -7,6 +7,7 @@ import Brand from "../components/Brand";
 import FailoverDiagram from "../components/FailoverDiagram";
 import HealthGauge from "../components/HealthGauge";
 import LangToggle from "../components/LangToggle";
+import ThemeToggle from "../components/ThemeToggle";
 import LiqMapChart, { liquidatedWithin } from "../components/LiqMapChart";
 import { usdShort } from "../format";
 import LiquidationFlow from "../components/LiquidationFlow";
@@ -267,12 +268,10 @@ function payLine() {
 
 const planSave = (p: { price: number; months: number }) => Math.round((1 - p.price / (proPlans()[0].price * p.months)) * 100);
 
-function SectionHead({ index, label, title, sub }: { index: string; label: string; title: ReactNode; sub?: string }) {
+function SectionHead({ label, title, sub }: { label: string; title: ReactNode; sub?: string }) {
   return (
     <div className="sec-head">
-      <span className="sec-index sec-num">
-        {index} / {label}
-      </span>
+      <span className="sec-index sec-num">{label}</span>
       <h2>{title}</h2>
       {sub && <p className="muted">{sub}</p>}
     </div>
@@ -345,6 +344,7 @@ export default function Landing() {
             >
               <GitHubIcon size={18} />
             </a>
+            <ThemeToggle />
             <LangToggle />
             {loggedIn ? (
               <Link className="btn btn-small btn-primary" to="/app">
@@ -362,7 +362,7 @@ export default function Landing() {
       <main>
         <section className="hero container">
           <div>
-            <span className="sec-index sec-num">{tr("00 / DEFI 借贷清算预警", "00 / DEFI LIQUIDATION ALERTS")}</span>
+            <span className="sec-index sec-num">{tr("DeFi 借贷清算预警", "DeFi liquidation alerts")}</span>
             <h1>
               {tr("清算之前，", "Before liquidation,")}
               <br />
@@ -397,7 +397,6 @@ export default function Landing() {
 
         <section className="container section" id="flow">
           <SectionHead
-            index="01"
             label={tr("流程", "Flow")}
             title={tr("清算预警流程", "How alerts work")}
             sub={tr(
@@ -409,7 +408,7 @@ export default function Landing() {
         </section>
 
         <section className="container section">
-          <SectionHead index="02" label={tr("使用", "Start")} title={tr("三步开始", "Three steps to start")} />
+          <SectionHead label={tr("使用", "Start")} title={tr("三步开始", "Three steps to start")} />
           <div className="steps">
             {steps().map((s, i) => (
               <div className="step frame" key={i}>
@@ -424,7 +423,6 @@ export default function Landing() {
         <section className="container section loop" id="loop">
           <div>
             <SectionHead
-              index="03"
               label={tr("循环贷", "Looping")}
               title={
                 <>
@@ -466,7 +464,6 @@ export default function Landing() {
         <section className="container section liq-promo" id="liqmap">
           <div>
             <SectionHead
-              index="04"
               label={tr("清算地图", "Liquidation map")}
               title={
                 <>
@@ -512,7 +509,6 @@ export default function Landing() {
         <section className="container section trust" id="trust">
           <div>
             <SectionHead
-              index="05"
               label={tr("安全", "Security")}
               title={
                 <>
@@ -535,7 +531,7 @@ export default function Landing() {
         </section>
 
         <section className="container section" id="pricing">
-          <SectionHead index="06" label={tr("定价", "Pricing")} title={tr("定价", "Pricing")} />
+          <SectionHead label={tr("定价", "Pricing")} title={tr("定价", "Pricing")} />
           <div className="pricing">
             <div className="price-card frame">
               <div className="plan-head">
@@ -623,7 +619,6 @@ export default function Landing() {
 
         <section className="container section" id="referral">
           <SectionHead
-            index="07"
             label={tr("推荐计划", "Referral")}
             title={tr("邀请好友，双方都得 Pro", "Invite a friend, both get Pro")}
           />
@@ -661,7 +656,7 @@ export default function Landing() {
 
         <section className="container section" id="blog">
           <div className="blog-section-head">
-            <SectionHead index="08" label={tr("博客", "Blog")} title={tr("技术文章", "Engineering notes")} />
+            <SectionHead label={tr("博客", "Blog")} title={tr("技术文章", "Engineering notes")} />
             <Link className="text-link" to="/blog">
               {tr("更多文章 →", "More posts →")}
             </Link>
@@ -684,7 +679,6 @@ export default function Landing() {
 
         <section className="container section" id="about">
           <SectionHead
-            index="09"
             label={tr("开发者", "Developer")}
             title={tr("一个人做的，自己也在用。", "Built by one person who uses it too.")}
           />

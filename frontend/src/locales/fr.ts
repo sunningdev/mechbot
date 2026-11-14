@@ -141,7 +141,6 @@ const fr: Record<string, string> = {
   "Open console": "Ouvrir la console",
   "All rights reserved.": "Tous droits réservés.",
   "Blog · MechBot": "Blog · MechBot",
-  "BLOG / ENGINEERING NOTES": "BLOG / NOTES TECHNIQUES",
   "Liquidation alerts, explained.": "Les alertes de liquidation, expliquées.",
   "Principles, engineering and product trade-offs from building MechBot.":
     "Principes, ingénierie et choix produit derrière MechBot.",
@@ -207,7 +206,8 @@ const fr: Record<string, string> = {
   Quarterly: "Trimestriel",
   Yearly: "Annuel",
   "Log in": "Connexion",
-  "00 / DEFI LIQUIDATION ALERTS": "00 / ALERTES DE LIQUIDATION DEFI",
+  "Switch to light mode": "Passer en mode clair",
+  "Switch to dark mode": "Passer en mode sombre",
   "Before liquidation,": "Avant la liquidation,",
   "we wake you up.": "on vous réveille.",
   "One address, every chain": "Une adresse, toutes les chaînes",

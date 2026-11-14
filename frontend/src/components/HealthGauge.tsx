@@ -34,15 +34,15 @@ export default function HealthGauge() {
   return (
     <div className={`gauge frame ${alert ? "alert" : "safe"}`} aria-label={tr("健康因子仪表示意", "Health factor gauge demo")}>
       <div className="gauge-head">
-        <span>POSITION · AAVE V3 · ETHEREUM</span>
+        <span>Aave V3 · Ethereum</span>
         <span className="gauge-live">
-          <i className="signal-dot" /> LIVE
+          <i className="signal-dot" /> Live
         </span>
       </div>
 
       <div className="gauge-readout">
         <div>
-          <span className="micro">HEALTH FACTOR</span>
+          <span className="micro">Health factor</span>
           <strong className="gauge-tone">{hf.toFixed(3)}</strong>
         </div>
         <div className={`gauge-state ${alert ? "on" : ""}`}>

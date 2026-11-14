@@ -99,7 +99,7 @@ export default function BillingPanel({ me, onPaid }: Props) {
       setQr("");
       return;
     }
-    QRCode.toDataURL(address, { margin: 1, width: 264, color: { dark: "#0a0e13", light: "#ffffff" } }).then(
+    QRCode.toDataURL(address, { margin: 1, width: 264, color: { dark: "#17202b", light: "#ffffff" } }).then(
       setQr,
       () => setQr(""),
     );

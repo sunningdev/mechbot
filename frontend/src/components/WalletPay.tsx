@@ -1,5 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
-import { connectorsForWallets, darkTheme, RainbowKitProvider, useConnectModal, type Locale } from "@rainbow-me/rainbowkit";
+import { connectorsForWallets, darkTheme, lightTheme, RainbowKitProvider, useConnectModal, type Locale } from "@rainbow-me/rainbowkit";
 import {
   binanceWallet,
   coinbaseWallet,
@@ -30,6 +30,7 @@ import {
 import { api, type Chain, type Coin, type WalletBalance } from "../api";
 import { getLang, tr, type Lang } from "../i18n";
 import { coinOrder, sortChains } from "../payorder";
+import { themeAccent, useTheme } from "../theme";
 import ChainLogo from "./ChainLogo";
 
 export type WalletPayProps = {
@@ -87,6 +88,7 @@ export default function WalletPay(props: WalletPayProps) {
   const evm = useMemo(() => sortChains(props.chains).filter((c) => c.chainId && viemChains[c.chainId] && c.coins?.length), [props.chains]);
   const chains = evm.map((c) => viemChains[c.chainId!]);
   const config = walletConfig(chains, props.projectId);
+  const theme = useTheme();
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
@@ -94,7 +96,7 @@ export default function WalletPay(props: WalletPayProps) {
           locale={locales[getLang()]}
           modalSize="compact"
           initialChain={chains[0]}
-          theme={darkTheme({ accentColor: "#2dd4bf", accentColorForeground: "#04201c", borderRadius: "medium" })}
+          theme={(theme === "light" ? lightTheme : darkTheme)({ accentColor: themeAccent(theme), accentColorForeground: "#ffffff", borderRadius: "medium" })}
         >
           <Pay {...props} chains={evm} />
         </RainbowKitProvider>

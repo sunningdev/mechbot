@@ -53,9 +53,9 @@ export default function FailoverDiagram() {
   return (
     <div className="failover frame" aria-label={tr("多节点容灾示意", "Multi-node failover demo")}>
       <div className="gauge-head">
-        <span>SYSTEM · FAILOVER</span>
+        <span>Failover</span>
         <span className="gauge-live">
-          <i className="signal-dot" /> LIVE
+          <i className="signal-dot" /> Live
         </span>
       </div>
 

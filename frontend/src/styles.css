@@ -1,26 +1,51 @@
 :root {
   /* --ink is the accent: filled buttons, active states, focus. Text on it uses --paper. */
-  --ink: #2dd4bf;
-  --paper: #0a0e13;
-  --deep: #06090d;
-  --panel: #10161d;
-  --panel-2: #161d26;
-  --field: #0d1218;
-  --line: #232c37;
-  --line-strong: #344150;
-  --text: #e6edf3;
-  --muted: #8b97a6;
-  --signal: #ff5c4d;
-  --ok: #2dd4bf;
+  --ink: #4c82fb;
+  --on-ink: #ffffff;
+  --paper: #18212c;
+  --deep: #141c26;
+  --panel: #1f2a37;
+  --panel-2: #263342;
+  --field: #1a2430;
+  --line: #2c3a4b;
+  --line-strong: #3d4d61;
+  --text: #e8edf3;
+  --muted: #93a1b3;
+  --signal: #f25c5c;
+  --ok: #33c27f;
   --warn: #f5a524;
   --danger: var(--signal);
   --accent: var(--ink);
   --hover: rgba(255, 255, 255, 0.05);
+  --logo-filter: invert(1);
   --radius: 12px;
   --radius-sm: 8px;
+  --shadow: none;
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.45);
   --sans: "Inter Variable", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
   color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --ink: #1d5ff5;
+  --paper: #f5f7fa;
+  --deep: #eef1f5;
+  --panel: #ffffff;
+  --panel-2: #f2f5f8;
+  --field: #ffffff;
+  --line: #e2e7ee;
+  --line-strong: #cbd3de;
+  --text: #17202b;
+  --muted: #5d6a7a;
+  --signal: #dc3b3b;
+  --ok: #129a5c;
+  --warn: #c77a06;
+  --hover: rgba(15, 23, 42, 0.04);
+  --logo-filter: none;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-pop: 0 12px 32px rgba(16, 24, 40, 0.12);
+  color-scheme: light;
 }
 
 * {
@@ -117,10 +142,8 @@ p {
 
 .micro {
   display: block;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--muted);
 }
 
@@ -135,9 +158,10 @@ p {
 .frame,
 .panel {
   position: relative;
-  background-color: var(--panel);
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .signal-dot,
@@ -147,7 +171,7 @@ p {
   height: 6px;
   border-radius: 50%;
   background: var(--ok);
-  animation: blink 1.4s steps(2, start) infinite;
+  animation: blink 1.6s ease-in-out infinite alternate;
 }
 
 @keyframes blink {
@@ -158,12 +182,15 @@ p {
 
 /* status strip + top bar */
 .status-strip {
-  background: var(--deep);
+  background: color-mix(in srgb, var(--deep) 70%, transparent);
   border-bottom: 1px solid var(--line);
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+}
+
+.status-chains {
+  font-family: var(--sans);
 }
 
 .status-inner {
@@ -268,7 +295,7 @@ p {
 .brand-logo {
   width: 36px;
   height: 36px;
-  filter: invert(1);
+  filter: var(--logo-filter);
 }
 
 .nav-links {
@@ -316,12 +343,11 @@ p {
 
 .btn-primary {
   background: var(--ink);
-  color: var(--paper);
+  color: var(--on-ink);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ink) 80%, #fff);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--ink) 35%, transparent);
+  background: color-mix(in srgb, var(--ink) 88%, #fff);
 }
 
 .btn-ghost {
@@ -375,49 +401,25 @@ p {
   isolation: isolate;
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: -120px;
-  left: -10%;
-  width: 70%;
-  height: 520px;
-  pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--ink) 14%, transparent), transparent);
-  filter: blur(20px);
-}
-
 .sec-index {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+  gap: 8px;
+  padding: 5px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .sec-index::before {
   content: "";
-  width: 18px;
-  height: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--ink);
-}
-
-.sec-num {
-  font-family: "JetBrains Mono", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--ok);
-}
-
-.sec-num::before {
-  width: 22px;
-  height: 2px;
-  background: var(--ok);
 }
 
 .hero h1 {
@@ -485,10 +487,10 @@ html:not([lang^="zh"]) .hero h1 {
 
 .hero-tags li {
   padding: 3px 10px;
-  border: 1px solid color-mix(in srgb, var(--ok) 45%, transparent);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--ok) 8%, transparent);
-  color: var(--ok);
+  background: var(--panel-2);
+  color: var(--text);
   font-size: 13px;
 }
 
@@ -519,9 +521,8 @@ html:not([lang^="zh"]) .hero h1 {
   justify-content: space-between;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--muted);
 }
 
@@ -717,6 +718,30 @@ html:not([lang^="zh"]) .hero h1 {
   border-color: var(--muted);
 }
 
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-toggle svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.theme-toggle:hover {
+  border-color: var(--muted);
+}
+
 .lang-list {
   position: absolute;
   top: calc(100% + 6px);
@@ -731,7 +756,7 @@ html:not([lang^="zh"]) .hero h1 {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  box-shadow: 0 16px 40px rgb(0 0 0 / 0.5);
+  box-shadow: var(--shadow-pop);
 }
 
 .lang-list button {
@@ -755,13 +780,13 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .lang-list button.on {
-  color: var(--ok);
+  color: var(--ink);
   font-weight: 700;
 }
 
 .lang-check {
   width: 14px;
-  color: var(--ok);
+  color: var(--ink);
 }
 
 /* blog */
@@ -812,7 +837,7 @@ html:not([lang^="zh"]) .hero h1 {
   margin-top: 4px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--ok);
+  color: var(--ink);
 }
 
 .post-meta {
@@ -826,9 +851,9 @@ html:not([lang^="zh"]) .hero h1 {
 
 .post-tag {
   padding: 1px 8px;
-  border: 1px solid color-mix(in srgb, var(--ok) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
   border-radius: 999px;
-  color: var(--ok);
+  color: var(--ink);
   font-family: "JetBrains Mono", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-weight: 600;
 }
@@ -854,7 +879,7 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .post-back:hover {
-  color: var(--ok);
+  color: var(--ink);
 }
 
 .post h1 {
@@ -899,14 +924,14 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .post-body li::marker {
-  color: var(--ok);
+  color: var(--ink);
 }
 
 .post-body pre {
   padding: 16px 20px;
   overflow-x: auto;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--ok);
+  border-left: 3px solid var(--ink);
   background: var(--panel);
   font-family: var(--mono);
   font-size: 14px;
@@ -1060,7 +1085,7 @@ html:not([lang^="zh"]) .hero h1 {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.1em;
-  color: var(--ok);
+  color: var(--ink);
 }
 
 .step h3 {
@@ -1151,7 +1176,7 @@ html:not([lang^="zh"]) .hero h1 {
   font-size: 13px;
   font-weight: 600;
   line-height: 22px;
-  color: var(--ok);
+  color: var(--ink);
 }
 
 .loop-list b {
@@ -1169,8 +1194,9 @@ html:not([lang^="zh"]) .hero h1 {
   display: inline-block;
   margin-left: 8px;
   padding: 0 6px;
-  border: 1px solid var(--ok);
-  color: var(--ok);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 600;
@@ -1211,7 +1237,7 @@ html:not([lang^="zh"]) .hero h1 {
 .loop-card-head img {
   width: 28px;
   height: 28px;
-  filter: invert(1);
+  filter: var(--logo-filter);
 }
 
 .loop-card-head b {
@@ -1362,9 +1388,9 @@ html:not([lang^="zh"]) .hero h1 {
   display: inline-block;
   margin-top: 14px;
   padding: 6px 12px;
-  border: 1px solid var(--ok);
+  border: 1px solid var(--ink);
   border-radius: var(--radius-sm);
-  color: var(--ok);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
 }
@@ -1381,8 +1407,8 @@ html:not([lang^="zh"]) .hero h1 {
   padding: 10px 18px 10px 14px;
   border-radius: 999px;
   background: var(--ink);
-  color: var(--paper);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  color: var(--on-ink);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   text-decoration: none;
   transition: transform 0.15s ease;
 }
@@ -1392,7 +1418,7 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .support-fab svg {
-  color: var(--paper);
+  color: var(--on-ink);
 }
 
 .support-fab-text {
@@ -1408,7 +1434,7 @@ html:not([lang^="zh"]) .hero h1 {
 .support-fab-text small {
   font-family: var(--mono);
   font-size: 11px;
-  color: color-mix(in srgb, var(--paper) 70%, transparent);
+  color: color-mix(in srgb, var(--on-ink) 75%, transparent);
 }
 
 @media (max-width: 600px) {
@@ -1630,7 +1656,7 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .logo-dark {
-  filter: invert(1);
+  filter: var(--logo-filter);
 }
 
 .flow-center .logo-dark {
@@ -1658,10 +1684,8 @@ html:not([lang^="zh"]) .hero h1 {
 
 .price-card.featured {
   border-color: color-mix(in srgb, var(--ink) 60%, transparent);
-  background:
-    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--ink) 10%, transparent), transparent 70%),
-    var(--panel);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 20%, transparent), 0 20px 60px rgba(0, 0, 0, 0.45);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .plan-cta {
@@ -1741,12 +1765,12 @@ html:not([lang^="zh"]) .hero h1 {
 }
 
 .plan-cell.best {
-  background: color-mix(in srgb, var(--ok) 7%, transparent);
-  box-shadow: inset 0 0 0 1px var(--ok);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ink);
 }
 
 .plan-cell.best .plan-label {
-  color: var(--ok);
+  color: var(--ink);
   font-weight: 600;
 }
 
@@ -1876,7 +1900,7 @@ html:not([lang^="zh"]) .hero h1 {
   font-size: 24px;
   font-weight: 600;
   line-height: 1.1;
-  color: var(--ok);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2023,7 +2047,7 @@ html:not([lang^="zh"]) .hero h1 {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(8, 9, 24, 0.65);
   backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
@@ -2037,7 +2061,7 @@ html:not([lang^="zh"]) .hero h1 {
   background: var(--panel);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-pop);
   padding: 32px 28px 26px;
   display: grid;
   gap: 16px;
@@ -2423,7 +2447,7 @@ html:not([lang^="zh"]) .hero h1 {
 .plan-badge.pro {
   border-color: var(--ink);
   background: var(--ink);
-  color: var(--paper);
+  color: var(--on-ink);
 }
 
 .add-row {
@@ -3024,7 +3048,7 @@ input:disabled {
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   background: var(--panel);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-pop);
 }
 
 .chain-select-list button:hover {
@@ -3051,7 +3075,7 @@ input:disabled {
 }
 
 .name-hl {
-  color: var(--ok);
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -3255,19 +3279,19 @@ input:disabled {
 
 .plans .pro-col {
   width: 64px;
-  background: color-mix(in srgb, var(--ok) 8%, transparent);
-  color: var(--ok);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
   font-weight: 700;
 }
 
 .plans th.pro-col {
-  color: var(--ok);
+  color: var(--ink);
   font-size: 13px;
-  box-shadow: inset 0 3px 0 var(--ok);
+  box-shadow: inset 0 3px 0 var(--ink);
 }
 
 .plans tbody tr:last-child .pro-col {
-  box-shadow: inset 0 -3px 0 var(--ok);
+  box-shadow: inset 0 -3px 0 var(--ink);
 }
 
 .plans td.no {
@@ -3282,8 +3306,8 @@ input:disabled {
   content: "PRO";
   margin-left: 6px;
   padding: 1px 4px;
-  border: 1px solid var(--ok);
-  color: var(--ok);
+  border: 1px solid var(--ink);
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 700;

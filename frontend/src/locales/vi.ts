@@ -141,7 +141,6 @@ const vi: Record<string, string> = {
   "Open console": "Vào bảng điều khiển",
   "All rights reserved.": "Bảo lưu mọi quyền.",
   "Blog · MechBot": "Blog · MechBot",
-  "BLOG / ENGINEERING NOTES": "BLOG / GHI CHÚ KỸ THUẬT",
   "Liquidation alerts, explained.": "Giải thích cảnh báo thanh lý.",
   "Principles, engineering and product trade-offs from building MechBot.":
     "Nguyên lý, kỹ thuật và những đánh đổi sản phẩm khi xây dựng MechBot.",
@@ -207,7 +206,8 @@ const vi: Record<string, string> = {
   Quarterly: "Gói quý",
   Yearly: "Gói năm",
   "Log in": "Đăng nhập",
-  "00 / DEFI LIQUIDATION ALERTS": "00 / CẢNH BÁO THANH LÝ DEFI",
+  "Switch to light mode": "Chuyển sang giao diện sáng",
+  "Switch to dark mode": "Chuyển sang giao diện tối",
   "Before liquidation,": "Trước khi bị thanh lý,",
   "we wake you up.": "chúng tôi đánh thức bạn.",
   "One address, every chain": "Một địa chỉ, mọi chuỗi",

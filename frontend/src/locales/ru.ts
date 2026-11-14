@@ -141,7 +141,6 @@ const ru: Record<string, string> = {
   "Open console": "Открыть консоль",
   "All rights reserved.": "Все права защищены.",
   "Blog · MechBot": "Блог · MechBot",
-  "BLOG / ENGINEERING NOTES": "БЛОГ / ИНЖЕНЕРНЫЕ ЗАМЕТКИ",
   "Liquidation alerts, explained.": "Оповещения о ликвидации — простыми словами.",
   "Principles, engineering and product trade-offs from building MechBot.":
     "Принципы, инженерные решения и продуктовые компромиссы при создании MechBot.",
@@ -207,7 +206,8 @@ const ru: Record<string, string> = {
   Quarterly: "Квартал",
   Yearly: "Год",
   "Log in": "Войти",
-  "00 / DEFI LIQUIDATION ALERTS": "00 / ОПОВЕЩЕНИЯ О ЛИКВИДАЦИИ DEFI",
+  "Switch to light mode": "Светлая тема",
+  "Switch to dark mode": "Тёмная тема",
   "Before liquidation,": "До ликвидации",
   "we wake you up.": "мы вас разбудим.",
   "One address, every chain": "Один адрес — все сети",

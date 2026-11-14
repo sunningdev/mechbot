@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, useOutletContext } from "react-router-dom
 import { api, ApiError, type Me } from "../api";
 import Brand from "../components/Brand";
 import LangToggle from "../components/LangToggle";
+import ThemeToggle from "../components/ThemeToggle";
 import StatusStrip from "../components/StatusStrip";
 import { langChosen, tr, useLang } from "../i18n";
 
@@ -67,6 +68,7 @@ export default function ConsoleLayout() {
               ))}
             </div>
             <span className="muted console-name">{name}</span>
+            <ThemeToggle />
             <LangToggle />
             <button className="btn btn-small btn-ghost" onClick={() => void logout()}>
               {tr("退出", "Log out")}

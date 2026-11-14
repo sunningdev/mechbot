@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { findPost, getPosts, type Block } from "../blog/posts";
 import Brand from "../components/Brand";
 import LangToggle from "../components/LangToggle";
+import ThemeToggle from "../components/ThemeToggle";
 import { tr, useLang } from "../i18n";
 import { setDescription } from "../seo";
 
@@ -14,6 +15,7 @@ export function BlogShell({ children }: { children: ReactNode }) {
           <Brand />
           <nav className="nav-links">
             <Link to="/blog">{tr("博客", "Blog")}</Link>
+            <ThemeToggle />
             <LangToggle />
             <Link className="btn btn-small btn-ghost" to="/">
               <span aria-hidden="true">←</span> {tr("返回首页", "Home")}
@@ -66,7 +68,7 @@ export function BlogList() {
   return (
     <BlogShell>
       <div className="sec-head blog-head">
-        <span className="sec-index sec-num">{tr("BLOG / 技术文章", "BLOG / ENGINEERING NOTES")}</span>
+        <span className="sec-index sec-num">{tr("技术文章", "Engineering notes")}</span>
         <h2>{tr("把清算预警这件事讲清楚。", "Liquidation alerts, explained.")}</h2>
         <p className="muted">
           {tr("原理、工程实现和产品取舍，来自 MechBot 的一线经验。", "Principles, engineering and product trade-offs from building MechBot.")}
