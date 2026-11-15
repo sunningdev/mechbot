@@ -104,14 +104,14 @@ var zhTW = Text{
 	ProEnding: `⏳ MechBot %s
 
 到期後自動降為 Starter（免費）：
-· 只監控最早新增的 %d 個地址，其餘暫停（不會刪除）
+· 只保留最早 %d 個 Aave V3 地址的預警，其餘 Aave 地址暫停（不會刪除）
 %s
 
 繼續用 Pro：%s`,
 	ProEndedPaid:   "Pro 已到期，已降為 Starter",
 	ProEndedTrial:  "Pro 體驗已結束，已降為 Starter",
-	ProEndedWatch:  "· 最早新增的 %d 個地址繼續監控",
-	ProEndedPaused: "，其餘 %d 個已暫停（資料保留，續費後自動恢復）",
+	ProEndedWatch:  "· 最早 %d 個 Aave V3 地址繼續預警",
+	ProEndedPaused: "，其餘 %d 個 Aave 地址已暫停（資料保留，續費後自動恢復）",
 	ProEnded: `MechBot %s
 
 %s

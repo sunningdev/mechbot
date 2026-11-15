@@ -217,6 +217,85 @@ func TestLapsedProPausesExtraAddresses(t *testing.T) {
 	}
 }
 
+func TestStarterSlotsSkipMorphoOnly(t *testing.T) {
+	st := openTest(t)
+	mustUser(t, st, 8, nil)
+	credit(t, st, 8, "0xm", 30, time.Now())
+	addrs := []string{"0xM1", "0xM2", "0xA3", "0xA4"}
+	for _, a := range addrs {
+		if err := st.AddAddress(8, a, ProAddressLimit); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := st.SaveSnapshots("0xM1", []Snapshot{{ProtocolKey: "morpho-blue:1:x", Label: "Morpho", DebtUSD: 1, HealthFactor: 1.2}}, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveSnapshots("0xM2", []Snapshot{{ProtocolKey: "morpho-blue:1:y", Label: "Morpho", DebtUSD: 1, HealthFactor: 1.2}}, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveSnapshots("0xA3", []Snapshot{{ProtocolKey: "aave-v3:1", Label: "Aave", DebtUSD: 1, HealthFactor: 1.2}}, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SaveSnapshots("0xA4", []Snapshot{{ProtocolKey: "aave-v3:1", Label: "Aave", DebtUSD: 1, HealthFactor: 1.2}}, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.db.Exec(`UPDATE users SET expire_at = ? WHERE telegram_id = 8`, time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+	watches, err := st.ListAddresses(8)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(watches) != 4 {
+		t.Fatalf("len %d", len(watches))
+	}
+	for i, want := range []bool{true, true, true, true} {
+		if watches[i].Active != want {
+			t.Fatalf("addr %d active=%v want %v", i, watches[i].Active, want)
+		}
+	}
+	slots, err := st.StarterSlotCount(8)
+	if err != nil || slots != 2 {
+		t.Fatalf("slots %d %v", slots, err)
+	}
+	if err := st.AddAddress(8, "0xA5", FreeAddressLimit); err != nil {
+		t.Fatalf("should allow one more Starter address: %v", err)
+	}
+	if err := st.AddAddress(8, "0xA6", FreeAddressLimit); err == nil {
+		t.Fatal("expected address limit after filling 3 Starter slots")
+	} else if !errors.Is(err, ErrAddressLimit) {
+		t.Fatal(err)
+	}
+}
+
+func TestStarterPausesFourthAave(t *testing.T) {
+	st := openTest(t)
+	mustUser(t, st, 9, nil)
+	credit(t, st, 9, "0xaave", 30, time.Now())
+	addrs := []string{"0xA1", "0xA2", "0xA3", "0xA4"}
+	for _, a := range addrs {
+		if err := st.AddAddress(9, a, ProAddressLimit); err != nil {
+			t.Fatal(err)
+		}
+		if err := st.SaveSnapshots(a, []Snapshot{{ProtocolKey: "aave-v3:1", Label: "Aave", DebtUSD: 1, HealthFactor: 1.2}}, time.Now()); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := st.db.Exec(`UPDATE users SET expire_at = ? WHERE telegram_id = 9`, time.Now().Add(-time.Hour).UTC().Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+	watches, err := st.ListAddresses(9)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, w := range watches {
+		want := i < FreeAddressLimit
+		if w.Active != want {
+			t.Fatalf("addr %d active=%v want %v", i, w.Active, want)
+		}
+	}
+}
+
 func TestDepositAddressAllocation(t *testing.T) {
 	st := openTest(t)
 	derive := func(i uint32) (string, string, error) {

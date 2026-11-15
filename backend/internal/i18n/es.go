@@ -104,14 +104,14 @@ Seguiremos vigilándola. Si más adelante pide prestado en estos protocolos, las
 	ProEnding: `⏳ MechBot: %s
 
 Después pasarás a Starter (gratis):
-· Solo se vigilan tus %d primeras direcciones; el resto se pausa (no se borra)
+· Solo las %d primeras direcciones Aave V3 siguen con alertas; las Aave posteriores se pausan (no se borran)
 %s
 
 Mantener Pro: %s`,
 	ProEndedPaid:   "Pro ha terminado; ahora estás en Starter",
 	ProEndedTrial:  "Tu prueba de Pro ha terminado; ahora estás en Starter",
-	ProEndedWatch:  "· Tus %d primeras direcciones siguen vigiladas",
-	ProEndedPaused: "; las otras %d están en pausa (los datos se conservan y se reanudan al renovar)",
+	ProEndedWatch:  "· Tus %d primeras direcciones Aave V3 siguen con alertas",
+	ProEndedPaused: "; las otras %d direcciones Aave están en pausa (los datos se conservan y se reanudan al renovar)",
 	ProEnded: `MechBot: %s
 
 %s

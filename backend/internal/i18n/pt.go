@@ -104,14 +104,14 @@ Vamos continuar monitorando. Se ele pegar empréstimo nesses protocolos depois, 
 	ProEnding: `⏳ MechBot: %s
 
 Depois disso você passa para o Starter (grátis):
-· Só os seus %d primeiros endereços seguem monitorados; o resto fica pausado (não é apagado)
+· Só os %d primeiros endereços Aave V3 seguem com alertas; os Aave seguintes ficam pausados (não são apagados)
 %s
 
 Manter o Pro: %s`,
 	ProEndedPaid:   "O Pro terminou; agora você está no Starter",
 	ProEndedTrial:  "Seu teste do Pro terminou; agora você está no Starter",
-	ProEndedWatch:  "· Seus %d primeiros endereços continuam monitorados",
-	ProEndedPaused: "; os outros %d estão pausados (dados mantidos, voltam ao renovar)",
+	ProEndedWatch:  "· Seus %d primeiros endereços Aave V3 continuam com alertas",
+	ProEndedPaused: "; os outros %d endereços Aave estão pausados (dados mantidos, voltam ao renovar)",
 	ProEnded: `MechBot: %s
 
 %s

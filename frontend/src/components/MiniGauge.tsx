@@ -13,22 +13,25 @@ export const HIGH_APY = 0.15;
 
 export default function MiniGauge({ position, threshold }: Props) {
   const hf = position.healthFactor;
+  const covered = position.covered;
   const safe = riskClass(hf, threshold) === "ok";
   const drop = Math.max(0, (1 - 1 / hf) * 100);
-  const rescue = !safe ? position.rescue : undefined;
+  const rescue = covered && !safe ? position.rescue : undefined;
   const appUrl = safeUrl(position.appUrl, APP_HOSTS);
   const apy = position.borrowApy ?? 0;
 
   return (
-    <div className={`mini-gauge ${safe ? "safe" : "alert"}`}>
+    <div className={`mini-gauge ${covered ? (safe ? "safe" : "alert") : "uncovered"}`}>
       <div className="mg-read">
         <span className="mg-label">
           {position.label}
-          {!position.covered && <span className="tag">{tr("Pro 预警", "Pro alerts")}</span>}
+          {!covered && <span className="tag tag-pro">{tr("未发预警 · 需 Pro", "Not alerting · needs Pro")}</span>}
         </span>
         <span className="mg-hf-row">
           <strong className="mg-hf">{hf.toFixed(3)}</strong>
-          <span className="mg-state">{safe ? tr("安全", "Safe") : tr("预警", "Alert")}</span>
+          <span className="mg-state">
+            {!covered ? tr("仅展示", "View only") : safe ? tr("安全", "Safe") : tr("预警", "Alert")}
+          </span>
         </span>
       </div>
 
@@ -75,7 +78,17 @@ export default function MiniGauge({ position, threshold }: Props) {
         </div>
       )}
 
-      {position.wall && (
+      {!covered && (
+        <p className="mg-pro-note">
+          {tr(
+            "Starter 不会对此协议发 Telegram 预警。升级 Pro 后自动恢复。",
+            "Starter does not send Telegram alerts for this protocol. Alerts resume when you upgrade to Pro.",
+          )}
+          <Link to="/app/pro">{tr("升级 Pro →", "Upgrade to Pro →")}</Link>
+        </p>
+      )}
+
+      {covered && position.wall && (
         <p className="mg-wall">
           {tr(
             `你的清算价 ${usd0(position.liqEthPrice ?? 0)} 附近有 ${usdShort(position.wall.total)} 清算墙（${usd0(position.wall.price)}）。别人爆仓会把价格推向你，建议把健康因子提到 ${position.wall.safeHf.toFixed(2)} 以上。`,

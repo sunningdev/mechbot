@@ -4,24 +4,77 @@ import { api, storedRef, type LiqMap } from "../api";
 import { getPosts } from "../blog/posts";
 import { PostMeta } from "./Blog";
 import Brand from "../components/Brand";
-import FailoverDiagram from "../components/FailoverDiagram";
 import HealthGauge from "../components/HealthGauge";
 import LangToggle from "../components/LangToggle";
 import ThemeToggle from "../components/ThemeToggle";
 import LiqMapChart, { liquidatedWithin } from "../components/LiqMapChart";
 import { usdShort } from "../format";
-import LiquidationFlow from "../components/LiquidationFlow";
 import LoginDialog from "../components/LoginDialog";
-import StatusStrip from "../components/StatusStrip";
 import { tr } from "../i18n";
 import { safeUrl, TELEGRAM_HOSTS } from "../links";
 import { coinOrder, sortByChain } from "../payorder";
 
 const navLinks = () => [
+  { label: tr("功能", "Features"), href: "#features" },
   { label: tr("清算地图", "Liq. map"), href: "#liqmap" },
   { label: tr("定价", "Pricing"), href: "#pricing" },
-  { label: tr("推荐计划", "Referral"), href: "#referral" },
+  { label: "FAQ", href: "#faq" },
   { label: tr("博客", "Blog"), href: "#blog" },
+];
+
+const networks = [
+  { name: "Aave", logo: "/logos/aave.svg" },
+  { name: "Compound", logo: "/logos/compound.svg" },
+  { name: "Morpho", logo: "/logos/morpho.png" },
+  { name: "Ethereum", logo: "/logos/ethereum.svg" },
+  { name: "Arbitrum", logo: "/logos/arbitrum.svg" },
+  { name: "Base", logo: "/logos/base.svg" },
+  { name: "Optimism", logo: "/logos/optimism.svg" },
+];
+
+const faqs = () => [
+  {
+    q: tr("需要连接钱包吗？", "Do I need to connect my wallet?"),
+    a: tr(
+      "不需要。MechBot 只要一个公开地址，不需要签名、授权或私钥。",
+      "No. MechBot only needs a public address. It never asks for signatures, approvals or private keys.",
+    ),
+  },
+  {
+    q: tr("多久检查一次仓位？", "How often are positions checked?"),
+    a: tr(
+      "链上每 5 分钟检查一次。Pro 还会用币安实时价格，在预言机更新前提前预警。",
+      "Every 5 minutes on-chain. Pro also uses live Binance prices to warn you before the oracle updates.",
+    ),
+  },
+  {
+    q: tr("支持哪些协议和公链？", "Which protocols and chains are supported?"),
+    a: tr(
+      "支持 Ethereum、Arbitrum、Base、Optimism 上的 Aave V3、Compound V3 和 Morpho Blue。免费版支持 Aave V3。",
+      "Aave V3, Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism. The free plan covers Aave V3.",
+    ),
+  },
+  {
+    q: tr("Pro 怎么付款？", "How do I pay for Pro?"),
+    a: tr(
+      "用 USDT 或 USDC。转到你的专属充值地址，或连接钱包直接转账。TRON 从季付起支持。",
+      "With USDT or USDC. Send to your personal deposit address, or connect a wallet and pay with a plain transfer. TRON is available from the quarterly plan.",
+    ),
+  },
+  {
+    q: tr("可以退款吗？", "Can I get a refund?"),
+    a: tr(
+      "已付款项不退，除非服务停止运营，届时按剩余时长比例退款。",
+      "Payments are non-refundable unless the service shuts down. In that case, unused time is refunded pro rata.",
+    ),
+  },
+  {
+    q: tr("MechBot 开源吗？", "Is MechBot open source?"),
+    a: tr(
+      "是的。代码在 GitHub 开源，服务器只有收款公钥，碰不到任何资金。",
+      "Yes. The code is on GitHub, and the server only holds payment public keys, so it can't move any funds.",
+    ),
+  },
 ];
 
 const steps = () => [
@@ -59,12 +112,6 @@ const trust = () => [
   },
   { title: tr("最少数据", "Minimal data"), body: tr("不要邮箱和密码，不记录 IP。", "No email, no password, no IP logging.") },
 ];
-
-const namePattern = /(Ethereum|Arbitrum|Base|Optimism|Aave|Compound|Morpho)/;
-
-function highlightNames(text: string): ReactNode[] {
-  return text.split(namePattern).map((part, i) => (i % 2 ? <b key={i} className="name-hl">{part}</b> : part));
-}
 
 const heroPoints = () => [
   {
@@ -115,24 +162,181 @@ const heroPoints = () => [
   },
 ];
 
-const heroTags = () => [
-  tr("每 5 分钟检查", "Checked every 5 min"),
-  tr("Telegram 私聊", "Telegram DM"),
+const heroChecks = () => [
+  tr("永久免费", "Free forever"),
   tr("不连钱包、不签名", "No wallet connect, no signing"),
+  tr("每 5 分钟检查", "Checked every 5 min"),
 ];
 
-const loopPains = () => [
+const icon = (d: string) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path d={d} />
+  </svg>
+);
+
+function OracleViz() {
+  return (
+    <div className="bx-viz bx-oracle" aria-hidden="true">
+      <svg viewBox="0 0 300 100" preserveAspectRatio="none">
+        <line className="bx-oracle-line" x1="0" y1="62" x2="300" y2="62" />
+        <path className="bx-oracle-feed" d="M0 30 H205 V68 H300" />
+        <path className="bx-oracle-price" d="M0 30 L30 27 L60 33 L90 29 L120 34 L140 31 L155 42 L168 88 L178 72 L195 66 L225 64 L260 67 L300 66" />
+      </svg>
+      <span className="bx-oracle-dot" />
+      <span className="bx-oracle-tip">{tr("已提醒", "Alert sent")}</span>
+      <div className="bx-legend">
+        <span className="price">{tr("币安实时价", "Binance live")}</span>
+        <span className="feed">{tr("预言机", "Oracle")}</span>
+      </div>
+    </div>
+  );
+}
+
+function FixViz() {
+  return (
+    <div className="bx-viz bx-fix" aria-hidden="true">
+      <div className="bx-msg">
+        <img src="/logo.svg" alt="" />
+        <div>
+          <b>{tr("还 12,800 USDC", "Repay 12,800 USDC")}</b>
+          <span>{tr("或补 8.27 weETH", "or add 8.27 weETH")}</span>
+        </div>
+      </div>
+      <span className="bx-fix-btn">{tr("去 Aave 处理", "Fix on Aave")} →</span>
+    </div>
+  );
+}
+
+function ChainsViz() {
+  return (
+    <div className="bx-viz bx-chains" aria-hidden="true">
+      <span className="bx-addr">0x7a3f…c21e</span>
+      <span className="bx-wire" />
+      <div className="bx-logos">
+        {networks.map((n) => (
+          <img key={n.name} src={n.logo} alt="" title={n.name} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AlertLineViz() {
+  return (
+    <div className="bx-viz bx-line" aria-hidden="true">
+      <div className="bx-line-bar">
+        <span className="bx-line-crit" />
+        <span className="bx-line-mark" style={{ left: "20%" }}>
+          <em>{tr("预警线", "Alert line")} 1.20</em>
+        </span>
+        <span className="bx-line-now" style={{ left: "16%" }} />
+      </div>
+      <div className="bx-line-scale">
+        <span>1.0 {tr("清算", "Liquidation")}</span>
+        <span>2.0</span>
+      </div>
+      <div className="bx-chips">
+        <span className="warn">{tr("低于预警线 · 每小时", "Below line · hourly")}</span>
+        <span className="danger">{tr("低于 1.05 · 每 15 分钟", "Under 1.05 · every 15 min")}</span>
+      </div>
+    </div>
+  );
+}
+
+function LoopViz() {
+  return (
+    <div className="bx-viz bx-loop" aria-hidden="true">
+      <div className="bx-row warn">
+        <span>{tr("借款年化", "Borrow APY")}</span>
+        <b>15.2% ↑</b>
+      </div>
+      <div className="bx-row danger">
+        <span>stETH</span>
+        <b>0.982 · {tr("脱锚", "Depeg")}</b>
+      </div>
+    </div>
+  );
+}
+
+const liqBars = [8, 12, 10, 16, 14, 22, 18, 30, 26, 88, 40, 34, 24, 28, 18, 14, 10, 12];
+
+function LiqViz() {
+  return (
+    <div className="bx-viz bx-liq" aria-hidden="true">
+      <div className="bx-bars">
+        {liqBars.map((h, i) =>
+          h > 60 ? (
+            <i key={i} className="wall" style={{ height: `${h}%` }}>
+              <span>{tr("清算墙", "Wall")}</span>
+            </i>
+          ) : (
+            <i key={i} style={{ height: `${h}%` }} />
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Component types (not pre-built JSX) so tr() inside each viz follows the current language.
+const featureViz = [OracleViz, FixViz, ChainsViz, AlertLineViz, LoopViz, LiqViz];
+const wideFeatures = new Set([0, 3, 5]);
+
+const trustIcons = [
+  icon("M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"),
+  icon("M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6zM9 12l2 2 4-4"),
+  icon("M5 5h14v5H5zM5 14h14v5H5zM8 7.5h.01M8 16.5h.01"),
+  icon("M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"),
+  icon("M7 11V7a5 5 0 0 1 10 0v4M5 11h14v10H5z"),
+  icon("M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM5.6 5.6l12.8 12.8"),
+];
+
+function TelegramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+      <path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.1l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.8c.9-.3 1.7.2 1.4 1.5z" />
+    </svg>
+  );
+}
+
+function AlertToast() {
+  return (
+    <div className="alert-toast" aria-hidden="true">
+      <img src="/logo.svg" alt="" />
+      <div>
+        <p className="alert-toast-head">
+          <b>MechBot</b>
+          <span>{tr("刚刚", "now")}</span>
+        </p>
+        <p className="alert-toast-title">⚠️ {tr("健康因子 1.18，已跌破预警线 1.20", "Health factor 1.18, below your 1.20 line")}</p>
+        <p className="alert-toast-body">
+          {tr("还 1,450 USDC 或补 0.62 ETH，可回到 1.40。", "Repay 1,450 USDC or add 0.62 ETH to get back to 1.40.")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const loopPoints = () => [
   {
     pro: true,
-    pain: tr("利率悄悄飙到 20%，循环收益变负，自己没察觉", "Borrow APY quietly hits 20% and your loop turns negative"),
-    fix: tr("借款年化超过 15% 立刻提醒，回落了再通知你。", "Get alerted the moment borrow APY tops 15%, and again when it cools off."),
+    title: tr("借款利率预警", "Borrow rate alerts"),
+    body: tr("借款年化超过 15% 立刻提醒，回落了再通知你。", "Get alerted the moment borrow APY tops 15%, and again when it cools off."),
   },
   {
     pro: true,
-    pain: tr("stETH 或稳定币脱锚，循环仓位一夜变危险", "stETH or a stablecoin depegs and your loop turns dangerous overnight"),
-    fix: tr(
+    title: tr("脱锚预警", "Depeg alerts"),
+    body: tr(
       "盯住你仓位里的 USDC、USDT、DAI、USDe、GHO、stETH、eETH，偏离锚定就提醒，回到锚定再通知。",
       "We watch the USDC, USDT, DAI, USDe, GHO, stETH and eETH in your position and alert you when one drifts off its peg, then again when it's back.",
+    ),
+  },
+  {
+    pro: false,
+    title: tr("覆盖主流市场", "Every major market"),
+    body: tr(
+      "支持 Aave 主市场、Lido 市场、EtherFi 市场，Morpho Blue 全部市场，Compound V3；覆盖 Ethereum、Arbitrum、Base、Optimism。",
+      "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.",
     ),
   },
 ];
@@ -268,9 +472,9 @@ function payLine() {
 
 const planSave = (p: { price: number; months: number }) => Math.round((1 - p.price / (proPlans()[0].price * p.months)) * 100);
 
-function SectionHead({ label, title, sub }: { label: string; title: ReactNode; sub?: string }) {
+function SectionHead({ label, title, sub, center }: { label: string; title: ReactNode; sub?: string; center?: boolean }) {
   return (
-    <div className="sec-head">
+    <div className={center ? "sec-head center" : "sec-head"}>
       <span className="sec-index sec-num">{label}</span>
       <h2>{title}</h2>
       {sub && <p className="muted">{sub}</p>}
@@ -324,7 +528,6 @@ export default function Landing() {
 
   return (
     <div className="page">
-      <StatusStrip />
       <header className="topbar">
         <div className="nav container">
           <Brand />
@@ -361,136 +564,132 @@ export default function Landing() {
 
       <main>
         <section className="hero container">
-          <div>
-            <span className="sec-index sec-num">{tr("DeFi 借贷清算预警", "DeFi liquidation alerts")}</span>
-            <h1>
-              {tr("清算之前，", "Before liquidation,")}
-              <br />
-              {tr("先提醒你。", "we wake you up.")}
-            </h1>
-            <ol className="hero-points">
-              {heroPoints().map((p, i) => (
-                <li key={i}>
-                  <span className="hero-no">{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <b>{p.title}</b>
-                    <p>{highlightNames(p.body)}</p>
-                    {"note" in p && <small className="hero-note">{p.note}</small>}
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <ul className="hero-tags">
-              {heroTags().map((t) => (
+          <div className="hero-copy">
+            <span className="sec-index">{tr("DeFi 借贷清算预警", "DeFi liquidation alerts")}</span>
+            <h1>{tr("清算之前，\n先提醒你。", "Get alerted before you get liquidated.")}</h1>
+            <p className="hero-sub">
+              {tr(
+                "MechBot 盯住你在 Aave、Compound、Morpho 的借贷仓位。健康因子一跌破预警线，立刻在 Telegram 提醒你，并告诉你该还多少、补多少。",
+                "MechBot watches your Aave, Compound and Morpho loans and messages you on Telegram the moment your health factor crosses your line, with exactly how much to repay or add.",
+              )}
+            </p>
+            <div className="hero-actions">
+              {start(loggedIn ? consoleLabel : tr("免费开始", "Start free"))}
+              <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer" title={`@${botName}`}>
+                <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
+              </a>
+            </div>
+            <ul className="hero-checks">
+              {heroChecks().map((t) => (
                 <li key={t}>{t}</li>
               ))}
             </ul>
-            <div className="hero-actions">
-              {start(loggedIn ? consoleLabel : tr("免费追踪", "Track for free"))}
-              <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer">
-                {tr("打开", "Open")} @{botName}
-              </a>
-            </div>
           </div>
-          <HealthGauge />
+          <div className="hero-visual">
+            <HealthGauge />
+            <AlertToast />
+          </div>
         </section>
 
-        <section className="container section" id="flow">
+        <section className="container logo-strip" aria-label={tr("支持的协议和链", "Supported protocols and chains")}>
+          <p>{tr("支持的协议和公链", "Monitors positions on")}</p>
+          <ul>
+            {networks.map((n) => (
+              <li key={n.name}>
+                <img src={n.logo} alt="" width="28" height="28" />
+                {n.name}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="container section" id="features">
           <SectionHead
-            label={tr("流程", "Flow")}
-            title={tr("清算预警流程", "How alerts work")}
-            sub={tr(
-              "盯住你在各协议的借贷仓位，健康因子跌破预警线，第一时间私聊提醒。",
-              "We watch your positions across protocols and DM you the moment the health factor crosses your line.",
-            )}
+            label={tr("功能", "Features")}
+            title={tr("暴跌之夜，也能安心睡觉。", "Everything you need to sleep through a crash.")}
           />
-          <LiquidationFlow />
+          <div className="bento">
+            {heroPoints().map((p, i) => {
+              const Viz = featureViz[i];
+              return (
+                <div className={`bento-card frame ${wideFeatures.has(i) ? "wide" : ""}`} key={i}>
+                  <Viz />
+                  <div className="bento-copy">
+                    <h3>{p.title}</h3>
+                    <p className="muted">{p.body}</p>
+                    {"note" in p && <small className="bento-note">{p.note}</small>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
-        <section className="container section">
-          <SectionHead label={tr("使用", "Start")} title={tr("三步开始", "Three steps to start")} />
-          <div className="steps">
+        <section className="container section" id="how">
+          <SectionHead
+            center
+            label={tr("使用方法", "How it works")}
+            title={tr("两分钟就能设置好。", "Set up in two minutes.")}
+            sub={tr("不用注册，不连钱包。只要 Telegram 和一个地址。", "No sign-up, no wallet connection. Just Telegram and an address.")}
+          />
+          <ol className="how-steps">
             {steps().map((s, i) => (
-              <div className="step frame" key={i}>
-                <span className="step-no">{String(i + 1).padStart(2, "0")}</span>
+              <li key={i}>
+                <span className="how-no">{i + 1}</span>
                 <h3>{s.title}</h3>
                 <p className="muted">{s.body}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
-        <section className="container section loop" id="loop">
+        <section className="container section split" id="loop">
           <div>
             <SectionHead
               label={tr("循环贷", "Looping")}
-              title={
-                <>
-                  {tr("循环贷玩家，", "Running a loop?")}
-                  <br />
-                  {tr("专门为你盯盘。", "We watch it for you.")}
-                </>
-              }
+              title={tr("为循环贷而生。", "Built for leveraged loops.")}
               sub={tr(
                 "wstETH、weETH 循环，稳定币循环，Morpho PT 循环。健康因子常年压在 1.1，差几分钟就是清算。",
                 "wstETH and weETH loops, stablecoin loops, Morpho PT loops. With the health factor parked near 1.1, a few minutes decide whether you get liquidated.",
               )}
             />
-            <ol className="loop-list">
-              {loopPains().map((p, i) => (
+            <ul className="check-list">
+              {loopPoints().map((p, i) => (
                 <li key={i}>
-                  <span className="loop-no">{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <b>
-                      {p.pain}
-                      {p.pro && <span className="loop-pro">Pro</span>}
-                    </b>
-                    <p className="muted">{p.fix}</p>
-                  </div>
+                  <b>
+                    {p.title}
+                    {p.pro && <span className="loop-pro">Pro</span>}
+                  </b>
+                  <p className="muted">{p.body}</p>
                 </li>
               ))}
-            </ol>
-            <p className="loop-cover">
-              {tr(
-                "支持 Aave 主市场、Lido 市场、EtherFi 市场，Morpho Blue 全部市场，Compound V3；覆盖 Ethereum、Arbitrum、Base、Optimism。",
-                "Aave Core, Lido and EtherFi markets, every Morpho Blue market, and Compound V3, across Ethereum, Arbitrum, Base and Optimism.",
-              )}
-            </p>
+            </ul>
             <div className="hero-actions">{start(loggedIn ? consoleLabel : tr("免费盯住我的循环仓位", "Watch my loop for free"))}</div>
           </div>
           <LoopAlertCard />
         </section>
 
-        <section className="container section liq-promo" id="liqmap">
+        <section className="container section split reverse" id="liqmap">
           <div>
             <SectionHead
               label={tr("清算地图", "Liquidation map")}
-              title={
-                <>
-                  {tr("ETH 跌到哪里，", "Where ETH falls,")}
-                  <br />
-                  {tr("会爆多少仓。", "who gets liquidated.")}
-                </>
-              }
+              title={tr("看清 ETH 会在哪里爆仓。", "See where ETH gets liquidated.")}
               sub={tr(
                 "汇总 Ethereum 上 Aave V3、Morpho Blue 的 ETH 抵押借贷仓位，算出每个价位会被清算的抵押品。",
                 "We add up ETH-backed loans on Aave V3 and Morpho Blue on Ethereum and show how much collateral is liquidated at each price.",
               )}
             />
-            <ol className="loop-list">
+            <ul className="check-list">
               {liqPoints().map((p, i) => (
                 <li key={i}>
-                  <span className="loop-no">{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <b>
-                      {p.title}
-                      {p.pro && <span className="loop-pro">Pro</span>}
-                    </b>
-                    <p className="muted">{p.body}</p>
-                  </div>
+                  <b>
+                    {p.title}
+                    {p.pro && <span className="loop-pro">Pro</span>}
+                  </b>
+                  <p className="muted">{p.body}</p>
                 </li>
               ))}
-            </ol>
+            </ul>
             <div className="hero-actions">
               {loggedIn ? (
                 <Link className="btn btn-primary" to="/app/map">
@@ -506,36 +705,34 @@ export default function Landing() {
           <LiqTeaser />
         </section>
 
-        <section className="container section trust" id="trust">
-          <div>
-            <SectionHead
-              label={tr("安全", "Security")}
-              title={
-                <>
-                  {tr("交给它，", "Hand it over,")}
-                  <br />
-                  {tr("你可以放心。", "and rest easy.")}
-                </>
-              }
-            />
-            <ul className="trust-list">
-              {trust().map((t, i) => (
-                <li key={i}>
-                  <b>{t.title}</b>
-                  <span className="muted">{t.body}</span>
-                </li>
-              ))}
-            </ul>
+        <section className="container section" id="trust">
+          <SectionHead
+            center
+            label={tr("安全", "Security")}
+            title={tr("只读设计，交给它就放心。", "Read-only by design.")}
+            sub={tr("不要私钥，不要签名，不连钱包。", "We never ask for keys, signatures or wallet connections.")}
+          />
+          <div className="trust-grid frame">
+            {trust().map((t, i) => (
+              <div className="trust-item" key={i}>
+                <span className="trust-icon">{trustIcons[i]}</span>
+                <h3>{t.title}</h3>
+                <p className="muted">{t.body}</p>
+              </div>
+            ))}
           </div>
-          <FailoverDiagram />
         </section>
 
         <section className="container section" id="pricing">
-          <SectionHead label={tr("定价", "Pricing")} title={tr("定价", "Pricing")} />
+          <SectionHead
+            center
+            label={tr("定价", "Pricing")}
+            title={tr("简单透明的价格。", "Simple pricing.")}
+            sub={tr("免费开始，需要更多时再升级。", "Start free. Upgrade when you need more.")}
+          />
           <div className="pricing">
             <div className="price-card frame">
               <div className="plan-head">
-                <span className="micro">PLAN A</span>
                 <h3 className="plan-title">Starter</h3>
                 <p className="plan-sub plan-free">{tr("永久免费", "Free forever")}</p>
               </div>
@@ -568,8 +765,9 @@ export default function Landing() {
             </div>
             <div className="price-card featured frame">
               <div className="plan-head">
-                <span className="micro accent">{tr("PLAN B · 推荐", "PLAN B · RECOMMENDED")}</span>
-                <h3 className="plan-title">Pro</h3>
+                <h3 className="plan-title">
+                  Pro <span className="plan-pill">{tr("推荐", "Recommended")}</span>
+                </h3>
                 <p className="plan-sub">{tr("循环贷和多仓位首选", "Built for loops and multiple positions")}</p>
               </div>
               <div className="plan-grid">
@@ -617,13 +815,10 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="container section" id="referral">
-          <SectionHead
-            label={tr("推荐计划", "Referral")}
-            title={tr("邀请好友，双方都得 Pro", "Invite a friend, both get Pro")}
-          />
+        <section className="container section section-tight" id="referral">
           <div className="referral-note frame">
             <div className="referral-copy">
+              <h3>{tr("邀请好友，双方都得 Pro", "Invite a friend, both get Pro")}</h3>
               <b>{tr("好友首次购买，你和对方各得同样天数。", "On a friend's first purchase, you both get the same Pro days.")}</b>
               <p className="muted">
                 {tr("邀请多人，奖励累加。续费不重复计算。", "Rewards stack across friends. Renewals don't count again.")}
@@ -654,9 +849,21 @@ export default function Landing() {
           </div>
         </section>
 
+        <section className="container section" id="faq">
+          <SectionHead center label="FAQ" title={tr("常见问题", "Frequently asked questions")} />
+          <div className="faq">
+            {faqs().map((f) => (
+              <details key={f.q}>
+                <summary>{f.q}</summary>
+                <p className="muted">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         <section className="container section" id="blog">
           <div className="blog-section-head">
-            <SectionHead label={tr("博客", "Blog")} title={tr("技术文章", "Engineering notes")} />
+            <SectionHead label={tr("博客", "Blog")} title={tr("最新文章", "From the blog")} />
             <Link className="text-link" to="/blog">
               {tr("更多文章 →", "More posts →")}
             </Link>
@@ -708,58 +915,67 @@ export default function Landing() {
             </div>
           </div>
         </section>
+
+        <section className="container cta-band">
+          <h2>{tr("不用再半夜盯盘。", "Stop watching charts at 3 a.m.")}</h2>
+          <p>{tr("两分钟添加地址，剩下的交给 MechBot。", "Add an address in two minutes. MechBot keeps watch from there.")}</p>
+          <div className="hero-actions">
+            {start(loggedIn ? consoleLabel : tr("免费开始", "Start free"))}
+            <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer">
+              <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
+            </a>
+          </div>
+        </section>
       </main>
 
       <footer className="footer">
-        <div className="container footer-inner">
+        <div className="container footer-grid">
           <div className="footer-brand">
             <Brand />
-            <p className="muted">Stay calm, stay ahead.</p>
+            <p>Stay calm, stay ahead.</p>
+            <p className="footer-disclaimer">
+              {tr(
+                "预警仅供参考，可能因网络或节点原因延迟、失败，不构成投资建议。请自行管理仓位风险。",
+                "Alerts are for reference only and may be delayed or fail due to network or node issues. Not investment advice. Manage your own position risk.",
+              )}
+            </p>
           </div>
-          <p className="footer-note">
-            {tr(
-              "预警仅供参考，可能因网络或节点原因延迟、失败，不构成投资建议。请自行管理仓位风险。",
-              "Alerts are for reference only and may be delayed or fail due to network or node issues. Not investment advice. Manage your own position risk.",
-            )}
-          </p>
+          <nav className="footer-col">
+            <h4>{tr("产品", "Product")}</h4>
+            <a href="#features">{tr("功能", "Features")}</a>
+            <a href="#loop">{tr("循环贷", "Looping")}</a>
+            <a href="#liqmap">{tr("清算地图", "Liq. map")}</a>
+            <a href="#trust">{tr("安全", "Security")}</a>
+            <a href="#pricing">{tr("定价", "Pricing")}</a>
+          </nav>
+          <nav className="footer-col">
+            <h4>{tr("资源", "Resources")}</h4>
+            <Link to="/blog">{tr("博客", "Blog")}</Link>
+            <a href="#faq">FAQ</a>
+            <a href="#referral">{tr("推荐计划", "Referral")}</a>
+            <a href="#about">{tr("开发者", "Developer")}</a>
+          </nav>
+          <nav className="footer-col">
+            <h4>{tr("社区", "Community")}</h4>
+            <a href={botUrl} target="_blank" rel="noreferrer">
+              MechBot Telegram
+            </a>
+            <a href="https://t.me/+LWTqp4To2ilhY2M1" target="_blank" rel="noreferrer">
+              {tr("Telegram 客服群", "Telegram support group")}
+            </a>
+            <a href="https://github.com/sunningdev/mechbot" target="_blank" rel="noreferrer">
+              GitHub
+            </a>
+          </nav>
+          <nav className="footer-col">
+            <h4>{tr("法律", "Legal")}</h4>
+            <Link to="/terms">{tr("服务条款", "Terms")}</Link>
+            <Link to="/privacy">{tr("隐私政策", "Privacy")}</Link>
+          </nav>
         </div>
         <div className="footer-bar">
           <div className="container footer-bar-inner">
             <span>© {new Date().getFullYear()} MechBot. {tr("保留所有权利。", "All rights reserved.")}</span>
-            <nav className="footer-links">
-              <a href="#flow">{tr("清算预警", "Alerts")}</a>
-              <a href="#loop">{tr("循环贷", "Looping")}</a>
-              <a href="#liqmap">{tr("清算地图", "Liq. map")}</a>
-              <a href="#trust">{tr("安全", "Security")}</a>
-              <a href="#pricing">{tr("定价", "Pricing")}</a>
-              <a href="#referral">{tr("推荐计划", "Referral")}</a>
-              <a href="#blog">{tr("博客", "Blog")}</a>
-              <a href="#about">{tr("开发者", "Developer")}</a>
-            </nav>
-            <nav className="footer-links">
-              <Link to="/terms">{tr("服务条款", "Terms")}</Link>
-              <Link to="/privacy">{tr("隐私政策", "Privacy")}</Link>
-              <a className="footer-tg" href={botUrl} target="_blank" rel="noreferrer">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M22 2 11 13" />
-                  <path d="M22 2 15 22l-4-9-9-4 20-7z" />
-                </svg>
-                MechBot Telegram
-              </a>
-              <a className="footer-tg" href="https://github.com/sunningdev/mechbot" target="_blank" rel="noreferrer">
-                <GitHubIcon size={14} />
-                GitHub
-              </a>
-            </nav>
           </div>
         </div>
       </footer>

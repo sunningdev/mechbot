@@ -25,7 +25,6 @@ for (const file of walk("src")) {
     } else keys.add(JSON.parse(raw.startsWith("'") ? `"${raw.slice(1, -1).replace(/"/g, '\\"')}"` : raw));
   }
 }
-for (const m of readFileSync("src/components/FailoverDiagram.tsx", "utf8").matchAll(/log: \["[^"]*", "([^"]*)"\]/g)) keys.add(m[1]);
 for (const m of readFileSync("src/i18n.ts", "utf8").matchAll(/: "([A-Z][^"]*)",$/gm)) keys.add(m[1]);
 
 let missing = 0;

@@ -104,14 +104,14 @@ Chúng tôi sẽ tiếp tục theo dõi. Nếu sau này địa chỉ vay trên c
 	ProEnding: `⏳ MechBot: %s
 
 Sau đó bạn sẽ chuyển sang Starter (miễn phí):
-· Chỉ %d địa chỉ đầu tiên tiếp tục được theo dõi; số còn lại tạm dừng (không bị xoá)
+· Chỉ %d địa chỉ Aave V3 đầu tiên còn cảnh báo; các địa chỉ Aave sau đó tạm dừng (không bị xoá)
 %s
 
 Giữ gói Pro: %s`,
 	ProEndedPaid:   "Gói Pro đã hết hạn, bạn đã chuyển sang Starter",
 	ProEndedTrial:  "Gói dùng thử Pro đã kết thúc, bạn đã chuyển sang Starter",
-	ProEndedWatch:  "· %d địa chỉ đầu tiên vẫn được theo dõi",
-	ProEndedPaused: "; %d địa chỉ còn lại tạm dừng (dữ liệu vẫn giữ, sẽ tiếp tục khi gia hạn)",
+	ProEndedWatch:  "· %d địa chỉ Aave V3 đầu tiên vẫn được cảnh báo",
+	ProEndedPaused: "; %d địa chỉ Aave còn lại tạm dừng (dữ liệu vẫn giữ, sẽ tiếp tục khi gia hạn)",
 	ProEnded: `MechBot: %s
 
 %s

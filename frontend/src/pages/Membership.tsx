@@ -51,8 +51,8 @@ export default function Membership() {
               )
             : !me.pro && me.proExpiredAt
               ? tr(
-                  "Pro 已结束，已回到 Starter：最早添加的 3 个地址继续监控，其余已暂停。升级后立刻恢复。",
-                  "Pro has ended and you're back on Starter: your first 3 addresses are still watched, the rest are paused. Upgrade to restore everything.",
+                  "Pro 已结束，已回到 Starter：最早 3 个 Aave V3 地址继续预警，其余 Aave 地址已暂停；Compound / Morpho 需 Pro。升级后立刻恢复。",
+                  "Pro has ended and you're back on Starter: your earliest 3 Aave V3 addresses still get alerts; later Aave addresses are paused. Compound / Morpho need Pro. Upgrade to restore everything.",
                 )
               : me.pro
             ? tr(

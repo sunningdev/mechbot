@@ -42,7 +42,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram：登录和消息推送。",
           "区块链节点服务商，以及 Etherscan、Morpho 的数据接口：查询地址的公开链上数据，这些服务商能看到被查询的地址。",
-          "币安：获取公开行情价格。首页的实时价格条由你的浏览器直接连接币安的公开行情接口。",
+          "币安：获取公开行情价格，用于提前预警。由我们的服务器读取，不会发送你的任何数据。",
         ],
       },
       { type: "h", text: "5. Cookie 和本地存储" },
@@ -120,7 +120,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram: login and message delivery.",
           "Blockchain node providers and the Etherscan and Morpho data APIs: reading public on-chain data for your addresses. These providers can see the addresses being queried.",
-          "Binance: public market prices. The live price ticker on the home page connects from your browser directly to Binance's public market data stream.",
+          "Binance: public market prices for early alerts. Our server reads them; none of your data is sent.",
         ],
       },
       { type: "h", text: "5. Cookies and local storage" },
@@ -198,7 +198,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram: вход и доставка сообщений.",
           "Провайдеры узлов блокчейна и API данных Etherscan и Morpho: чтение публичных ончейн-данных ваших адресов. Эти провайдеры видят запрашиваемые адреса.",
-          "Binance: публичные рыночные цены. Бегущая строка цен на главной странице подключается из вашего браузера напрямую к публичному потоку рыночных данных Binance.",
+          "Binance: публичные рыночные цены для ранних оповещений. Их читает наш сервер; ваши данные не передаются.",
         ],
       },
       { type: "h", text: "5. Cookie и локальное хранилище" },
@@ -276,7 +276,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram: inicio de sesión y entrega de mensajes.",
           "Proveedores de nodos de blockchain y las API de datos de Etherscan y Morpho: lectura de datos públicos on-chain de tus direcciones. Estos proveedores pueden ver las direcciones consultadas.",
-          "Binance: precios públicos de mercado. La barra de precios en vivo de la página de inicio se conecta desde tu navegador directamente al flujo público de datos de mercado de Binance.",
+          "Binance: precios públicos de mercado para las alertas anticipadas. Los lee nuestro servidor; no se envía ninguno de tus datos.",
         ],
       },
       { type: "h", text: "5. Cookies y almacenamiento local" },
@@ -354,7 +354,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram : connexion et envoi des messages.",
           "Les fournisseurs de nœuds blockchain et les API de données d'Etherscan et de Morpho : lecture des données publiques on-chain de vos adresses. Ces fournisseurs peuvent voir les adresses interrogées.",
-          "Binance : prix publics du marché. Le bandeau de prix en direct de la page d'accueil se connecte depuis votre navigateur directement au flux public de données de marché de Binance.",
+          "Binance : prix publics du marché pour les alertes anticipées. Notre serveur les lit ; aucune de vos données n'est envoyée.",
         ],
       },
       { type: "h", text: "5. Cookies et stockage local" },
@@ -432,7 +432,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram: login e entrega de mensagens.",
           "Provedores de nós de blockchain e as APIs de dados da Etherscan e da Morpho: leitura dos dados públicos on-chain dos seus endereços. Esses provedores podem ver os endereços consultados.",
-          "Binance: preços públicos de mercado. A faixa de preços ao vivo da página inicial se conecta do seu navegador diretamente ao fluxo público de dados de mercado da Binance.",
+          "Binance: preços públicos de mercado para os alertas antecipados. Nosso servidor os lê; nenhum dado seu é enviado.",
         ],
       },
       { type: "h", text: "5. Cookies e armazenamento local" },
@@ -510,7 +510,7 @@ export const privacy: LegalSet = {
         items: [
           "Telegram: đăng nhập và gửi tin nhắn.",
           "Nhà cung cấp node blockchain và API dữ liệu của Etherscan, Morpho: đọc dữ liệu on-chain công khai của các địa chỉ. Các nhà cung cấp này có thể thấy địa chỉ được truy vấn.",
-          "Binance: giá thị trường công khai. Thanh giá trực tiếp trên trang chủ được trình duyệt của bạn kết nối thẳng tới luồng dữ liệu thị trường công khai của Binance.",
+          "Binance: giá thị trường công khai dùng cho cảnh báo sớm. Máy chủ của chúng tôi đọc giá này; không có dữ liệu nào của bạn được gửi đi.",
         ],
       },
       { type: "h", text: "5. Cookie và bộ nhớ cục bộ" },

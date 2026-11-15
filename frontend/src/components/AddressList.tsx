@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { api, ApiError, type Me, type WatchedAddress } from "../api";
 import { riskClass, shortAddress, timeAgo, usd } from "../format";
 import { tr, translateServer } from "../i18n";
@@ -6,12 +7,13 @@ import CopyButton from "./CopyButton";
 import MiniGauge from "./MiniGauge";
 
 function riskiest(a: WatchedAddress) {
-  return a.positions
-    .filter((p) => !p.error && p.debtUsd > 0 && Number.isFinite(p.healthFactor))
-    .reduce<WatchedAddress["positions"][number] | undefined>(
-      (low, p) => (!low || p.healthFactor < low.healthFactor ? p : low),
-      undefined,
-    );
+  const debt = a.positions.filter((p) => !p.error && p.debtUsd > 0 && Number.isFinite(p.healthFactor));
+  // Prefer covered positions for the hero gauge so Starter users see the protocol that still alerts.
+  const pool = debt.some((p) => p.covered) ? debt.filter((p) => p.covered) : debt;
+  return pool.reduce<WatchedAddress["positions"][number] | undefined>(
+    (low, p) => (!low || p.healthFactor < low.healthFactor ? p : low),
+    undefined,
+  );
 }
 
 function AddressBody({ a, threshold }: { a: WatchedAddress; threshold: number }) {
@@ -33,18 +35,31 @@ function AddressBody({ a, threshold }: { a: WatchedAddress; threshold: number })
                 </span>
               </div>
             ) : (
-              <div className="position" key={p.key}>
+              <div className={`position ${p.covered ? "" : "uncovered"}`} key={p.key}>
                 <span className="position-main">
                   <span className="position-label">
                     {p.label}
-                    {!p.covered && <span className="tag">{tr("Pro 预警", "Pro alerts")}</span>}
+                    {!p.covered && (
+                      <span className="tag tag-pro">{tr("未发预警 · 需 Pro", "Not alerting · needs Pro")}</span>
+                    )}
                   </span>
                   <span className="position-nums muted">
                     {tr("抵押", "Collateral")} {usd(p.collateralUsd)} · {tr("债务", "Debt")} {usd(p.debtUsd)}
                     {p.liqEthPrice ? <> · {tr("ETH 清算价", "ETH liq. price")} {usd(p.liqEthPrice)}</> : null}
                   </span>
+                  {!p.covered && (
+                    <span className="position-pro-note">
+                      {tr(
+                        "Starter 不会对此协议发 Telegram 预警。",
+                        "Starter does not send Telegram alerts for this protocol.",
+                      )}{" "}
+                      <Link to="/app/pro">{tr("升级 Pro →", "Upgrade to Pro →")}</Link>
+                    </span>
+                  )}
                 </span>
-                <span className={`hf ${riskClass(p.healthFactor, threshold)}`}>{p.healthFactor.toFixed(3)}</span>
+                <span className={`hf ${p.covered ? riskClass(p.healthFactor, threshold) : "muted"}`}>
+                  {p.healthFactor.toFixed(3)}
+                </span>
               </div>
             ),
           )}
@@ -137,7 +152,16 @@ export default function AddressList({ me, addresses, onChange }: Props) {
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState("");
+  const [removing, setRemoving] = useState(false);
   const full = me.addressCount >= me.addressLimit;
+
+  useEffect(() => {
+    if (!pendingDelete) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPendingDelete("");
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pendingDelete]);
 
   async function add(e: FormEvent) {
     e.preventDefault();
@@ -156,14 +180,17 @@ export default function AddressList({ me, addresses, onChange }: Props) {
     }
   }
 
-  async function remove(address: string) {
-    const short = shortAddress(address);
-    if (!window.confirm(tr(`删除 ${short}？删除后不再预警。`, `Delete ${short}? It will no longer be alerted.`))) return;
+  async function confirmRemove(address: string) {
+    setRemoving(true);
+    setError("");
     try {
       await api.removeAddress(address);
+      setPendingDelete("");
       onChange();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : tr("删除失败", "Could not delete the address"));
+    } finally {
+      setRemoving(false);
     }
   }
 
@@ -192,8 +219,8 @@ export default function AddressList({ me, addresses, onChange }: Props) {
       {full && !me.pro && (
         <p className="muted small-text">
           {tr(
-            `Starter 最多 ${me.addressLimit} 个地址，升级 Pro 可监控 20 个。`,
-            `Starter allows ${me.addressLimit} addresses. Upgrade to Pro to watch 20.`,
+            `Starter 最多 ${me.addressLimit} 个 Aave V3 地址，升级 Pro 可监控 20 个并解锁 Compound / Morpho。`,
+            `Starter allows ${me.addressLimit} Aave V3 addresses. Upgrade to Pro for 20 addresses and Compound / Morpho.`,
           )}
         </p>
       )}
@@ -212,14 +239,46 @@ export default function AddressList({ me, addresses, onChange }: Props) {
                     {shortAddress(a.address)}
                   </span>
                   <CopyButton text={a.address} />
-                  {!a.active && <span className="tag">{tr("已暂停 · 超出 Starter 额度", "Paused · over Starter limit")}</span>}
+                  {!a.active && (
+                    <span className="tag tag-pro">
+                      {tr("已暂停 · 超出 Starter Aave 额度", "Paused · over Starter Aave limit")}
+                    </span>
+                  )}
                 </div>
                 <div className="address-actions">
                   <ThresholdControl key={`${a.address}:${a.threshold}`} a={a} onSaved={onChange} />
                   <span className="muted small-text">{timeAgo(a.checkedAt)}</span>
-                  <button className="btn btn-small btn-ghost danger-text" onClick={() => void remove(a.address)}>
-                    {tr("删除", "Delete")}
-                  </button>
+                  {pendingDelete === a.address ? (
+                    <span className="delete-confirm">
+                      <span className="delete-confirm-msg">
+                        {tr("删除后不再预警", "Alerts will stop after delete")}
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-small btn-danger"
+                        disabled={removing}
+                        onClick={() => void confirmRemove(a.address)}
+                      >
+                        {removing ? tr("删除中…", "Deleting…") : tr("确认删除", "Confirm delete")}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-small btn-ghost"
+                        disabled={removing}
+                        onClick={() => setPendingDelete("")}
+                      >
+                        {tr("取消", "Cancel")}
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-small btn-ghost danger-text"
+                      onClick={() => setPendingDelete(a.address)}
+                    >
+                      {tr("删除", "Delete")}
+                    </button>
+                  )}
                 </div>
               </div>
 

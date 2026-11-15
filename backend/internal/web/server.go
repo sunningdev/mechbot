@@ -303,15 +303,22 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request, userID int64) 
 	case user.IsPremium && !user.ExpireAt.IsZero():
 		expired = user.ExpireAt.UTC().Format(time.RFC3339)
 	}
+	pro := user.ProActive(now)
+	addressCount := user.AddressCount
+	if !pro {
+		if slots, err := s.store.StarterSlotCount(userID); err == nil {
+			addressCount = slots
+		}
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"telegramId":   user.TelegramID,
 		"username":     user.Username,
 		"firstName":    user.FirstName,
-		"pro":          user.ProActive(now),
+		"pro":          pro,
 		"trial":        user.Trial,
 		"proExpireAt":  expire,
 		"proExpiredAt": expired,
-		"addressCount": user.AddressCount,
+		"addressCount": addressCount,
 		"addressLimit": user.AddressLimit(now),
 	})
 }
@@ -428,7 +435,7 @@ func (s *Server) handleAddresses(w http.ResponseWriter, r *http.Request, userID 
 				CollateralUSD: snap.CollateralUSD,
 				DebtUSD:       snap.DebtUSD,
 				Error:         snap.Error,
-				Covered:       snap.Error == "" && monitor.Covered(snap.ProtocolKey, watch.Pro),
+				Covered:       snap.Error == "" && watch.Active && monitor.Covered(snap.ProtocolKey, watch.Pro),
 				ETHPrice:      snap.ETHPrice,
 				LiqETHPrice:   snap.LiqETHPrice,
 				BorrowAPY:     snap.BorrowAPY,

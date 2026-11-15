@@ -51,7 +51,11 @@ func check(ctx context.Context, st *store.Store, sender Sender, renewURL string,
 		if !n.Stale {
 			text := notify.ProEnding(n.Lang, n.Trial, store.FreeAddressLimit, renewURL)
 			if n.Stage == store.NoticeEnded {
-				text = notify.ProEnded(n.Lang, n.Trial, n.AddressCount, store.FreeAddressLimit, renewURL)
+				slots := n.AddressCount
+				if slotCount, err := st.StarterSlotCount(n.TelegramID); err == nil {
+					slots = slotCount
+				}
+				text = notify.ProEnded(n.Lang, n.Trial, slots, store.FreeAddressLimit, renewURL)
 			}
 			// A failed send is still marked: the downgrade happens regardless, and retrying every few minutes would
 			// spam the log for users who blocked the bot.

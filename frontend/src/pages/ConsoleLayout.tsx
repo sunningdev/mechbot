@@ -4,7 +4,6 @@ import { api, ApiError, type Me } from "../api";
 import Brand from "../components/Brand";
 import LangToggle from "../components/LangToggle";
 import ThemeToggle from "../components/ThemeToggle";
-import StatusStrip from "../components/StatusStrip";
 import { langChosen, tr, useLang } from "../i18n";
 
 export type ConsoleContext = { me: Me; refresh: () => Promise<void> };
@@ -55,9 +54,8 @@ export default function ConsoleLayout() {
 
   return (
     <div className="page">
-      <StatusStrip />
       <div className="topbar">
-        <header className="nav container">
+        <header className="nav container console-nav">
           <Brand />
           <nav className="nav-links">
             <div className="console-tabs">

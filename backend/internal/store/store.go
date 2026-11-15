@@ -400,11 +400,11 @@ func (s *Store) AddAddress(telegramID int64, address string, limit int) error {
 	if !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	var count int
-	if err := tx.QueryRow(`SELECT COUNT(*) FROM addresses WHERE telegram_id = ?`, telegramID).Scan(&count); err != nil {
+	used, err := countTowardLimit(tx, telegramID, limit)
+	if err != nil {
 		return err
 	}
-	if count >= limit {
+	if used >= limit {
 		return ErrAddressLimit
 	}
 	_, err = tx.Exec(
@@ -415,6 +415,16 @@ func (s *Store) AddAddress(telegramID int64, address string, limit int) error {
 		return err
 	}
 	return tx.Commit()
+}
+
+// countTowardLimit is total addresses for Pro, or Starter slots (Aave + empty; Morpho-only excluded) for Starter.
+func countTowardLimit(tx *sql.Tx, telegramID int64, limit int) (int, error) {
+	if limit > FreeAddressLimit {
+		var count int
+		err := tx.QueryRow(`SELECT COUNT(*) FROM addresses WHERE telegram_id = ?`, telegramID).Scan(&count)
+		return count, err
+	}
+	return starterSlotCountTx(tx, telegramID)
 }
 
 func (s *Store) RemoveAddress(telegramID int64, address string) error {
@@ -449,7 +459,9 @@ func (s *Store) ListAll() ([]Watch, error) {
 	return s.listWatches(``)
 }
 
-// Active is false for addresses beyond the free limit once Pro has lapsed; they stay listed but are not polled.
+// Active is false when a Starter slot is exhausted for that address. Starter slots are addresses with Aave V3
+// debt or no debt, in add order (first FreeAddressLimit stay active). Morpho/Compound-only addresses stay
+// active for display but never take a slot; protocol coverage still blocks their alerts.
 func (s *Store) listWatches(where string, args ...any) ([]Watch, error) {
 	rows, err := s.db.Query(`
 SELECT a.address, a.telegram_id, a.min_health_factor, u.is_premium, u.expire_at, u.lang, u.tg_lang,
@@ -475,7 +487,124 @@ ORDER BY a.telegram_id, a.created_at, a.address`, args...)
 		w.Active = rank <= AddressLimit(w.Pro)
 		out = append(out, w)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return s.applyStarterActive(out)
+}
+
+func (s *Store) applyStarterActive(watches []Watch) ([]Watch, error) {
+	need := false
+	for _, w := range watches {
+		if !w.Pro {
+			need = true
+			break
+		}
+	}
+	if !need || len(watches) == 0 {
+		return watches, nil
+	}
+	kind, err := s.addressKinds()
+	if err != nil {
+		return nil, err
+	}
+	slots := map[int64]int{}
+	for i := range watches {
+		w := &watches[i]
+		if w.Pro {
+			continue
+		}
+		switch kind[w.Address] {
+		case kindOtherOnly:
+			w.Active = true
+		default: // Aave debt or empty → Starter slot
+			slots[w.TelegramID]++
+			w.Active = slots[w.TelegramID] <= FreeAddressLimit
+		}
+	}
+	return watches, nil
+}
+
+type addressKind int
+
+const (
+	kindEmpty addressKind = iota
+	kindAave
+	kindOtherOnly
+)
+
+// addressKinds classifies watched addresses by their latest debt snapshots.
+func (s *Store) addressKinds() (map[string]addressKind, error) {
+	rows, err := s.db.Query(`
+SELECT address,
+       MAX(CASE WHEN error = '' AND debt_usd > 0 AND protocol_key LIKE 'aave-v3:%' THEN 1 ELSE 0 END),
+       MAX(CASE WHEN error = '' AND debt_usd > 0 AND protocol_key NOT LIKE 'aave-v3:%' AND protocol_key NOT LIKE 'error:%' THEN 1 ELSE 0 END)
+FROM snapshots
+GROUP BY address`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]addressKind{}
+	for rows.Next() {
+		var addr string
+		var aave, other int
+		if err := rows.Scan(&addr, &aave, &other); err != nil {
+			return nil, err
+		}
+		switch {
+		case aave == 1:
+			out[addr] = kindAave
+		case other == 1:
+			out[addr] = kindOtherOnly
+		default:
+			out[addr] = kindEmpty
+		}
+	}
 	return out, rows.Err()
+}
+
+func starterSlotCountTx(tx *sql.Tx, telegramID int64) (int, error) {
+	rows, err := tx.Query(`
+SELECT a.address,
+       COALESCE((
+         SELECT MAX(CASE WHEN s.error = '' AND s.debt_usd > 0 AND s.protocol_key LIKE 'aave-v3:%' THEN 1 ELSE 0 END)
+         FROM snapshots s WHERE s.address = a.address
+       ), 0),
+       COALESCE((
+         SELECT MAX(CASE WHEN s.error = '' AND s.debt_usd > 0 AND s.protocol_key NOT LIKE 'aave-v3:%' AND s.protocol_key NOT LIKE 'error:%' THEN 1 ELSE 0 END)
+         FROM snapshots s WHERE s.address = a.address
+       ), 0)
+FROM addresses a
+WHERE a.telegram_id = ?
+ORDER BY a.created_at, a.address`, telegramID)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+	n := 0
+	for rows.Next() {
+		var addr string
+		var aave, other int
+		if err := rows.Scan(&addr, &aave, &other); err != nil {
+			return 0, err
+		}
+		if aave == 1 || other == 0 {
+			// Aave debt, empty, or unchecked → takes a Starter slot. Morpho/Compound-only does not.
+			n++
+		}
+	}
+	return n, rows.Err()
+}
+
+// StarterSlotCount is how many Starter watch slots the user currently uses (Aave + empty addresses).
+func (s *Store) StarterSlotCount(telegramID int64) (int, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	return starterSlotCountTx(tx, telegramID)
 }
 
 func (s *Store) DangerKeys(address string, telegramID int64) ([]string, error) {

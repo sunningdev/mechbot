@@ -262,26 +262,6 @@
 
 /* Landing */
 
-.liq-promo {
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-  gap: 48px;
-  align-items: center;
-}
-
-.liq-promo .sec-head {
-  margin-bottom: 28px;
-}
-
-.liq-promo .sec-head h2 {
-  font-size: clamp(34px, 4.5vw, 52px);
-  line-height: 1.12;
-}
-
-.liq-promo .hero-actions {
-  margin-top: 20px;
-}
-
 .liq-teaser {
   display: grid;
   gap: 16px;
@@ -331,12 +311,6 @@
 .liq-teaser-empty {
   margin: 40px 0;
   text-align: center;
-}
-
-@media (max-width: 900px) {
-  .liq-promo {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {

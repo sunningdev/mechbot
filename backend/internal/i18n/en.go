@@ -104,14 +104,14 @@ We'll keep watching it. If it borrows on these protocols later, alerts start aut
 	ProEnding: `⏳ MechBot: %s
 
 After that you move to Starter (free):
-· Only your %d earliest addresses stay watched; the rest are paused (not deleted)
+· Only the earliest %d Aave V3 addresses keep alerts; later Aave addresses are paused (not deleted)
 %s
 
 Keep Pro: %s`,
 	ProEndedPaid:   "Pro has ended; you're now on Starter",
 	ProEndedTrial:  "Your Pro trial has ended; you're now on Starter",
-	ProEndedWatch:  "· Your %d earliest addresses are still watched",
-	ProEndedPaused: "; the other %d are paused (data kept, resumes when you renew)",
+	ProEndedWatch:  "· Your earliest %d Aave V3 addresses still get alerts",
+	ProEndedPaused: "; the other %d Aave addresses are paused (data kept, resumes when you renew)",
 	ProEnded: `MechBot: %s
 
 %s

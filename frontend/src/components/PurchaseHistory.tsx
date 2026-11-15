@@ -72,11 +72,11 @@ export default function PurchaseHistory({ reload }: Props) {
                 const short = `${d.txHash.slice(0, 8)}…${d.txHash.slice(-6)}`;
                 return (
                   <tr key={`${d.chain}-${d.txHash}`}>
-                    <td className="mono">{dateTime(d.createdAt)}</td>
+                    <td>{dateTime(d.createdAt)}</td>
                     <td>
                       <PlanCell d={d} />
                     </td>
-                    <td className="mono">
+                    <td>
                       {d.amount} {d.token || "USDT"}
                     </td>
                     <td>
@@ -107,7 +107,7 @@ export default function PurchaseHistory({ reload }: Props) {
           <button className="btn btn-small btn-ghost" disabled={page <= 1} onClick={() => setPage(page - 1)}>
             ← {tr("上一页", "Previous")}
           </button>
-          <span className="mono">
+          <span>
             {page} / {pages}
           </span>
           <button className="btn btn-small btn-ghost" disabled={page >= pages} onClick={() => setPage(page + 1)}>

@@ -283,6 +283,11 @@ func (b *Bot) status(t *i18n.Text, userID int64) string {
 	if err != nil {
 		return t.QueryFailed
 	}
+	if !user.ProActive(time.Now()) {
+		if slots, err := b.store.StarterSlotCount(userID); err == nil {
+			user.AddressCount = slots
+		}
+	}
 	return store.FormatStatus(user)
 }
 
