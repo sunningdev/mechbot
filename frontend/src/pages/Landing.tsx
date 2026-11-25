@@ -4,7 +4,6 @@ import { api, storedRef, type LiqMap } from "../api";
 import { getPosts } from "../blog/posts";
 import { PostMeta } from "./Blog";
 import Brand from "../components/Brand";
-import HealthGauge from "../components/HealthGauge";
 import LangToggle from "../components/LangToggle";
 import ThemeToggle from "../components/ThemeToggle";
 import LiqMapChart, { liquidatedWithin } from "../components/LiqMapChart";
@@ -34,6 +33,20 @@ const networks = [
 
 const faqs = () => [
   {
+    q: tr("如何在 Aave 清算前收到 Telegram 提醒？", "How do I get Telegram alerts before an Aave liquidation?"),
+    a: tr(
+      "用 Telegram 登录后添加公开钱包地址。MechBot 约每 5 分钟检查 Aave V3 健康因子，跌破预警线时私聊提醒，并告诉你该还多少或补多少抵押。",
+      "Log in with Telegram and add your public wallet address. MechBot checks Aave V3 health factor about every 5 minutes and DMs you when it crosses your line, with how much to repay or add as collateral.",
+    ),
+  },
+  {
+    q: tr("有没有免费的 Aave、Compound、Morpho 清算预警机器人？", "Is there a free DeFi liquidation alert bot for Aave, Compound and Morpho?"),
+    a: tr(
+      "有。免费版监控 Aave V3；Pro 解锁 Compound V3、Morpho Blue、更多地址、币安价格提前预警和清算地图。无需连接钱包。",
+      "Yes. The free plan monitors Aave V3. Pro unlocks Compound V3, Morpho Blue, more addresses, earlier Binance-price warnings and the liquidation map. No wallet connect required.",
+    ),
+  },
+  {
     q: tr("需要连接钱包吗？", "Do I need to connect my wallet?"),
     a: tr(
       "不需要。MechBot 只要一个公开地址，不需要签名、授权或私钥。",
@@ -52,6 +65,13 @@ const faqs = () => [
     a: tr(
       "支持 Ethereum、Arbitrum、Base、Optimism 上的 Aave V3、Compound V3 和 Morpho Blue。免费版支持 Aave V3。",
       "Aave V3, Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism. The free plan covers Aave V3.",
+    ),
+  },
+  {
+    q: tr("MechBot 能监控 Morpho Blue 和 Compound V3 健康因子吗？", "Can MechBot monitor Morpho Blue and Compound V3 health factor?"),
+    a: tr(
+      "可以。免费版覆盖 Aave V3；Pro 同时监控 Ethereum、Arbitrum、Base、Optimism 上的 Compound V3 与 Morpho Blue。",
+      "Yes. Free covers Aave V3; Pro also watches Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism.",
     ),
   },
   {
@@ -299,24 +319,6 @@ function TelegramIcon() {
   );
 }
 
-function AlertToast() {
-  return (
-    <div className="alert-toast" aria-hidden="true">
-      <img src="/logo.svg" alt="" />
-      <div>
-        <p className="alert-toast-head">
-          <b>MechBot</b>
-          <span>{tr("刚刚", "now")}</span>
-        </p>
-        <p className="alert-toast-title">⚠️ {tr("健康因子 1.18，已跌破预警线 1.20", "Health factor 1.18, below your 1.20 line")}</p>
-        <p className="alert-toast-body">
-          {tr("还 1,450 USDC 或补 0.62 ETH，可回到 1.40。", "Repay 1,450 USDC or add 0.62 ETH to get back to 1.40.")}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 const loopPoints = () => [
   {
     pro: true,
@@ -512,6 +514,13 @@ export default function Landing() {
     }, () => undefined);
   }, []);
 
+  useEffect(() => {
+    const key = "mb_home_" + new Date().toISOString().slice(0, 10);
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    api.trackHome().catch(() => undefined);
+  }, []);
+
   const consoleLabel = tr("进入控制台", "Open console");
   const plans = proPlans();
 
@@ -565,12 +574,12 @@ export default function Landing() {
       <main>
         <section className="hero container">
           <div className="hero-copy">
-            <span className="sec-index">{tr("DeFi 借贷清算预警", "DeFi liquidation alerts")}</span>
+            <span className="sec-index">{tr("DeFi 借贷清算预警", "Aave · Compound · Morpho liquidation alerts")}</span>
             <h1>{tr("清算之前，\n先提醒你。", "Get alerted before you get liquidated.")}</h1>
             <p className="hero-sub">
               {tr(
-                "MechBot 盯住你在 Aave、Compound、Morpho 的借贷仓位。健康因子一跌破预警线，立刻在 Telegram 提醒你，并告诉你该还多少、补多少。",
-                "MechBot watches your Aave, Compound and Morpho loans and messages you on Telegram the moment your health factor crosses your line, with exactly how much to repay or add.",
+                "MechBot 是免费的 DeFi 清算预警机器人：7×24 监控 Aave V3、Compound V3、Morpho Blue 健康因子。快被清算时 Telegram 立刻提醒，并告诉你该还多少、补多少。无需连接钱包。",
+                "Free DeFi liquidation alert bot: MechBot monitors Aave V3, Compound V3 and Morpho Blue health factors 24/7. Get Telegram alerts before liquidation—with exactly how much to repay or add. No wallet connect.",
               )}
             </p>
             <div className="hero-actions">
@@ -584,10 +593,6 @@ export default function Landing() {
                 <li key={t}>{t}</li>
               ))}
             </ul>
-          </div>
-          <div className="hero-visual">
-            <HealthGauge />
-            <AlertToast />
           </div>
         </section>
 
@@ -954,6 +959,9 @@ export default function Landing() {
             <a href="#faq">FAQ</a>
             <a href="#referral">{tr("推荐计划", "Referral")}</a>
             <a href="#about">{tr("开发者", "Developer")}</a>
+            <a href="https://www.defigauge.com" target="_blank" rel="noreferrer" title={tr("DefiGauge 工具站", "DefiGauge tools")}>
+              www.DefiGauge.com
+            </a>
           </nav>
           <nav className="footer-col">
             <h4>{tr("社区", "Community")}</h4>

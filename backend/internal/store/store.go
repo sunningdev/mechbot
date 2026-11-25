@@ -176,6 +176,21 @@ CREATE TABLE IF NOT EXISTS referral_rewards (
   referrer_id INTEGER NOT NULL,
   days INTEGER NOT NULL,
   created_unix INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS page_visits (
+  day TEXT NOT NULL,
+  path TEXT NOT NULL,
+  ip TEXT NOT NULL,
+  hits INTEGER NOT NULL DEFAULT 1,
+  PRIMARY KEY (day, path, ip)
+);
+CREATE TABLE IF NOT EXISTS admin_sessions (
+  id TEXT PRIMARY KEY,
+  expires_unix INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS admin_meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT ''
 );`)
 	if err != nil {
 		return err

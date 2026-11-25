@@ -51,6 +51,15 @@ export const dateTime = (iso: string) =>
     minute: "2-digit",
   });
 
+// Calendar date in the viewer's local timezone (YYYY-MM-DD). Slicing the ISO string would give UTC,
+// which can show the previous day for users east of UTC (e.g. paid 25th 00:xx UTC+8 -> "24th").
+export function localDay(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 // Whole days of Pro left, counting a partial day as one; null when Pro is not active.
 export function proDaysLeft(pro: boolean, expireAt: string) {
   const ms = pro && expireAt ? Date.parse(expireAt) : NaN;

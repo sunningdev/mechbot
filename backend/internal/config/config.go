@@ -38,6 +38,10 @@ type Config struct {
 	EtherscanKey string
 	// WalletConnectID is the public Reown project ID for paying from a phone wallet; it is shipped to browsers.
 	WalletConnectID string
+	// Admin panel: obscure path + fixed username sunzhenning + Google Authenticator TOTP.
+	// Both AdminPath and AdminTOTPSecret are required; empty either disables the panel.
+	AdminPath       string
+	AdminTOTPSecret string
 }
 
 // PayNet is where deposits are watched. NETWORK=testnet moves only payments to testnets; monitoring always reads mainnet.
@@ -137,6 +141,8 @@ func Load() (Config, error) {
 		LiqmapRPCURL:    strings.TrimSpace(os.Getenv("LIQMAP_ETH_RPC_URL")),
 		EtherscanKey:    strings.TrimSpace(os.Getenv("ETHERSCAN_API_KEY")),
 		WalletConnectID: strings.TrimSpace(os.Getenv("WALLETCONNECT_PROJECT_ID")),
+		AdminPath:       sanitizeAdminPath(os.Getenv("ADMIN_PATH")),
+		AdminTOTPSecret: strings.TrimSpace(os.Getenv("ADMIN_TOTP_SECRET")),
 	}
 	if raw := strings.TrimSpace(os.Getenv("TELEGRAM_CHAT_ID")); raw != "" {
 		id, err := strconv.ParseInt(raw, 10, 64)
@@ -190,6 +196,28 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+// sanitizeAdminPath keeps a single URL slug (letters, digits, _-). Rejects reserved public routes.
+func sanitizeAdminPath(raw string) string {
+	p := strings.Trim(strings.TrimSpace(raw), "/")
+	if p == "" || strings.Contains(p, "/") || strings.Contains(p, "..") {
+		return ""
+	}
+	for _, r := range p {
+		ok := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_'
+		if !ok {
+			return ""
+		}
+	}
+	switch strings.ToLower(p) {
+	case "admin", "api", "app", "blog", "terms", "privacy", "assets", "static", "favicon.ico", "robots.txt":
+		return ""
+	}
+	if len(p) < 8 || len(p) > 64 {
+		return ""
+	}
+	return p
 }
 
 type errString string

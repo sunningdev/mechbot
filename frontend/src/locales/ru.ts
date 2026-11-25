@@ -1,6 +1,16 @@
 // Keyed by the English source text; {0}, {1}… are runtime values.
 const ru: Record<string, string> = {
   "DeFi liquidation alerts": "Оповещения о ликвидации DeFi",
+  "This page doesn’t exist.": "Такой страницы нет.",
+  "Back to home": "На главную",
+  "Aave · Compound · Morpho liquidation alerts": "Алерты ликвидации Aave · Compound · Morpho",
+  "Free DeFi liquidation alert bot: MechBot monitors Aave V3, Compound V3 and Morpho Blue health factors 24/7. Get Telegram alerts before liquidation—with exactly how much to repay or add. No wallet connect.": "Бесплатный бот алертов ликвидации DeFi: MechBot 24/7 следит за health factor Aave V3, Compound V3 и Morpho Blue. Telegram до ликвидации — сколько погасить или сколько залога добавить. Без подключения кошелька.",
+  "How do I get Telegram alerts before an Aave liquidation?": "Как получать алерты в Telegram до ликвидации на Aave?",
+  "Log in with Telegram and add your public wallet address. MechBot checks Aave V3 health factor about every 5 minutes and DMs you when it crosses your line, with how much to repay or add as collateral.": "Войдите через Telegram и добавьте публичный адрес. MechBot проверяет health factor Aave V3 примерно каждые 5 минут и пишет в Telegram при пересечении вашей линии, с суммой погашения или залога.",
+  "Is there a free DeFi liquidation alert bot for Aave, Compound and Morpho?": "Есть ли бесплатный бот алертов ликвидации для Aave, Compound и Morpho?",
+  "Yes. The free plan monitors Aave V3. Pro unlocks Compound V3, Morpho Blue, more addresses, earlier Binance-price warnings and the liquidation map. No wallet connect required.": "Да. Бесплатный план следит за Aave V3. Pro открывает Compound V3, Morpho Blue, больше адресов, ранние предупреждения по цене Binance и карту ликвидаций. Кошелёк подключать не нужно.",
+  "Can MechBot monitor Morpho Blue and Compound V3 health factor?": "Может ли MechBot следить за Morpho Blue и Compound V3?",
+  "Yes. Free covers Aave V3; Pro also watches Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism.": "Да. Free — Aave V3; Pro также смотрит Compound V3 и Morpho Blue на Ethereum, Arbitrum, Base и Optimism.",
 
   // console · addresses
   ", retrying next round": ", повторим в следующем раунде",

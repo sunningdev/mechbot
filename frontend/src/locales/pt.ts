@@ -1,6 +1,16 @@
 // Brazilian Portuguese. Keyed by the English source text; {0}, {1}… are runtime values.
 const pt: Record<string, string> = {
   "DeFi liquidation alerts": "Alertas de liquidação DeFi",
+  "This page doesn’t exist.": "Esta página não existe.",
+  "Back to home": "Voltar ao início",
+  "Aave · Compound · Morpho liquidation alerts": "Alertas de liquidação Aave · Compound · Morpho",
+  "Free DeFi liquidation alert bot: MechBot monitors Aave V3, Compound V3 and Morpho Blue health factors 24/7. Get Telegram alerts before liquidation—with exactly how much to repay or add. No wallet connect.": "Bot grátis de alerta de liquidação DeFi: o MechBot monitora 24/7 o health factor de Aave V3, Compound V3 e Morpho Blue. Alertas no Telegram antes da liquidação, com quanto pagar ou quanto colateral adicionar. Sem conectar carteira.",
+  "How do I get Telegram alerts before an Aave liquidation?": "Como receber alertas no Telegram antes de uma liquidação na Aave?",
+  "Log in with Telegram and add your public wallet address. MechBot checks Aave V3 health factor about every 5 minutes and DMs you when it crosses your line, with how much to repay or add as collateral.": "Entre com o Telegram e adicione seu endereço público. O MechBot checa o health factor da Aave V3 a cada ~5 minutos e avisa ao cruzar sua linha, com quanto pagar ou quanto colateral adicionar.",
+  "Is there a free DeFi liquidation alert bot for Aave, Compound and Morpho?": "Existe um bot grátis de alerta de liquidação DeFi para Aave, Compound e Morpho?",
+  "Yes. The free plan monitors Aave V3. Pro unlocks Compound V3, Morpho Blue, more addresses, earlier Binance-price warnings and the liquidation map. No wallet connect required.": "Sim. O plano grátis monitora Aave V3. O Pro libera Compound V3, Morpho Blue, mais endereços, avisos antecipados Binance e o mapa de liquidação. Sem conectar carteira.",
+  "Can MechBot monitor Morpho Blue and Compound V3 health factor?": "O MechBot monitora Morpho Blue e Compound V3?",
+  "Yes. Free covers Aave V3; Pro also watches Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism.": "Sim. Grátis cobre Aave V3; Pro também Compound V3 e Morpho Blue em Ethereum, Arbitrum, Base e Optimism.",
 
   // console · addresses
   ", retrying next round": ", nova tentativa na próxima rodada",

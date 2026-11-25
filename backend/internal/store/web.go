@@ -215,8 +215,10 @@ func (s *Store) PurgeExpired(now time.Time) error {
 	if _, err := s.db.Exec(`DELETE FROM login_tokens WHERE created_unix < ?`, now.Add(-LoginTokenTTL).Unix()); err != nil {
 		return err
 	}
-	_, err := s.db.Exec(`DELETE FROM sessions WHERE expires_unix < ?`, now.Unix())
-	return err
+	if _, err := s.db.Exec(`DELETE FROM sessions WHERE expires_unix < ?`, now.Unix()); err != nil {
+		return err
+	}
+	return s.PurgeAdminSessions(now)
 }
 
 func extendPro(tx *sql.Tx, telegramID int64, days int, now time.Time) (time.Time, error) {

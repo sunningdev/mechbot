@@ -28,6 +28,7 @@ import (
 	"mechbot/internal/protocol"
 	"mechbot/internal/store"
 	"mechbot/internal/telegram"
+	"mechbot/internal/totp"
 )
 
 const (
@@ -46,6 +47,7 @@ type Server struct {
 	secure      bool
 	baseCtx     context.Context
 	walletID    string
+	admin       *adminAuth
 
 	checkMu   sync.Mutex
 	lastCheck map[int64]time.Time
@@ -55,6 +57,7 @@ type Server struct {
 	loginLimit *limiter
 	mapLimit   *limiter
 	writeLimit *limiter
+	adminLimit *limiter
 }
 
 type Options struct {
@@ -69,6 +72,8 @@ type Options struct {
 	BaseCtx     context.Context
 	// WalletConnectID is the public Reown project ID; empty limits wallet payments to browser extensions.
 	WalletConnectID string
+	AdminPath       string
+	AdminTOTPSecret string
 }
 
 func New(o Options) *Server {
@@ -89,6 +94,12 @@ func New(o Options) *Server {
 		loginLimit:  newLimiter(10, time.Minute),
 		mapLimit:    newLimiter(30, time.Minute),
 		writeLimit:  newLimiter(20, time.Minute),
+		adminLimit:  newLimiter(20, time.Minute),
+	}
+	if path := strings.Trim(strings.TrimSpace(o.AdminPath), "/"); path != "" {
+		if secret, err := totp.NormalizeSecret(o.AdminTOTPSecret); err == nil {
+			s.admin = &adminAuth{path: path, secret: secret}
+		}
 	}
 	if s.baseCtx != nil {
 		go s.sweepLoop(s.baseCtx)
@@ -110,7 +121,7 @@ func (s *Server) sweepLoop(ctx context.Context) {
 }
 
 func (s *Server) sweep(now time.Time) {
-	for _, l := range []*limiter{s.apiLimit, s.loginLimit, s.mapLimit, s.writeLimit} {
+	for _, l := range []*limiter{s.apiLimit, s.loginLimit, s.mapLimit, s.writeLimit, s.adminLimit} {
 		l.sweep(now)
 	}
 	s.checkMu.Lock()
@@ -164,6 +175,17 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/billing/wallet", s.auth(perUser(s.writeLimit, s.handleWalletBalances)))
 	mux.HandleFunc("GET /api/referral", s.auth(s.handleReferral))
 	mux.HandleFunc("GET /api/liqmap", perIP(s.mapLimit, s.handleLiqMap))
+	mux.HandleFunc("POST /api/track/home", perIP(s.apiLimit, s.handleTrackHome))
+
+	if p := s.adminPath(); p != "" {
+		base := "/api/" + p
+		mux.HandleFunc("GET "+base+"/setup", perIP(s.adminLimit, s.handleAdminSetup))
+		mux.HandleFunc("POST "+base+"/auth/login", perIP(s.adminLimit, s.handleAdminAuthLogin))
+		mux.HandleFunc("POST "+base+"/auth/logout", s.handleAdminLogout)
+		mux.HandleFunc("GET "+base+"/me", s.handleAdminMe)
+		mux.HandleFunc("GET "+base+"/stats", s.handleAdminStats)
+		mux.HandleFunc("GET "+base+"/users", s.handleAdminUsers)
+	}
 
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "接口不存在")
@@ -730,13 +752,27 @@ func (s *Server) handleStatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	index := filepath.Join(root, "index.html")
-	if _, err := os.Stat(index); err != nil {
+	raw, err := os.ReadFile(index)
+	if err != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = io.WriteString(w, "页面还没有打包。开发时请在 frontend 目录运行 npm run dev。")
 		return
 	}
-	http.ServeFile(w, r, index)
+	// Only reveal the secret admin slug when the browser is loading that exact page.
+	html := string(raw)
+	if p := s.adminPath(); p != "" && (clean == "/"+p || clean == "/"+p+"/") {
+		inject := `<script>window.__MECHBOT_ADMIN_PATH__=` + strconv.Quote(p) + `;</script>`
+		if strings.Contains(html, "</head>") {
+			html = strings.Replace(html, "</head>", inject+"</head>", 1)
+		} else {
+			html = inject + html
+		}
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusOK)
+	_, _ = io.WriteString(w, html)
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, dest any) bool {

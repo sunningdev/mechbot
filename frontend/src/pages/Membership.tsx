@@ -2,7 +2,7 @@ import { useState } from "react";
 import BillingPanel from "../components/BillingPanel";
 import PageHead from "../components/PageHead";
 import PurchaseHistory from "../components/PurchaseHistory";
-import { proDaysLeft } from "../format";
+import { localDay, proDaysLeft } from "../format";
 import { tr } from "../i18n";
 import { useConsole } from "./ConsoleLayout";
 
@@ -78,7 +78,7 @@ export default function Membership() {
             className: soon ? "hf danger" : "",
             hint:
               me.pro && me.proExpireAt
-                ? tr(`至 ${me.proExpireAt.slice(0, 10)}`, `Until ${me.proExpireAt.slice(0, 10)}`)
+                ? tr(`至 ${localDay(me.proExpireAt)}`, `Until ${localDay(me.proExpireAt)}`)
                 : tr("未开通", "Not active"),
             tag: soon ? { text: tr("即将到期", "Expiring"), tone: "danger" } : undefined,
           },

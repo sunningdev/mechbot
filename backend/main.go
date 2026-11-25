@@ -89,6 +89,8 @@ func main() {
 		Secure:          cfg.CookieSecure,
 		BaseCtx:         ctx,
 		WalletConnectID: cfg.WalletConnectID,
+		AdminPath:       cfg.AdminPath,
+		AdminTOTPSecret: cfg.AdminTOTPSecret,
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,

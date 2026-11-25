@@ -1,3 +1,4 @@
+import { adminApiBase } from "./adminPath";
 import { translateServer } from "./i18n";
 
 export class ApiError extends Error {
@@ -156,6 +157,58 @@ export const api = {
   billingHistory: (page: number) => request<DepositPage>(`/api/billing/history?page=${page}`),
   referral: () => request<Referral>("/api/referral"),
   liqmap: () => request<LiqMap>("/api/liqmap"),
+  trackHome: () => send<{ ok: boolean }>("POST", "/api/track/home"),
+  adminSetup: () => {
+    const base = adminApiBase();
+    if (!base) return Promise.reject(new ApiError("Admin is not configured", 503));
+    return request<AdminSetup>(`${base}/setup`);
+  },
+  adminMe: () => {
+    const base = adminApiBase();
+    if (!base) return Promise.reject(new ApiError("Admin is not configured", 503));
+    return request<{ ok: boolean; username: string }>(`${base}/me`);
+  },
+  adminAuthLogin: (username: string, code: string) => {
+    const base = adminApiBase();
+    if (!base) return Promise.reject(new ApiError("Admin is not configured", 503));
+    return send<{ ok: boolean }>("POST", `${base}/auth/login`, { username, code });
+  },
+  adminLogout: () => {
+    const base = adminApiBase();
+    if (!base) return Promise.resolve({ ok: true });
+    return send<{ ok: boolean }>("POST", `${base}/auth/logout`);
+  },
+  adminStats: () => {
+    const base = adminApiBase();
+    if (!base) return Promise.reject(new ApiError("Admin is not configured", 503));
+    return request<AdminStats>(`${base}/stats`);
+  },
+  adminUsers: () => {
+    const base = adminApiBase();
+    if (!base) return Promise.reject(new ApiError("Admin is not configured", 503));
+    return request<{ users: AdminUserRow[] }>(`${base}/users`);
+  },
+};
+
+export type AdminSetup = {
+  bound: boolean;
+  username: string;
+  secret?: string;
+  otpauthUrl?: string;
+};
+export type AdminDayStats = { day: string; visits: number; uniqueIps: number };
+export type AdminStats = { today: { visits: number; uniqueIps: number }; days: AdminDayStats[] };
+export type AdminUserRow = {
+  telegramId: number;
+  username: string;
+  firstName: string;
+  plan: "starter" | "trial" | "pro";
+  expireAt?: string;
+  daysLeft: number;
+  paidUsd: number;
+  chains: string[];
+  lastPlan?: string;
+  createdAt?: string;
 };
 
 export type LiqBucket = { price: number; aave?: number; morpho?: number; total: number; count: number };

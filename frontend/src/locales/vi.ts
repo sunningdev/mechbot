@@ -1,6 +1,16 @@
 // Keyed by the English source text; {0}, {1}… are runtime values.
 const vi: Record<string, string> = {
   "DeFi liquidation alerts": "Cảnh báo thanh lý DeFi",
+  "This page doesn’t exist.": "Trang này không tồn tại.",
+  "Back to home": "Về trang chủ",
+  "Aave · Compound · Morpho liquidation alerts": "Cảnh báo thanh lý Aave · Compound · Morpho",
+  "Free DeFi liquidation alert bot: MechBot monitors Aave V3, Compound V3 and Morpho Blue health factors 24/7. Get Telegram alerts before liquidation—with exactly how much to repay or add. No wallet connect.": "Bot cảnh báo thanh lý DeFi miễn phí: MechBot theo dõi health factor Aave V3, Compound V3 và Morpho Blue 24/7. Nhận cảnh báo Telegram trước thanh lý — kèm số cần trả hoặc tài sản thế chấp cần bổ sung. Không cần kết nối ví.",
+  "How do I get Telegram alerts before an Aave liquidation?": "Làm sao nhận cảnh báo Telegram trước khi bị thanh lý trên Aave?",
+  "Log in with Telegram and add your public wallet address. MechBot checks Aave V3 health factor about every 5 minutes and DMs you when it crosses your line, with how much to repay or add as collateral.": "Đăng nhập Telegram và thêm địa chỉ ví công khai. MechBot kiểm tra health factor Aave V3 khoảng mỗi 5 phút và nhắn khi vượt ngưỡng, kèm số cần trả hoặc tài sản thế chấp cần bổ sung.",
+  "Is there a free DeFi liquidation alert bot for Aave, Compound and Morpho?": "Có bot cảnh báo thanh lý DeFi miễn phí cho Aave, Compound và Morpho không?",
+  "Yes. The free plan monitors Aave V3. Pro unlocks Compound V3, Morpho Blue, more addresses, earlier Binance-price warnings and the liquidation map. No wallet connect required.": "Có. Gói miễn phí theo dõi Aave V3. Pro mở khóa Compound V3, Morpho Blue, thêm địa chỉ, cảnh báo sớm giá Binance và bản đồ thanh lý. Không cần kết nối ví.",
+  "Can MechBot monitor Morpho Blue and Compound V3 health factor?": "MechBot có theo dõi Morpho Blue và Compound V3 không?",
+  "Yes. Free covers Aave V3; Pro also watches Compound V3 and Morpho Blue on Ethereum, Arbitrum, Base and Optimism.": "Có. Miễn phí gồm Aave V3; Pro thêm Compound V3 và Morpho Blue trên Ethereum, Arbitrum, Base và Optimism.",
 
   // console · addresses
   ", retrying next round": ", sẽ thử lại ở vòng sau",
