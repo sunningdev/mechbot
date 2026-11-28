@@ -64,15 +64,6 @@ export default function Referral() {
                     <CopyButton text={ref.webLink} />
                   </div>
                 </div>
-                <div className="link-item">
-                  <span className="muted small-text">
-                    {tr("机器人链接 · 好友在 Telegram 里点开即绑定", "Bot link · your friend opens it in Telegram")}
-                  </span>
-                  <div className="link-box">
-                    <span className="mono break">{ref.botLink}</span>
-                    <CopyButton text={ref.botLink} />
-                  </div>
-                </div>
               </div>
             ) : (
               <p className="muted">{tr("加载中…", "Loading…")}</p>

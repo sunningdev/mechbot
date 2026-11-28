@@ -233,6 +233,10 @@ CREATE TABLE IF NOT EXISTS admin_meta (
 	if err := s.ensureColumn("deposits", "token", "TEXT NOT NULL DEFAULT 'USDT'"); err != nil {
 		return err
 	}
+	// Sessions created before this column existed get 0 and fail the absolute limit, so those users log in once more.
+	if err := s.ensureColumn("sessions", "created_unix", "INTEGER NOT NULL DEFAULT 0"); err != nil {
+		return err
+	}
 	for _, c := range [][2]string{
 		{"stress10", "REAL NOT NULL DEFAULT 0"},
 		{"stress20", "REAL NOT NULL DEFAULT 0"},

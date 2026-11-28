@@ -80,16 +80,20 @@ func (s *Store) CreateAdminSession(id string, ttl time.Duration) error {
 	return err
 }
 
-func (s *Store) AdminSessionValid(id string) bool {
+// AdminSessionValid reports whether id is still live and, if so, slides its expiry to now+idle.
+// The session therefore ends after idle without any admin request, not a fixed time after login.
+func (s *Store) AdminSessionValid(id string, idle time.Duration) bool {
+	now := time.Now()
 	var expires int64
 	err := s.db.QueryRow(`SELECT expires_unix FROM admin_sessions WHERE id = ?`, id).Scan(&expires)
 	if err != nil {
 		return false
 	}
-	if time.Now().Unix() > expires {
+	if now.Unix() > expires {
 		_, _ = s.db.Exec(`DELETE FROM admin_sessions WHERE id = ?`, id)
 		return false
 	}
+	_, _ = s.db.Exec(`UPDATE admin_sessions SET expires_unix = ? WHERE id = ?`, now.Add(idle).Unix(), id)
 	return true
 }
 

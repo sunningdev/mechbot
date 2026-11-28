@@ -521,6 +521,19 @@ export default function Landing() {
     api.trackHome().catch(() => undefined);
   }, []);
 
+  // Opening the bot directly skips login, so logged-out visitors get the login dialog instead;
+  // the dialog's own "Open Telegram to confirm" step is what hands them to the bot.
+  const openBot = (className: string) =>
+    loggedIn ? (
+      <a className={className} href={botUrl} target="_blank" rel="noreferrer" title={`@${botName}`}>
+        <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
+      </a>
+    ) : (
+      <button className={className} onClick={() => setOpen(true)} title={`@${botName}`}>
+        <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
+      </button>
+    );
+
   const consoleLabel = tr("进入控制台", "Open console");
   const plans = proPlans();
 
@@ -584,9 +597,7 @@ export default function Landing() {
             </p>
             <div className="hero-actions">
               {start(loggedIn ? consoleLabel : tr("免费开始", "Start free"))}
-              <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer" title={`@${botName}`}>
-                <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
-              </a>
+              {openBot("btn btn-ghost")}
             </div>
             <ul className="hero-checks">
               {heroChecks().map((t) => (
@@ -926,9 +937,7 @@ export default function Landing() {
           <p>{tr("两分钟添加地址，剩下的交给 MechBot。", "Add an address in two minutes. MechBot keeps watch from there.")}</p>
           <div className="hero-actions">
             {start(loggedIn ? consoleLabel : tr("免费开始", "Start free"))}
-            <a className="btn btn-ghost" href={botUrl} target="_blank" rel="noreferrer">
-              <TelegramIcon /> {tr("在 Telegram 打开", "Open in Telegram")}
-            </a>
+            {openBot("btn btn-ghost")}
           </div>
         </section>
       </main>
@@ -965,9 +974,21 @@ export default function Landing() {
           </nav>
           <nav className="footer-col">
             <h4>{tr("社区", "Community")}</h4>
-            <a href={botUrl} target="_blank" rel="noreferrer">
-              MechBot Telegram
-            </a>
+            {loggedIn ? (
+              <a href={botUrl} target="_blank" rel="noreferrer">
+                MechBot Telegram
+              </a>
+            ) : (
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(true);
+                }}
+              >
+                MechBot Telegram
+              </a>
+            )}
             <a href="https://t.me/+LWTqp4To2ilhY2M1" target="_blank" rel="noreferrer">
               {tr("Telegram 客服群", "Telegram support group")}
             </a>

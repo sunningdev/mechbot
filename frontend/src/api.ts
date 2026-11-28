@@ -130,7 +130,6 @@ export type DepositPage = {
 
 export type Referral = {
   webLink: string;
-  botLink: string;
   invited: number;
   paid: number;
   daysEarned: number;

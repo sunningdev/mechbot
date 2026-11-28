@@ -177,9 +177,10 @@ func (s *Store) ConsumeLoginToken(token, sessionID string, ttl time.Duration) (i
 	if _, err := tx.Exec(`UPDATE login_tokens SET status = 'used' WHERE token = ?`, token); err != nil {
 		return 0, err
 	}
+	now := time.Now()
 	if _, err := tx.Exec(
-		`INSERT INTO sessions (id, telegram_id, expires_unix) VALUES (?, ?, ?)`,
-		sessionID, tg, time.Now().Add(ttl).Unix(),
+		`INSERT INTO sessions (id, telegram_id, expires_unix, created_unix) VALUES (?, ?, ?, ?)`,
+		sessionID, tg, now.Add(ttl).Unix(), now.Unix(),
 	); err != nil {
 		return 0, err
 	}
@@ -189,19 +190,36 @@ func (s *Store) ConsumeLoginToken(token, sessionID string, ttl time.Duration) (i
 	return tg, tx.Commit()
 }
 
+// Login limits for user sessions. SessionIdle ends a login after that long without a request (each request
+// renews it); SessionMax ends it regardless of activity, so a cookie that keeps being used still expires.
+const (
+	SessionIdle = 2 * time.Hour
+	SessionMax  = 24 * time.Hour
+)
+
+// SessionUser returns the Telegram ID for a live session and slides its idle expiry, capped at SessionMax.
 func (s *Store) SessionUser(id string) (int64, error) {
-	var tg, expires int64
-	err := s.db.QueryRow(`SELECT telegram_id, expires_unix FROM sessions WHERE id = ?`, id).Scan(&tg, &expires)
+	var tg, expires, created int64
+	err := s.db.QueryRow(
+		`SELECT telegram_id, expires_unix, created_unix FROM sessions WHERE id = ?`, id,
+	).Scan(&tg, &expires, &created)
 	if errors.Is(err, sql.ErrNoRows) {
 		return 0, ErrNotFound
 	}
 	if err != nil {
 		return 0, err
 	}
-	if time.Now().Unix() > expires {
+	now := time.Now()
+	absolute := time.Unix(created, 0).Add(SessionMax)
+	if now.Unix() > expires || now.After(absolute) {
 		_, _ = s.db.Exec(`DELETE FROM sessions WHERE id = ?`, id)
 		return 0, ErrNotFound
 	}
+	next := now.Add(SessionIdle)
+	if next.After(absolute) {
+		next = absolute
+	}
+	_, _ = s.db.Exec(`UPDATE sessions SET expires_unix = ? WHERE id = ?`, next.Unix(), id)
 	return tg, nil
 }
 

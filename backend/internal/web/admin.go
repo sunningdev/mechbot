@@ -14,8 +14,9 @@ import (
 
 const (
 	adminCookie = "mechbot_admin"
-	adminTTL    = 12 * time.Hour
-	adminUser   = "sunzhenning" // fixed; not configurable
+	// adminIdle ends an admin session after this long without any admin request; each request renews it.
+	adminIdle = 30 * time.Minute
+	adminUser = "sunzhenning" // fixed; not configurable
 )
 
 type adminAuth struct {
@@ -103,7 +104,7 @@ func (s *Server) handleAdminAuthLogin(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "Sign-in failed")
 		return
 	}
-	if err := s.store.CreateAdminSession(sessionID, adminTTL); err != nil {
+	if err := s.store.CreateAdminSession(sessionID, adminIdle); err != nil {
 		writeError(w, http.StatusInternalServerError, "Sign-in failed")
 		return
 	}
@@ -111,10 +112,10 @@ func (s *Server) handleAdminAuthLogin(w http.ResponseWriter, r *http.Request) {
 		log.Printf("admin totp bound: %v", err)
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:     adminCookie,
-		Value:    sessionID,
-		Path:     "/",
-		MaxAge:   int(adminTTL.Seconds()),
+		Name:  adminCookie,
+		Value: sessionID,
+		Path:  "/",
+		// No MaxAge: a browser session cookie. The server enforces the 30-minute idle timeout.
 		HttpOnly: true,
 		Secure:   s.secure,
 		SameSite: http.SameSiteStrictMode,
@@ -197,7 +198,7 @@ func (s *Server) adminAuthed(r *http.Request) bool {
 	if err != nil || cookie.Value == "" {
 		return false
 	}
-	return s.store.AdminSessionValid(cookie.Value)
+	return s.store.AdminSessionValid(cookie.Value, adminIdle)
 }
 
 func checkConstUser(want, got string) bool {

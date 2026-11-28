@@ -31,10 +31,7 @@ import (
 	"mechbot/internal/totp"
 )
 
-const (
-	sessionCookie = "mechbot_session"
-	sessionTTL    = 30 * 24 * time.Hour
-)
+const sessionCookie = "mechbot_session"
 
 type Server struct {
 	store       *store.Store
@@ -287,15 +284,15 @@ func (s *Server) handleLoginPoll(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "登录失败")
 		return
 	}
-	if _, err := s.store.ConsumeLoginToken(token, sessionID, sessionTTL); err != nil {
+	if _, err := s.store.ConsumeLoginToken(token, sessionID, store.SessionIdle); err != nil {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "expired"})
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:     sessionCookie,
-		Value:    sessionID,
-		Path:     "/",
-		MaxAge:   int(sessionTTL.Seconds()),
+		Name:  sessionCookie,
+		Value: sessionID,
+		Path:  "/",
+		// No MaxAge: a browser session cookie. The server enforces SessionIdle and SessionMax.
 		HttpOnly: true,
 		Secure:   s.secure,
 		SameSite: http.SameSiteLaxMode,
@@ -724,7 +721,6 @@ func (s *Server) handleReferral(w http.ResponseWriter, r *http.Request, userID i
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"webLink":    fmt.Sprintf("%s/?ref=%d", s.siteURL, userID),
-		"botLink":    fmt.Sprintf("https://t.me/%s?start=ref_%d", s.botUsername, userID),
 		"invited":    stats.Invited,
 		"paid":       stats.Paid,
 		"daysEarned": stats.DaysEarn,

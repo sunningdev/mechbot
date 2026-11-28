@@ -352,6 +352,70 @@ func TestLoginTokenSingleUse(t *testing.T) {
 	}
 }
 
+func TestSessionIdleAndAbsoluteLimits(t *testing.T) {
+	st := openTest(t)
+	mustUser(t, st, 7, nil)
+	if err := st.CreateLoginToken("tok2", "5678", nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.ConfirmLoginToken("tok2", 7); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.ConsumeLoginToken("tok2", "s3", SessionIdle); err != nil {
+		t.Fatal(err)
+	}
+
+	// Idle: no request within SessionIdle means the session is gone.
+	if _, err := st.db.Exec(`UPDATE sessions SET expires_unix = ? WHERE id = 's3'`, time.Now().Add(-time.Minute).Unix()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.SessionUser("s3"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("idle session still valid: %v", err)
+	}
+
+	// Absolute: a session older than SessionMax is gone even if it was just used.
+	if _, err := st.ConsumeLoginToken("tok2", "s4", SessionIdle); !errors.Is(err, ErrTokenInvalid) {
+		t.Fatalf("token reused: %v", err)
+	}
+	if err := st.CreateLoginToken("tok3", "9012", nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.ConfirmLoginToken("tok3", 7); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.ConsumeLoginToken("tok3", "s5", SessionIdle); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-SessionMax - time.Minute).Unix()
+	if _, err := st.db.Exec(`UPDATE sessions SET created_unix = ?, expires_unix = ? WHERE id = 's5'`, old, time.Now().Add(time.Hour).Unix()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.SessionUser("s5"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("session past absolute limit still valid: %v", err)
+	}
+
+	// Active: a fresh session survives, and each request pushes its idle expiry out to about now+SessionIdle.
+	if err := st.CreateLoginToken("tok4", "3456", nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.ConfirmLoginToken("tok4", 7); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.ConsumeLoginToken("tok4", "s6", SessionIdle); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := st.SessionUser("s6"); err != nil || got != 7 {
+		t.Fatalf("active session rejected: %d %v", got, err)
+	}
+	var expires int64
+	if err := st.db.QueryRow(`SELECT expires_unix FROM sessions WHERE id = 's6'`).Scan(&expires); err != nil {
+		t.Fatal(err)
+	}
+	if want := time.Now().Add(SessionIdle).Unix(); expires < want-5 || expires > want+5 {
+		t.Fatalf("idle expiry not renewed: got %d want about %d", expires, want)
+	}
+}
+
 // Every address starts at the default alert line and is edited on its own.
 func TestAddressThresholdPerAddress(t *testing.T) {
 	st := openTest(t)

@@ -94,4 +94,4 @@ go run ./cmd/mechwallet sweep -chain tron -to <your TRON wallet> -min 50 -db mec
 /start  /add 0x...  /list  /remove 0x...  /status
 ```
 
-Referral links: `https://t.me/MechFi_bot?start=ref_<telegram_id>` or `SITE_URL/?ref=<telegram_id>`.
+Referral link: `SITE_URL/?ref=<telegram_id>` (the friend logs in on the site with Telegram).
